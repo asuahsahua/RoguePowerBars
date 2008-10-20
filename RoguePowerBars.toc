@@ -1,0 +1,9 @@
+## Interface: 30000
+## Title: Rogue Power Bars V 2.00
+## Notes: Displays statusbars with time left on rogue abilities
+## Author: Domia (Maiev) - 10-20-2008
+## SavedVariables: RoguePowerBar_Save
+RoguePowerBars_Config.lua
+RoguePowerBars_Settings.lua
+RoguePowerBars.xml
+RoguePowerBars_Config.xml

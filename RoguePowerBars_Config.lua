@@ -79,15 +79,15 @@ end
 function BarStyleDropDown_OnShow()
 
 	if RoguePowerBarsOptions.barTexture == BANTO_TEXTURE then
-		UIDropDownMenu_SetText("Banto");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_BarTexture, "Banto");
 	elseif RoguePowerBarsOptions.barTexture == BLIZZARD_TEXTURE then
-		UIDropDownMenu_SetText("Blizzard");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_BarTexture, "Blizzard");
 	elseif RoguePowerBarsOptions.barTexture == LITESTEP_TEXTURE then
-		UIDropDownMenu_SetText("LiteStep");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_BarTexture, "LiteStep");
 	elseif RoguePowerBarsOptions.barTexture == OTRAVI_TEXTURE then
-		UIDropDownMenu_SetText("Otravi");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_BarTexture, "Otravi");
 	elseif RoguePowerBarsOptions.barTexture == SMOOTH_TEXTURE then
-		UIDropDownMenu_SetText("Smooth");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_BarTexture, "Smooth");
 	end
 
 end
@@ -96,15 +96,15 @@ end
 function SortOrderDropDown_OnShow()
 
 	if RoguePowerBarsOptions.sort == MIN_TIMELEFT then
-		UIDropDownMenu_SetText("Min time left");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_SortOrder, "Min time left");
 	elseif RoguePowerBarsOptions.sort == MAX_TIMELEFT then
-		UIDropDownMenu_SetText("Max time left");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_SortOrder, "Max time left");
 	elseif RoguePowerBarsOptions.sort == MAXTIME then
-		UIDropDownMenu_SetText("Max time");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_SortOrder, "Max time");
 	elseif RoguePowerBarsOptions.sort == OWNORDER then
-		UIDropDownMenu_SetText("Definied order");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_SortOrder, "Definied order");
 	elseif RoguePowerBarsOptions.sort == NAME then
-		UIDropDownMenu_SetText("Name");
+		UIDropDownMenu_SetText(RoguePowerBarConfigFrame_SortOrder, "Name");
 	end
 
 end

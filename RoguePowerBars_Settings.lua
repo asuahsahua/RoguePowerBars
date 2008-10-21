@@ -51,7 +51,7 @@ STATUSBAR_ADRENALINE = 7;
 STATUSBAR_RIPOSTE = 8;
 STATUSBAR_EVASION = 9;
 STATUSBAR_GHOSTLYSTRIKE = 10;
-STATUSBAR_FINDWEAK = 11;
+STATUSBAR_HUNGER_FOR_BLOOD = 11;
 STATUSBAR_PREMED = 12;
 STATUSBAR_SHADOWSTEP = 13;
 STATUSBAR_REMORSELESS = 14;
@@ -245,15 +245,15 @@ RoguePowerBar_Bars[STATUSBAR_GHOSTLYSTRIKE] = {
 				TalentTreeName = "Ghostly Strike"
 			};
 
-RoguePowerBar_Bars[STATUSBAR_FINDWEAK] = {
+RoguePowerBar_Bars[STATUSBAR_HUNGER_FOR_BLOOD] = {
 				Icon = nil,
-				BackDropColor = { r = 0.0, g = 0.8, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.0, g = 0.8, b = 0; a = 0.8 },
-				BasedOnAuraName = "Find Weakness",
-				DisplayOrder = 10,
+				BackDropColor = { r = 0.6, g = 0.1, b = 0, a = 0.3 },
+				StatusBarColor = { r = 0.9; g = 0.2; b = 0; a = 0.8 },
+				BasedOnAuraName = "Hunger For Blood",
+				DisplayOrder = 36,
 				IsInTalentTree=true,
-				TalentTreeName = "Find Weakness"
-			};
+				TalentTreeName = "Hunger For Blood"
+}; 
 
 RoguePowerBar_Bars[STATUSBAR_PREMED] = {
 				Icon = nil,

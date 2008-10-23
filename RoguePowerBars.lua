@@ -220,12 +220,12 @@ function UpdateBuffs()
 
 	local numBuffs = 0;
 	local buffIndex = 1;
-	local untilCancelled;
+	local untilCancelled, stacks;
 
 	local i = 1;
 
 	while buffIndex ~= 0 do
-		buffIndex, untilCancelled = GetPlayerBuffImp(i);
+		buffIndex, untilCancelled, stacks = GetPlayerBuffImp(i);
 
 		if buffIndex == 0 then break end;
 
@@ -256,7 +256,8 @@ function UpdateBuffs()
 						OwnOrder = buffSettings.DisplayOrder, 
 						Settings = buffSettings,
 						Texture = texture,
-						Type = TYPE_BUFF
+						Type = TYPE_BUFF,
+						Stacks = stacks
 					});
 
 			end
@@ -271,7 +272,7 @@ function UpdateBuffs()
 	i = 1;
 	local buffCount = #buffs;
 	while buffIndex ~= 0 do
-		buffIndex, untilCancelled = GetTargetDebuffImp(i);
+		buffIndex, untilCancelled, stacks = GetTargetDebuffImp(i);
 		if buffIndex == 0 then break end;
 
 		local name, rank = GetTargetDebuffNameImp(buffIndex);
@@ -299,7 +300,8 @@ function UpdateBuffs()
 						OwnOrder = buffSettings.DisplayOrder, 
 						Settings = buffSettings,
 						Texture = texture,
-						Type = TYPE_DEBUFF
+						Type = TYPE_DEBUFF,
+						Stacks = stacks
 					});
 
 			end
@@ -416,7 +418,11 @@ function SetStatusBarBuff(buffId, buff)
 	rogePowerBarFrame.id = buff.BuffIndex;
 	rogePowerBarFrame.timeleft = buff.TimeLeft;
 	rogePowerBarFrame.maxtime = buff.MaxTime;
-	rogePowerBarFrame.name = buff.Name or "Uknown "..buff.BuffIndex;
+	if buff.Stacks ~= 0 then
+		rogePowerBarFrame.name = buff.Name.." ("..buff.Stacks..")";
+	else
+		rogePowerBarFrame.name = buff.Name or "Uknown "..buff.BuffIndex;
+	end
 	rogePowerBarFrame.type = buff.Type;
 
 	local backDropColor = buff.Settings.BackDropColor;
@@ -889,7 +895,7 @@ function GetPlayerBuffImp(index)
 			untilCancelled = 1;
 		end
 
-		return buffIndex, untilCancelled;
+		return buffIndex, untilCancelled, count;
 end
 
 
@@ -905,7 +911,7 @@ function GetTargetDebuffImp(buffIndex)
 			untilCancelled = 1;
 		end
 		
-		return buffIndex, untilCancelled;
+		return buffIndex, untilCancelled, count;
 end
 
 function GetPlayerBuffNameImp(buffIndex)		

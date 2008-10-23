@@ -576,3 +576,47 @@ RoguePowerBar_Bars[STATUSBAR_EXPOSEARMOR] = {
 				IsInTalentTree=false,
 				TalentTreeName = "Expose Armor"
 };
+
+STATUSBAR_CHEAPSHOT = GetNext();
+RoguePowerBar_Bars[STATUSBAR_CHEAPSHOT] = { 
+				Icon = nil, 
+				BackDropColor = { r = 0.4, g = 0.5, b = 0.9, a = 0.3 },
+				StatusBarColor = { r = 0.4, g = 0.5, b = 0.9; a = 0.8 },
+				BasedOnAuraName = "Cheap Shot", 
+				DisplayOrder = 41, 
+				IsInTalentTree=false,
+				TalentTreeName = "Cheap Shot"
+};
+
+STATUSBAR_KIDNEYSHOT = GetNext();
+RoguePowerBar_Bars[STATUSBAR_KIDNEYSHOT] = { 
+				Icon = nil, 
+				BackDropColor = { r = 0.4, g = 0.5, b = 0.9, a = 0.3 },
+				StatusBarColor = { r = 0.4, g = 0.5, b = 0.9; a = 0.8 },
+				BasedOnAuraName = "Kidney Shot", 
+				DisplayOrder = 42, 
+				IsInTalentTree=false,
+				TalentTreeName = "Kidney Shot"
+};
+
+STATUSBAR_GARROTE = GetNext();
+RoguePowerBar_Bars[STATUSBAR_GARROTE] = { 
+				Icon = nil, 
+				BackDropColor = { r = 0.8, g = 0.2, b = 0.2, a = 0.3 },
+				StatusBarColor = {r = 1, g = 0.2, b = 0.2, a = 0.8 },
+				BasedOnAuraName = "Garrote", 
+				DisplayOrder = 43, 
+				IsInTalentTree=false,
+				TalentTreeName = "Garrote"
+};
+
+STATUSBAR_GARROTESILENCE = GetNext();
+RoguePowerBar_Bars[STATUSBAR_GARROTESILENCE] = { 
+				Icon = nil, 
+				BackDropColor = { r = 0.8, g = 0.2, b = 0.2, a = 0.3 },
+				StatusBarColor = {r = 1, g = 0.2, b = 0.2, a = 0.8 },
+				BasedOnAuraName = "Garrote - Silence", 
+				DisplayOrder = 44, 
+				IsInTalentTree=false,
+				TalentTreeName = "Garrote - Silence"
+};

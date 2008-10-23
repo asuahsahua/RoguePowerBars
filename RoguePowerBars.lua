@@ -12,24 +12,6 @@ ROGUEPOWERBAR_INITIALIZED = false;
 _numBuffButtons = 0;
 _numBuffsShown = 0;
 
---Master of Sub.. fake buff data
-show_mos = false;
-mos_timeleft = 6;
-show_mos_buffIndex = 100;
-mos_buffIndex_returned = false;
-
---Premedition fake buff data
-show_pre = false;
-pre_timeleft = 10;
-show_pre_buffIndex = 200;
-pre_buffIndex_returned = false;
-
---Riposte fake buff data
-show_rip = false;
-rip_timeleft = 6;
-show_rip_buffIndex = 300;
-rip_buffIndex_returned = false;
-
 
 function RoguePowerBar_OnEvent(event)
 	RoguePowerBar_EventHandler[event](arg1, arg2, arg3, arg4, arg5);
@@ -41,10 +23,10 @@ function RoguePowerBar_OnLoad()
 
 	self_frame = RoguePowerBar;
 
-	self_frame:RegisterEvent("PLAYER_AURAS_CHANGED");
+	--self_frame:RegisterEvent("PLAYER_AURAS_CHANGED");
 	self_frame:RegisterEvent("PLAYER_ENTERING_WORLD");
 	self_frame:RegisterEvent("UNIT_AURA");
-	--RoguePowerBar:RegisterEvent("");
+	self_frame:RegisterEvent("PLAYER_TARGET_CHANGED");
 
 	SlashCmdList["ROGUEPOWERBAR"] = function(msg)
 		RoguePowerBar_SlashCommandHandler(msg);
@@ -56,21 +38,16 @@ function RoguePowerBar_OnUnitAura(unit)
 	if unit == "player" then
 		RoguePowerBar_OnAuraChanged();
 	end
+	if unit == "target" then
+		RoguePowerBar_OnAuraChanged();
+	end
+end
+
+function RoguePowerBar_OnPlayerTargetChanged()
+	UpdateBuffs();
 end
 
 function RoguePowerBar_OnPlayerEnteringWorld()
-
-	show_mos = false;
-	mos_timeleft = 6;
-	mos_buffIndex_returned = false;
-	
-	show_pre = false;
-	pre_timeleft = 10;
-	pre_buffIndex_returned = false;
-
-	show_rip = false;
-	rip_timeleft = 6;
-	rip_buffIndex_returned = false;
 
 	UpdateBuffs();
 
@@ -85,36 +62,6 @@ function RoguePowerBar_OnUpdate(tick)
 	_timeSinceLastUpdate = _timeSinceLastUpdate + tick;
 
 	if( _timeSinceLastUpdate > CLOCK_UPDATE_RATE ) then
-
-		if show_mos then
-			mos_timeleft = mos_timeleft - (1/60);
-			
-			if mos_timeleft < 0 then
-				mos_timeleft = 6;
-				show_mos = false;
-				UpdateBuffs();
-			end
-		end
-
-		if show_pre then
-			pre_timeleft = pre_timeleft - (1/60);
-			
-			if pre_timeleft < 0 then
-				pre_timeleft = 10;
-				show_pre = false;
-				UpdateBuffs();
-			end
-		end
-
-		if show_rip then
-			rip_timeleft = rip_timeleft - (1/60);
-			
-			if rip_timeleft < 0 then
-				rip_timeleft = 6;
-				show_rip = false;
-				UpdateBuffs();
-			end
-		end
 
 		UpadateRoguePowerBars();
 		
@@ -139,16 +86,6 @@ function RoguePowerBar_OnChatMsgSpellPeriodicSelfBuffs(arg1)
 		return;
 	end
 
-	if CheckIfPreMedIsSelected() then
-
-		if CheckIfPremeditationStart(arg1) then
-				show_pre = true;
-				pre_timeleft = 10;
-				UpdateBuffs();
-		end
-
-	end
-
 end
 
 
@@ -156,16 +93,6 @@ function RoguePowerBar_OnChatMsgSpellSelfDamage(arg1)
 
 	if not ROGUEPOWERBAR_INITIALIZED then
 		return;
-	end
-
-	if CheckIfRiposteIsSelected() then
-
-		if CheckIfRiposteStart(arg1) then
-				show_rip = true;
-				rip_timeleft = 6;
-				UpdateBuffs();
-		end
-
 	end
 
 end
@@ -177,13 +104,6 @@ function RoguePowerBar_OnPlayerTargetChanged()
 		return;
 	end
 
-	if show_pre then
-		show_pre = false;
-		pre_timeleft = 0;
-		pre_buffIndex_returned = false;
-		UpdateBuffs();
-	end
-
 end
 
 
@@ -191,23 +111,6 @@ function RoguePowerBar_OnChatMsgSpellAuraGoneSelf(arg1)
 
 	if not ROGUEPOWERBAR_INITIALIZED then
 		return;
-	end
-
-	if CheckIfMoSIsSelected() then
-
-		if CheckIfStealthFade(arg1) then
-			
-			if UnitAffectingCombat("player") then
-				show_mos = true;
-				mos_timeleft = 6;
-				UpdateBuffs();
-			else
-				show_mos = false;
-				mos_timeleft = 0;
-			end
-
-		end
-
 	end
 
 end
@@ -306,6 +209,7 @@ end
 function UpdateBuffs()
 	local maxtimes = {};
 	local buffs = {};
+	local debuffs = {};
 
 	for i = 1, _numBuffsShown do
 		local bar = getglobal(ROGUEPOWERBAR_NAME..i)
@@ -321,16 +225,16 @@ function UpdateBuffs()
 	local i = 1;
 
 	while buffIndex ~= 0 do
-		local buffType = "HELPFUL";
-		buffIndex, untilCancelled = GetPlayerBuffImp(i, buffType);
+		buffIndex, untilCancelled = GetPlayerBuffImp(i);
 
 		if buffIndex == 0 then break end;
 
-		local name, rank = GetPlayerBuffNameImp(buffIndex, buffType);
-
+		local name, rank = GetPlayerBuffNameImp(buffIndex);
+		
 		if name then
 		
 			local buffSettings = GetBuffInSettings(name);
+			local texture = GetPlayerBuffTextureImp(buffIndex);
 			
 			if buffSettings ~= nil then
 			
@@ -343,7 +247,60 @@ function UpdateBuffs()
 					end
 				end
 
-				table.insert(buffs, { BuffIndex = buffIndex, Name = name, TimeLeft = timeLeft, MaxTime = maxtime, OwnOrder = buffSettings.DisplayOrder, Settings = buffSettings});
+				table.insert(buffs, 
+					{ 
+						BuffIndex = buffIndex, 
+						Name = name, 
+						TimeLeft = timeLeft, 
+						MaxTime = maxtime, 
+						OwnOrder = buffSettings.DisplayOrder, 
+						Settings = buffSettings,
+						Texture = texture,
+						Type = TYPE_BUFF
+					});
+
+			end
+
+		end
+
+		i = i + 1;
+		
+	end
+	
+	buffIndex = 1;
+	i = 1;
+	local buffCount = #buffs;
+	while buffIndex ~= 0 do
+		buffIndex, untilCancelled = GetTargetDebuffImp(i);
+		if buffIndex == 0 then break end;
+
+		local name, rank = GetTargetDebuffNameImp(buffIndex);
+		if name then
+			local texture = GetTargetDebuffTextureImp(buffIndex);
+			local buffSettings = GetBuffInSettings(name);
+			
+			if buffSettings ~= nil then
+			
+				local timeLeft = GetTargetDebuffTimeLeftImp(buffIndex);
+				local maxtime = timeLeft;
+
+				if name then
+					if maxtimes[name] and maxtime < maxtimes[name] then
+						maxtime = maxtimes[name];
+					end
+				end
+
+				table.insert(debuffs, 
+					{ 
+						BuffIndex = buffIndex, 
+						Name = name, 
+						TimeLeft = timeLeft, 
+						MaxTime = maxtime, 
+						OwnOrder = buffSettings.DisplayOrder, 
+						Settings = buffSettings,
+						Texture = texture,
+						Type = TYPE_DEBUFF
+					});
 
 			end
 
@@ -373,9 +330,15 @@ function UpdateBuffs()
 		numBuffs = numBuffs + 1
 		SetStatusBarBuff(numBuffs, buffs[x]);
 	end
+	
+	local numDebuffs = 0;
+	for x = 1, #debuffs do
+		numDebuffs = numDebuffs + 1;
+		SetStatusBarBuff(numBuffs+numDebuffs, debuffs[x]);
+	end
 
-	CleanUp(numBuffs);
-	_numBuffsShown = numBuffs;
+	CleanUp(numBuffs+numDebuffs);
+	_numBuffsShown = numBuffs+numDebuffs;
 	UpdateRoguePowerBarPositions();
 
 end
@@ -454,6 +417,7 @@ function SetStatusBarBuff(buffId, buff)
 	rogePowerBarFrame.timeleft = buff.TimeLeft;
 	rogePowerBarFrame.maxtime = buff.MaxTime;
 	rogePowerBarFrame.name = buff.Name or "Uknown "..buff.BuffIndex;
+	rogePowerBarFrame.type = buff.Type;
 
 	local backDropColor = buff.Settings.BackDropColor;
 	local statusBarColor = buff.Settings.StatusBarColor;
@@ -471,7 +435,7 @@ function SetStatusBarBuff(buffId, buff)
 	bar:SetStatusBarColor(statusBarColor.r, statusBarColor.g, statusBarColor.b, statusBarColor.a);
 	bar:SetMinMaxValues(0, rogePowerBarFrame.maxtime);
 
-	icon:SetTexture(GetPlayerBuffTextureImp(buff.BuffIndex));
+	icon:SetTexture(buff.Texture);
 	
 	if RoguePowerBarsOptions.showtext then
 		name:SetText(rogePowerBarFrame.name);
@@ -520,8 +484,12 @@ function UpadateRoguePowerBars()
 		local duration = getglobal(ROGUEPOWERBAR_NAME..i.."_DurationText");
 
 		local timeleft = 0;
-
-		timeleft = GetPlayerBuffTimeLeftImp(roguePowerBarFrame.id);
+		if roguePowerBarFrame.type == TYPE_BUFF then
+			timeleft = GetPlayerBuffTimeLeftImp(roguePowerBarFrame.id);
+		else
+			timeleft = GetTargetDebuffTimeLeftImp(roguePowerBarFrame.id);
+		end
+		--timeleft = GetPlayerBuffTimeLeftImp(roguePowerBarFrame.id);
 
 		if RoguePowerBarsOptions.durationText then
 			duration:SetText(string.format("%.1f", timeleft));
@@ -565,23 +533,7 @@ function InitializeBars()
 			if find and not learned then
 				RoguePowerBar_Bars[i].HideFromConfig = true;
 				RoguePowerBar_Bars[i].Enabled = false;
-			end
-
-			if find and learned then
-				if 	strupper(RoguePowerBar_Bars[i].TalentTreeName) == "RIPOSTE" then
-					RoguePowerBar:RegisterEvent("CHAT_MSG_SPELL_SELF_DAMAGE");
-				end
-				
-				if 	strupper(RoguePowerBar_Bars[i].TalentTreeName) == "MASTER OF SUBTLETY" then
-					RoguePowerBar:RegisterEvent("CHAT_MSG_SPELL_AURA_GONE_SELF");
-					RoguePowerBar:RegisterEvent("PLAYER_TARGET_CHANGED");
-				end
-
-				if 	strupper(RoguePowerBar_Bars[i].TalentTreeName) == "PREMEDITATION" then
-					RoguePowerBar:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_SELF_BUFFS");
-				end
-
-			end			
+			end	
 			
 		end
 				
@@ -731,63 +683,6 @@ function FlashBar(statusBar)
 		statusBar.FadeCounter = 0;
 		statusBar.InvertFade = not statusBar.InvertFade;
 	end
-
-end
-
-
-function CheckIfStealthFade(arg1)
-
-	if (string.find(strupper(arg1),"STEALTH FADE") ~= nil ) then
-		return true;
-	else
-		return false;
-		
-	end
-
-end
-
-
-function CheckIfPremeditationStart(arg1)
-
-	if (string.find(strupper(arg1),"YOU GAIN PREMEDITATION") ~= nil ) then
-		return true;
-	else
-		return false;
-		
-	end
-
-end
-
-
-function CheckIfRiposteStart(arg1)
-
-	if (string.find(strupper(arg1),"RIPOSTE HIT") ~= nil ) then
-		return true;
-	else
-		return false;
-		
-	end
-
-end
-
-
-function CheckIfMoSIsSelected()
-
-	return RoguePowerBar_Bars[STATUSBAR_MOS].Enabled
-
-end
-
-
-function CheckIfPreMedIsSelected()
-
-	return RoguePowerBar_Bars[STATUSBAR_PREMED].Enabled
-
-end
-
-
-function CheckIfRiposteIsSelected()
-
-	return RoguePowerBar_Bars[STATUSBAR_RIPOSTE].Enabled
 
 end
 
@@ -969,27 +864,20 @@ end
 
 
 function GetPlayerBuffTimeLeftImp(id)
-
-		if show_mos and id == show_mos_buffIndex then
-			return mos_timeleft;
-		end
-
-		if show_pre and id == show_pre_buffIndex then
-			return pre_timeleft;
-		end
-
-		if show_rip and id == show_rip_buffIndex then
-			return rip_timeleft;
-		end
 		local name, rank, texture, count, debuffType, duration, expirationTime = UnitAura("player", id, "HELPFUL");
 		return expirationTime-GetTime();
 
 end
 
+function GetTargetDebuffTimeLeftImp(id)
+		local name, rank, texture, count, debuffType, duration, expirationTime = UnitAura("target", id, "HARMFUL");
+		return expirationTime - GetTime();
+end
 
-function GetPlayerBuffImp(index, type)
+
+function GetPlayerBuffImp(index)
 	
-		local name, rank, texture, count, debuffType, duration, expiryTime, isMine = UnitAura("player", index, type);
+		local name, rank, texture, count, debuffType, duration, expiryTime, isMine = UnitAura("player", index, "HELPFUL");
 		local buffIndex = index;
 		local untilCancelled = 0;
 		
@@ -1000,63 +888,49 @@ function GetPlayerBuffImp(index, type)
 		if duration == 0 then
 			untilCancelled = 1;
 		end
-		
-		if buffIndex == 0 and show_mos and not mos_buffIndex_returned then
-			mos_buffIndex_returned = true;
-			return show_mos_buffIndex, 0;
-		end
-
-		if buffIndex == 0 and show_pre and not pre_buffIndex_returned then
-			pre_buffIndex_returned = true;
-			return show_pre_buffIndex, 0;
-		end
-
-		if buffIndex == 0 and show_rip and not rip_buffIndex_returned then
-			rip_buffIndex_returned = true;
-			return show_rip_buffIndex, 0;
-		end
 
 		return buffIndex, untilCancelled;
 end
 
 
-function GetPlayerBuffNameImp(buffIndex, buffType)
-
-		if show_mos and buffIndex == show_mos_buffIndex then
-			return "Master of Subtlety", 1;
+function GetTargetDebuffImp(buffIndex)
+		local name, rank, texture, count, debuffType, duration, expiryTime, isMine = UnitAura("target", buffIndex, "HARMFUL");
+		local buffIndex = buffIndex;
+		local untilCancelled = 0;
+		if name == nil then
+			buffIndex = 0;
 		end
-
-		if show_pre and buffIndex == show_pre_buffIndex then
-			return "Premeditation", 1;
-		end
-
-		if show_rip and buffIndex == show_rip_buffIndex then
-			return "Riposte", 1;
-		end
-
-		--local name, rank = GetPlayerBuffName(buffIndex);
 		
+		if duration == 0 then
+			untilCancelled = 1;
+		end
+		
+		return buffIndex, untilCancelled;
+end
+
+function GetPlayerBuffNameImp(buffIndex)		
 		local name, rank = UnitAura("player", buffIndex, buffType);
 
 		return name, rank;
 end
 
+function GetTargetDebuffNameImp(buffIndex)
+		local name, rank, texture, count, debuffType, duration, expiryTime, isMine = UnitAura("target", buffIndex, "HARMFUL");
+		if isMine ~= 1 then
+			name = name.."NotMine";
+		end
+		return name, rank;
+end
 
 function GetPlayerBuffTextureImp(buffIndex)
-
-	if show_mos and buffIndex == show_mos_buffIndex then
-		return "Interface\\Icons\\Ability_Rogue_MasterOfSubtlety";
-	end
-
-	if show_pre and buffIndex == show_pre_buffIndex then
-		return "Interface\\Icons\\Spell_Shadow_Possession";
-	end
-
-	if show_rip and buffIndex == show_rip_buffIndex then
-		return "Interface\\Icons\\Ability_Warrior_Challange";
-	end
-	
 	local name, rank, texture = UnitAura("player", buffIndex, "HELPFUL");
+	return texture;
+
+end 
+
+function GetTargetDebuffTextureImp(buffIndex)
+
+	local name, rank, texture = UnitAura("target", buffIndex, "HARMFUL");
 	return texture;
 
 end 

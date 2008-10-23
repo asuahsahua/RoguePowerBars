@@ -117,7 +117,7 @@
 
 	<Frame name="RoguePowerBarConfigFrame" clampedToScreen="true" frameStrata="HIGH" toplevel="true" enableMouse="true" movable="true" parent="UIParent" hidden="true">
 		<Size>
-			<AbsDimension x="520" y="490"/>
+			<AbsDimension x="570" y="570"/>
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER"/>
@@ -194,7 +194,7 @@
 							<Anchors>
 								<Anchor point="TOPLEFT">
 									<Offset>
-										<AbsDimension x="20" y="-260"/>
+										<AbsDimension x="20" y="-335"/>
 									</Offset>
 								</Anchor>
 							</Anchors>
@@ -275,7 +275,7 @@
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativeTo="$parent_SettingsHeader" relativePoint="BOTTOMLEFT">
             <Offset>
-              <AbsDimension x="292" y="-46"/>
+              <AbsDimension x="370" y="-46"/>
             </Offset>
           </Anchor>
         </Anchors>
@@ -294,7 +294,7 @@
 				<Anchors>
           <Anchor point="BOTTOMLEFT" relativeTo="$parent_SettingsHeader" relativePoint="BOTTOMLEFT">
             <Offset>
-							<AbsDimension x="310" y="-76"/>
+							<AbsDimension x="378" y="-76"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -304,7 +304,7 @@
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativeTo="$parent_SettingsHeader" relativePoint="BOTTOMLEFT">
             <Offset>
-              <AbsDimension x="310" y="-120"/>
+              <AbsDimension x="378" y="-120"/>
             </Offset>
           </Anchor>
         </Anchors>
@@ -315,7 +315,7 @@
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativeTo="$parent_SettingsHeader" relativePoint="BOTTOMLEFT">
             <Offset>
-              <AbsDimension x="292" y="-178"/>
+              <AbsDimension x="370" y="-178"/>
             </Offset>
           </Anchor>
         </Anchors>

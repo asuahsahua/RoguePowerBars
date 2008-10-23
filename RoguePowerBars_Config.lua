@@ -211,13 +211,13 @@ function InitializeStausBarOption()
 
 			f:SetPoint("TOPLEFT", posX, posY);
 
-			if numberOfEachRow == 10 then
+			if numberOfEachRow == 14 then
 				rowPosition = 0;
 				numberOfEachRow = 0;
 				column = column + 1;
 			end
 
-			posX = 20 + (150*column);
+			posX = 20 + (180*column);
 
 			f:Show();
 

@@ -19,6 +19,9 @@ MAXTIME = 2;
 OWNORDER = 3;
 NAME = 4;
 
+TYPE_BUFF = 0;
+TYPE_DEBUFF = 1;
+
 BANTO_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\BarTextureBanto.tga";
 BLIZZARD_TEXTURE = "Interface\\TargetingFrame\\UI-StatusBar";
 LITESTEP_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\BarTextureLiteStep.tga";
@@ -40,46 +43,17 @@ RoguePowerBarsOptions.x = 0;
 RoguePowerBarsOptions.y = 80;
 RoguePowerBarsOptions.barTexture = SMOOTH_TEXTURE;
 
+STATUSBAR_COUNTER = 0;
+function GetNext()
+	STATUSBAR_COUNTER = STATUSBAR_COUNTER + 1;
+	return STATUSBAR_COUNTER;
+end
 
-STATUSBAR_SLICEANDDICE = 1;
-STATUSBAR_MOS = 2;  -- DON'T REMOVE THIS. 
-STATUSBAR_CRUSADER = 3;
-STATUSBAR_SPRINT = 4;
-STATUSBAR_COS = 5;
-STATUSBAR_BLADEFLURRY = 6;
-STATUSBAR_ADRENALINE = 7;
-STATUSBAR_RIPOSTE = 8;
-STATUSBAR_EVASION = 9;
-STATUSBAR_GHOSTLYSTRIKE = 10;
-STATUSBAR_HUNGER_FOR_BLOOD = 11;
-STATUSBAR_PREMED = 12;
-STATUSBAR_SHADOWSTEP = 13;
-STATUSBAR_REMORSELESS = 14;
-STATUSBAR_MONGOOSE = 15;
-STATUSBAR_HASTE = 16;
-STATUSBAR_DELUSIONAL = 17;
-STATUSBAR_PARANOIA = 18;
-STATUSBAR_MARTYR_COMPLEX = 19;
-STATUSBAR_MANIC = 20;
-STATUSBAR_BERSERKING = 21;
-STATUSBAR_FEROCITY = 22;
-STATUSBAR_COREOFARKELOS = 23;
-STATUSBAR_EXECUTIONER = 24;
-STATUSBAR_BATTLESHOUT = 25;
-STATUSBAR_COUPDEGRACE = 26;
-STATUSBAR_EXPLOITWEAKNESS = 27;
-STATUSBAR_FURYOFTHECRASHINGWAVES = 28;
-STATUSBAR_ELIXIROFDEMONSLAYING = 29;
-STATUSBAR_PERCEIVEDWEAKNESS = 30;
-STATUSBAR_FORCEFULSTRIKE = 31;
-STATUSBAR_DRUMSOFBATTLE = 32;
-STATUSBAR_DRUMSOFWAR = 33;
-STATUSBAR_THETWINBLADESOFAZZINOTH = 34;
-STATUSBAR_TREMENDOUS_FORTITUDE = 35;
-STATUSBAR_DRAGONSPINE_FLURRY = 36;
+
+
 
 -- Number of Status Bars that should be displayed in the config section on each row
-MAX_NO_ON_FIRST_ROW = 7;
+MAX_NO_ON_FIRST_ROW = 10;
 
 
 RoguePowerBar_EventHandler = {};
@@ -102,6 +76,12 @@ RoguePowerBar_EventHandler["UNIT_AURA"] = function()
 	
 	RoguePowerBar_OnUnitAura(arg1);
 
+end
+
+RoguePowerBar_EventHandler["PLAYER_TARGET_CHANGED"] = function()
+
+	RoguePowerBar_OnPlayerTargetChanged();
+	
 end
 
 
@@ -138,7 +118,7 @@ RoguePowerBar_Save = {};
 
 RoguePowerBar_Bars = {};
 
---Rogue Power Bar for Slice And Dice
+STATUSBAR_SLICEANDDICE = GetNext();
 RoguePowerBar_Bars[STATUSBAR_SLICEANDDICE] = {
 				Icon = nil,
 				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
@@ -149,18 +129,8 @@ RoguePowerBar_Bars[STATUSBAR_SLICEANDDICE] = {
 				TalentTreeName = "Slice and Dice"
 			};
 
---Rogue Power Bar for Master Of Subtlety
-RoguePowerBar_Bars[STATUSBAR_MOS] = {
-				Icon = "Interface\\Icons\\Ability_Rogue_MasterOfSubtlety",
-				BackDropColor = { r = 0.3, g = 0.5, b = 1, a = 0.3 },
-				StatusBarColor = { r = 0; g = 0.5; b = 1; a = 0.8 },
-				BasedOnAuraName = "Master of Subtlety",
-				DisplayOrder = 1,
-				IsInTalentTree=true,
-				TalentTreeName = "Master of Subtlety"
-			};
 
---Rogue Power Bar for Crusader
+STATUSBAR_CRUSADER = GetNext();
 RoguePowerBar_Bars[STATUSBAR_CRUSADER] = {
 				Icon = nil,
 				BackDropColor = { r = 0.5, g = 0.5, b = 1, a = 0.3 },
@@ -171,6 +141,7 @@ RoguePowerBar_Bars[STATUSBAR_CRUSADER] = {
 				TalentTreeName = "Holy Strength"
 			};
 
+STATUSBAR_SPRINT = GetNext();
 RoguePowerBar_Bars[STATUSBAR_SPRINT] = {
 				Icon = nil,
 				BackDropColor = { r = 0.9, g = 0.5, b = 0, a = 0.3 },
@@ -182,6 +153,7 @@ RoguePowerBar_Bars[STATUSBAR_SPRINT] = {
 			};
 
 
+STATUSBAR_COS = GetNext();
 RoguePowerBar_Bars[STATUSBAR_COS] = {
 				Icon = nil,
 				BackDropColor = { r = 0.4, g = 0, b = 0.5, a = 0.3 },
@@ -193,6 +165,7 @@ RoguePowerBar_Bars[STATUSBAR_COS] = {
 			};
 
 
+STATUSBAR_BLADEFLURRY = GetNext();
 RoguePowerBar_Bars[STATUSBAR_BLADEFLURRY] = {
 				Icon = nil,
 				BackDropColor = { r = 0.8, g = 0, b = 0, a = 0.3 },
@@ -204,6 +177,7 @@ RoguePowerBar_Bars[STATUSBAR_BLADEFLURRY] = {
 			};
 
 
+STATUSBAR_ADRENALINE = GetNext();
 RoguePowerBar_Bars[STATUSBAR_ADRENALINE] = {
 				Icon = nil,
 				BackDropColor = { r = 0.8, g = 0.5, b = 0.8, a = 0.3 },
@@ -214,16 +188,7 @@ RoguePowerBar_Bars[STATUSBAR_ADRENALINE] = {
 				TalentTreeName = "Adrenaline Rush"
 			};
 
-RoguePowerBar_Bars[STATUSBAR_RIPOSTE] = {
-				Icon = nil,
-				BackDropColor = { r = 1, g = 0.7, b = 0, a = 0.3 },
-				StatusBarColor = { r = 1, g = 0.7, b = 0; a = 0.8 },
-				BasedOnAuraName = "Riposte",
-				DisplayOrder = 7,
-				IsInTalentTree=true,
-				TalentTreeName = "Riposte"
-			};
-
+STATUSBAR_EVASION = GetNext();
 RoguePowerBar_Bars[STATUSBAR_EVASION] = {
 				Icon = nil,
 				BackDropColor = { r = 1, g = 0.5, b = 1, a = 0.3 },
@@ -235,6 +200,7 @@ RoguePowerBar_Bars[STATUSBAR_EVASION] = {
 			
 			};
 
+STATUSBAR_GHOSTLYSTRIKE = GetNext();
 RoguePowerBar_Bars[STATUSBAR_GHOSTLYSTRIKE] = {
 				Icon = nil,
 				BackDropColor = { r = 0.8, g = 0, b = 0, a = 0.3 },
@@ -245,6 +211,7 @@ RoguePowerBar_Bars[STATUSBAR_GHOSTLYSTRIKE] = {
 				TalentTreeName = "Ghostly Strike"
 			};
 
+STATUSBAR_HUNGER_FOR_BLOOD = GetNext();
 RoguePowerBar_Bars[STATUSBAR_HUNGER_FOR_BLOOD] = {
 				Icon = nil,
 				BackDropColor = { r = 0.6, g = 0.1, b = 0, a = 0.3 },
@@ -255,16 +222,8 @@ RoguePowerBar_Bars[STATUSBAR_HUNGER_FOR_BLOOD] = {
 				TalentTreeName = "Hunger For Blood"
 }; 
 
-RoguePowerBar_Bars[STATUSBAR_PREMED] = {
-				Icon = nil,
-				BackDropColor = { r = 0.6, g = 0.6, b = 0.6, a = 0.3 },
-				StatusBarColor = { r = 0.6, g = 0.6, b = 0.6; a = 0.8 },
-				BasedOnAuraName = "Premeditation",
-				DisplayOrder = 11,
-				IsInTalentTree=true,
-				TalentTreeName = "Premeditation"
-			};
 
+STATUSBAR_SHADOWSTEP = GetNext();
 RoguePowerBar_Bars[STATUSBAR_SHADOWSTEP] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.6, g = 0, b = 0.7, a = 0.3 },
@@ -275,6 +234,7 @@ RoguePowerBar_Bars[STATUSBAR_SHADOWSTEP] = {
 				TalentTreeName = "Shadowstep"
 			};  
 
+STATUSBAR_REMORSELESS = GetNext();
 RoguePowerBar_Bars[STATUSBAR_REMORSELESS] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0, g = 0.5, b = 0.5, a = 0.3 },
@@ -285,6 +245,7 @@ RoguePowerBar_Bars[STATUSBAR_REMORSELESS] = {
 				TalentTreeName = "Remorseless Attacks"
 			};
 
+STATUSBAR_MONGOOSE = GetNext();
 RoguePowerBar_Bars[STATUSBAR_MONGOOSE] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
@@ -296,6 +257,7 @@ RoguePowerBar_Bars[STATUSBAR_MONGOOSE] = {
 			};
 
 
+STATUSBAR_HASTE = GetNext();
 RoguePowerBar_Bars[STATUSBAR_HASTE] = { 
 				Icon = nil, 
 				BackDropColor = { r = 1, g = 0.9, b = 0, a = 0.3 },
@@ -306,6 +268,7 @@ RoguePowerBar_Bars[STATUSBAR_HASTE] = {
 				TalentTreeName = "Haste"
 			};
 
+STATUSBAR_DELUSIONAL = GetNext();
 RoguePowerBar_Bars[STATUSBAR_DELUSIONAL] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.6, g = 0.6, b = 1, a = 0.3 },
@@ -317,6 +280,7 @@ RoguePowerBar_Bars[STATUSBAR_DELUSIONAL] = {
 			};
 
 
+STATUSBAR_PARANOIA = GetNext();
 RoguePowerBar_Bars[STATUSBAR_PARANOIA] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.0, g = 0.8, b = 0.3, a = 0.3 },
@@ -328,6 +292,7 @@ RoguePowerBar_Bars[STATUSBAR_PARANOIA] = {
 			};
 
 
+STATUSBAR_MARTYR_COMPLEX = GetNext();
 RoguePowerBar_Bars[STATUSBAR_MARTYR_COMPLEX] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.2, g = 0.1, b = 0.9, a = 0.3 },
@@ -339,6 +304,7 @@ RoguePowerBar_Bars[STATUSBAR_MARTYR_COMPLEX] = {
 			};
 
 
+STATUSBAR_MANIC = GetNext();
 RoguePowerBar_Bars[STATUSBAR_MANIC] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
@@ -350,6 +316,7 @@ RoguePowerBar_Bars[STATUSBAR_MANIC] = {
 			};
 
 
+STATUSBAR_BERSERKING = GetNext();
 RoguePowerBar_Bars[STATUSBAR_BERSERKING] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
@@ -361,6 +328,7 @@ RoguePowerBar_Bars[STATUSBAR_BERSERKING] = {
 			};
 
 
+STATUSBAR_FEROCITY = GetNext();
 RoguePowerBar_Bars[STATUSBAR_FEROCITY] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
@@ -371,6 +339,7 @@ RoguePowerBar_Bars[STATUSBAR_FEROCITY] = {
 				TalentTreeName = "Ferocity"
 			};
 
+STATUSBAR_COREOFARKELOS = GetNext();
 RoguePowerBar_Bars[STATUSBAR_COREOFARKELOS] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
@@ -380,6 +349,8 @@ RoguePowerBar_Bars[STATUSBAR_COREOFARKELOS] = {
 				IsInTalentTree=false,
 				TalentTreeName = "Ancient Power"
 			};
+			
+STATUSBAR_EXECUTIONER = GetNext();
 RoguePowerBar_Bars[STATUSBAR_EXECUTIONER] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
@@ -390,7 +361,7 @@ RoguePowerBar_Bars[STATUSBAR_EXECUTIONER] = {
 				TalentTreeName = "Executioner"
 			};
 
-
+STATUSBAR_BATTLESHOUT = GetNext();
 RoguePowerBar_Bars[STATUSBAR_BATTLESHOUT] = { 
 				Icon = nil, 
 				BackDropColor = { r = 0.8, g = 0.5, b = 0.3, a = 0.3 },
@@ -401,6 +372,7 @@ RoguePowerBar_Bars[STATUSBAR_BATTLESHOUT] = {
 				TalentTreeName = "Battle Shout"
 			};
 
+STATUSBAR_COUPDEGRACE = GetNext();
 RoguePowerBar_Bars[STATUSBAR_COUPDEGRACE] = {
 				Icon = nil,
 				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
@@ -412,6 +384,7 @@ RoguePowerBar_Bars[STATUSBAR_COUPDEGRACE] = {
                         };
 
 
+STATUSBAR_EXPLOITWEAKNESS = GetNext();
 RoguePowerBar_Bars[STATUSBAR_EXPLOITWEAKNESS] = {
 				Icon = nil,
 				BackDropColor =  { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
@@ -423,6 +396,7 @@ RoguePowerBar_Bars[STATUSBAR_EXPLOITWEAKNESS] = {
                         };
 
 
+STATUSBAR_FURYOFTHECRASHINGWAVES = GetNext();
 RoguePowerBar_Bars[STATUSBAR_FURYOFTHECRASHINGWAVES] = {
 				Icon = nil,
 				BackDropColor =  { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
@@ -434,6 +408,7 @@ RoguePowerBar_Bars[STATUSBAR_FURYOFTHECRASHINGWAVES] = {
                         };
 
 
+STATUSBAR_ELIXIROFDEMONSLAYING = GetNext();
 RoguePowerBar_Bars[STATUSBAR_ELIXIROFDEMONSLAYING] = {
 				Icon = nil,
 				BackDropColor = { r = 0.9, g = 0.5, b = 0, a = 0.3 },
@@ -445,6 +420,7 @@ RoguePowerBar_Bars[STATUSBAR_ELIXIROFDEMONSLAYING] = {
                         };
 
 
+STATUSBAR_PERCEIVEDWEAKNESS = GetNext();
 RoguePowerBar_Bars[STATUSBAR_PERCEIVEDWEAKNESS] = {
 				Icon = nil,
 				BackDropColor = { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
@@ -456,6 +432,7 @@ RoguePowerBar_Bars[STATUSBAR_PERCEIVEDWEAKNESS] = {
                         };
 
 
+STATUSBAR_FORCEFULSTRIKE = GetNext();
 RoguePowerBar_Bars[STATUSBAR_FORCEFULSTRIKE] = {
 				Icon = nil,
 				BackDropColor = { r = 0.8, g = 0, b = 0, a = 0.3 },
@@ -466,6 +443,7 @@ RoguePowerBar_Bars[STATUSBAR_FORCEFULSTRIKE] = {
 				TalentTreeName = "Forceful Strike"
                         };
 
+STATUSBAR_DRUMSOFBATTLE = GetNext();
 RoguePowerBar_Bars[STATUSBAR_DRUMSOFBATTLE] = {
 				Icon = nil,
 				BackDropColor = { r = 0.9, g = 0.5, b = 0, a = 0.3 },
@@ -476,6 +454,7 @@ RoguePowerBar_Bars[STATUSBAR_DRUMSOFBATTLE] = {
 				TalentTreeName = "Drums of Battle"
                         };
 
+STATUSBAR_DRUMSOFWAR = GetNext();
 RoguePowerBar_Bars[STATUSBAR_DRUMSOFWAR] = {
 				Icon = nil,
 				BackDropColor = { r = 0.9, g = 0.5, b = 0, a = 0.3 },
@@ -486,6 +465,7 @@ RoguePowerBar_Bars[STATUSBAR_DRUMSOFWAR] = {
 				TalentTreeName = "Drums of War"
                         };
 
+STATUSBAR_THETWINBLADESOFAZZINOTH = GetNext();
 RoguePowerBar_Bars[STATUSBAR_THETWINBLADESOFAZZINOTH] = {
 				Icon = nil,
 				BackDropColor = { r = 0.8, g = 0.5, b = 0.3, a = 0.3 },
@@ -496,6 +476,7 @@ RoguePowerBar_Bars[STATUSBAR_THETWINBLADESOFAZZINOTH] = {
 				TalentTreeName = "The Twin Blades of Azzinoth"
                         };
 
+STATUSBAR_TREMENDOUS_FORTITUDE = GetNext();
 RoguePowerBar_Bars[STATUSBAR_TREMENDOUS_FORTITUDE] = {
 				Icon = nil,
 				BackDropColor = { r = 0.8, g = 0.0, b = 0.0, a = 0.3 },
@@ -506,13 +487,92 @@ RoguePowerBar_Bars[STATUSBAR_TREMENDOUS_FORTITUDE] = {
 				TalentTreeName = "Tremendous Fortitude"
                         };
                         
---Rogue Power Bar for Dragonspine Flurry
+
+STATUSBAR_DRAGONSPINE_FLURRY = GetNext();
 RoguePowerBar_Bars[STATUSBAR_DRAGONSPINE_FLURRY] = {
 				Icon = nil,
 				BackDropColor = { r = 0.3, g = 0.5, b = 1, a = 0.3 },
-				StatusBarColor = { r = 0; g = 0.5; b = 1; a = 0.8 },
+				StatusBarColor = { r = 0.5; g = 0.5; b = 1; a = 0.8 },
 				BasedOnAuraName = "Dragonspine Flurry",
 				DisplayOrder = 35,
 				IsInTalentTree=false,
 				TalentTreeName = "Dragonspine Flurry"
 			};
+			
+
+STATUSBAR_RUPTURE = GetNext();
+RoguePowerBar_Bars[STATUSBAR_RUPTURE] = {
+				Icon = nil,
+				BackDropColor = { r = 0.8, g = 0.2, b = 0.2, a = 0.3 },
+				StatusBarColor = {r = 1, g = 0.2, b = 0.2, a = 0.8 },
+				BasedOnAuraName = "Rupture",
+				DisplayOrder = 36,
+				IsInTalentTree = false,
+				TalentTreeName = "Rupture"
+};
+
+STATUSBAR_WOUND = GetNext();
+RoguePowerBar_Bars[STATUSBAR_WOUND] = {
+				Icon = nil,
+				BackDropColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.3 },
+				StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
+				BasedOnAuraName = "Wound Poison V",
+				DisplayOrder = 37,
+				IsInTalentTree = false,
+				TalentTreeName = "Wound Poison V"
+};
+
+STATUSBAR_DEADLY = GetNext();
+RoguePowerBar_Bars[STATUSBAR_DEADLY] = {
+				Icon = nil,
+				BackDropColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.3 },
+				StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
+				BasedOnAuraName = "Deadly Poison VII",
+				DisplayOrder = 37,
+				IsInTalentTree = false,
+				TalentTreeName = "Deadly Poison VII"
+};
+
+STATUSBAR_MINDNUMBING = GetNext();
+RoguePowerBar_Bars[STATUSBAR_MINDNUMBING] = {
+				Icon = nil,
+				BackDropColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.3 },
+				StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
+				BasedOnAuraName = "Mind-numbing Poison",
+				DisplayOrder = 37,
+				IsInTalentTree = false,
+				TalentTreeName = "Mind-numbing Poison"
+};
+
+STATUSBAR_CRIPPLING = GetNext();
+RoguePowerBar_Bars[STATUSBAR_CRIPPLING] = {
+				Icon = nil,
+				BackDropColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.3 },
+				StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
+				BasedOnAuraName = "Crippling Poison",
+				DisplayOrder = 38,
+				IsInTalentTree = false,
+				TalentTreeName = "Crippling Poison"
+};
+
+STATUSBAR_BLADETWISTING = GetNext();
+RoguePowerBar_Bars[STATUSBAR_BLADETWISTING] = {
+				Icon = nil,
+				BackDropColor = { r = 0.1, g = 0.47, b = 0.6, a = 0.3 },
+				StatusBarColor = { r = 0.4, g = 0.47, b = 0.6, a = 0.8 },
+				BasedOnAuraName = "Blade Twisting",
+				DisplayOrder = 39,
+				IsInTalentTree = false,
+				TalentTreeName = "Blade Twisting"
+};
+
+STATUSBAR_EXPOSEARMOR = GetNext();
+RoguePowerBar_Bars[STATUSBAR_EXPOSEARMOR] = { 
+				Icon = nil, 
+				BackDropColor = { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
+				StatusBarColor = { r = 0.3, g = 0.5, b = 0.7; a = 0.8 },
+				BasedOnAuraName = "Expose Armor", 
+				DisplayOrder = 40, 
+				IsInTalentTree=false,
+				TalentTreeName = "Expose Armor"
+};

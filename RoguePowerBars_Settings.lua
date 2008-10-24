@@ -1,5 +1,5 @@
 ADDON_NAME = "Rogue Power Bars";
-ADDON_VERSION = "2.00";
+ADDON_VERSION = "2.1.2";
 
 SLASH_ROGUEPOWERBAR1 = "/rpb";
 SLASH_ROGUEPOWERBAR2 = "/roguepowerbar";

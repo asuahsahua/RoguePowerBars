@@ -1,16 +1,20 @@
 -- All code originally property of  Fredrik Normen - 2006-12-27 (Mangrol/Alliance on Mazrigos).
 -- Modified by Anthony Marion on 10-20-2008 (Domia/Horde on Maiev).
 
-CLOCK_UPDATE_RATE = 0.01;
+CLOCK_UPDATE_RATE = 0.02;
 TIME_CONSTANT = 60;
 
 _timeSinceLastUpdate = 0;
 _timeCounter = 0;
+_lastUpdate = 0;
 
 ROGUEPOWERBAR_INITIALIZED = false;
 
 _numBuffButtons = 0;
 _numBuffsShown = 0;
+
+DEBUG_updates = 0;
+DEBUG_sincelastupdate = 0;
 
 
 function RoguePowerBar_OnEvent(event)
@@ -21,6 +25,8 @@ end
 
 function RoguePowerBar_OnLoad()
 
+	_lastUpdate = GetTime();
+	
 	self_frame = RoguePowerBar;
 
 	--self_frame:RegisterEvent("PLAYER_AURAS_CHANGED");
@@ -37,14 +43,14 @@ end
 function RoguePowerBar_OnUnitAura(unit)
 	if unit == "player" then
 		RoguePowerBar_OnAuraChanged();
-	end
-	if unit == "target" then
+	elseif unit == "target" then
 		RoguePowerBar_OnAuraChanged();
 	end
 end
 
 function RoguePowerBar_OnPlayerTargetChanged()
-	UpdateBuffs();
+	RoguePowerBar_OnAuraChanged();
+	-- should really clear out the buff list first.
 end
 
 function RoguePowerBar_OnPlayerEnteringWorld()
@@ -58,24 +64,31 @@ function RoguePowerBar_OnUpdate(tick)
 	if not ROGUEPOWERBAR_INITIALIZED then
 		return;
 	end
-
-	_timeSinceLastUpdate = _timeSinceLastUpdate + tick;
-
-	if( _timeSinceLastUpdate > CLOCK_UPDATE_RATE ) then
-
-		UpadateRoguePowerBars();
+	local timeNow = GetTime();
+	
+	
+	if( (timeNow - _lastUpdate) > CLOCK_UPDATE_RATE ) then
+		UpadateRoguePowerBars(true);
 		
-		_timeSinceLastUpdate = 0;
-
+		_lastUpdate = timeNow;
 	end
+	
 
 end
 
 
 function RoguePowerBar_OnAuraChanged()
-	if ROGUEPOWERBAR_INITIALIZED then
-		UpdateBuffs();
+		if not ROGUEPOWERBAR_INITIALIZED then
+		return;
 	end
+	local timeNow = GetTime();
+	
+	if( (timeNow - _lastUpdate) > CLOCK_UPDATE_RATE ) then
+		UpadateRoguePowerBars(true);
+		
+		_lastUpdate = timeNow;
+	end
+	
 
 end
 
@@ -90,15 +103,6 @@ end
 
 
 function RoguePowerBar_OnChatMsgSpellSelfDamage(arg1)
-
-	if not ROGUEPOWERBAR_INITIALIZED then
-		return;
-	end
-
-end
-
-
-function RoguePowerBar_OnPlayerTargetChanged()
 
 	if not ROGUEPOWERBAR_INITIALIZED then
 		return;
@@ -220,25 +224,25 @@ function UpdateBuffs()
 
 	local numBuffs = 0;
 	local buffIndex = 1;
-	local untilCancelled, stacks;
+	local untilCancelled, stacks, name, rank, texture, buffSettings, expirationTime;
 
-	local i = 1;
+	local buffIndex = 1;
 
 	while buffIndex ~= 0 do
-		buffIndex, untilCancelled, stacks = GetPlayerBuffImp(i);
+		--- local name, rank, texture, count, debuffType, duration, expirationTime = UnitAura("player", id, "HELPFUL");
+		
+		local name, rank, texture, count, debuffType, duration, expirationTime = UnitAura("player", buffIndex, "HELPFUL");
+		-- buffIndex, untilCancelled, stacks = GetPlayerBuffImp(i);
 
-		if buffIndex == 0 then break end;
-
-		local name, rank = GetPlayerBuffNameImp(buffIndex);
+		if name == nil then break end;
 		
 		if name then
 		
 			local buffSettings = GetBuffInSettings(name);
-			local texture = GetPlayerBuffTextureImp(buffIndex);
 			
 			if buffSettings ~= nil then
 			
-				local timeLeft = GetPlayerBuffTimeLeftImp(buffIndex);
+				local timeLeft = expirationTime - GetTime();
 				local maxtime = timeLeft;
 
 				if name then
@@ -257,14 +261,14 @@ function UpdateBuffs()
 						Settings = buffSettings,
 						Texture = texture,
 						Type = TYPE_BUFF,
-						Stacks = stacks
+						Stacks = count
 					});
 
 			end
 
 		end
 
-		i = i + 1;
+		buffIndex = buffIndex + 1;
 		
 	end
 	
@@ -272,22 +276,25 @@ function UpdateBuffs()
 	i = 1;
 	local buffCount = #buffs;
 	while buffIndex ~= 0 do
-		buffIndex, untilCancelled, stacks = GetTargetDebuffImp(i);
-		if buffIndex == 0 then break end;
+		--buffIndex, untilCancelled, stacks = GetTargetDebuffImp(i);
+		
+		local name, rank, texture, count, debuffType, duration, expirationTime = UnitAura("target", buffIndex, "HARMFUL|PLAYER");
+		if name == nil then break end;
 
-		local name, rank = GetTargetDebuffNameImp(buffIndex);
 		if name then
-			local texture = GetTargetDebuffTextureImp(buffIndex);
 			local buffSettings = GetBuffInSettings(name);
 			
 			if buffSettings ~= nil then
 			
-				local timeLeft = GetTargetDebuffTimeLeftImp(buffIndex);
+				local timeLeft = expirationTime - GetTime();
 				local maxtime = timeLeft;
-
-				if name then
-					if maxtimes[name] and maxtime < maxtimes[name] then
-						maxtime = maxtimes[name];
+				
+				if count == 0 and maxtimes[name] and maxtime < maxtimes[name] then
+					maxtime = maxtimes[name];
+				elseif count > 0 then
+					local tempname = name .. " (" .. count .. ")";
+					if maxtimes[tempname] and maxtime < maxtimes[tempname] then
+						maxtime = maxtimes[tempname];
 					end
 				end
 
@@ -301,20 +308,16 @@ function UpdateBuffs()
 						Settings = buffSettings,
 						Texture = texture,
 						Type = TYPE_DEBUFF,
-						Stacks = stacks
+						Stacks = count
 					});
 
 			end
 
 		end
 
-		i = i + 1;
+		buffIndex = buffIndex + 1;
 		
-	end
-	
-	mos_buffIndex_returned = false;
-	pre_buffIndex_returned = false;
-	rip_buffIndex_returned = false;
+	end	
 		
 	if RoguePowerBarsOptions.sort == MAXTIME then
 		table.sort(buffs, BuffsSort_ByMaxTime);
@@ -479,9 +482,7 @@ function CleanUp(numBuffs)
 end
 
 
-function UpadateRoguePowerBars()
-
-	local mustupdate = false;
+function UpadateRoguePowerBars(mustupdate)
 	
 	for i = 1, _numBuffsShown do
 
@@ -871,13 +872,21 @@ end
 
 function GetPlayerBuffTimeLeftImp(id)
 		local name, rank, texture, count, debuffType, duration, expirationTime = UnitAura("player", id, "HELPFUL");
-		return expirationTime-GetTime();
+		if expirationTime then
+			return expirationTime - GetTime();
+		else
+			return 0;
+		end
 
 end
 
 function GetTargetDebuffTimeLeftImp(id)
 		local name, rank, texture, count, debuffType, duration, expirationTime = UnitAura("target", id, "HARMFUL");
-		return expirationTime - GetTime();
+		if expirationTime then
+			return expirationTime - GetTime();
+		else
+			return 0;
+		end
 end
 
 

@@ -620,3 +620,26 @@ RoguePowerBar_Bars[STATUSBAR_GARROTESILENCE] = {
 				IsInTalentTree=false,
 				TalentTreeName = "Garrote - Silence"
 };
+
+STATUSBAR_GOUGE = GetNext();
+RoguePowerBar_Bars[STATUSBAR_GOUGE] = { 
+				Icon = nil, 
+				BackDropColor = { r = 0.4, g = 0.5, b = 0.9, a = 0.3 },
+				StatusBarColor = { r = 0.4, g = 0.5, b = 0.9; a = 0.8 },
+				BasedOnAuraName = "Gouge", 
+				DisplayOrder = 45, 
+				IsInTalentTree=false,
+				TalentTreeName = "Gouge"
+};
+
+-- Status bar for Blackened Naaru Sliver
+STATUSBAR_BATTLETRANCE = GetNext();
+RoguePowerBar_Bars[STATUSBAR_BATTLETRANCE] = { 
+				Icon = nil, 
+				BackDropColor = { r = 0.18, g = 0.15, b = 0.19, a = 0.3 },
+				StatusBarColor = { r = 0.28, g = 0.25, b = 0.29; a = 0.8 },
+				BasedOnAuraName = "Battle Trance", 
+				DisplayOrder = 45, 
+				IsInTalentTree=false,
+				TalentTreeName = "Battle Trance"
+};

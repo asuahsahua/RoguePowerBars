@@ -7,6 +7,7 @@ TIME_CONSTANT = 60;
 _timeSinceLastUpdate = 0;
 _timeCounter = 0;
 _lastUpdate = 0;
+_needsBuffUpdate = false;
 
 ROGUEPOWERBAR_INITIALIZED = false;
 
@@ -55,7 +56,8 @@ end
 
 function RoguePowerBar_OnPlayerEnteringWorld()
 
-	UpdateBuffs();
+	--UpdateBuffs();
+	UpadateRoguePowerBars(_needsBuffUpdate);
 
 end
 
@@ -65,11 +67,9 @@ function RoguePowerBar_OnUpdate(tick)
 		return;
 	end
 	local timeNow = GetTime();
-	
-	
-	if( (timeNow - _lastUpdate) > CLOCK_UPDATE_RATE ) then
-		UpadateRoguePowerBars(true);
-		
+	if( (timeNow - _lastUpdate) > CLOCK_UPDATE_RATE ) or _needsBuffUpdate then
+		UpadateRoguePowerBars(_needsBuffUpdate);
+		_needsBuffUpdate = false;
 		_lastUpdate = timeNow;
 	end
 	
@@ -78,17 +78,13 @@ end
 
 
 function RoguePowerBar_OnAuraChanged()
-		if not ROGUEPOWERBAR_INITIALIZED then
-		return;
-	end
+	_needsBuffUpdate = true;
+	
 	local timeNow = GetTime();
 	
-	if( (timeNow - _lastUpdate) > CLOCK_UPDATE_RATE ) then
-		UpadateRoguePowerBars(true);
-		
-		_lastUpdate = timeNow;
+	if ( (timeNow - _lastUpdate) > CLOCK_UPDATE_RATE ) then
+		RoguePowerBar_OnUpdate(0);
 	end
-	
 
 end
 
@@ -245,9 +241,12 @@ function UpdateBuffs()
 				local timeLeft = expirationTime - GetTime();
 				local maxtime = timeLeft;
 
-				if name then
-					if maxtimes[name] and maxtime < maxtimes[name] then
-						maxtime = maxtimes[name];
+				if count == 0 and maxtimes[name] and maxtime < maxtimes[name] then
+					maxtime = maxtimes[name];
+				elseif count > 0 then
+					local tempname = name .. " (" .. count .. ")";
+					if maxtimes[tempname] and maxtime < maxtimes[tempname] then
+						maxtime = maxtimes[tempname];
 					end
 				end
 

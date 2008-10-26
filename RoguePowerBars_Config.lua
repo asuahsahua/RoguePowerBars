@@ -428,7 +428,6 @@ function SetDurationTextExample(value)
 
 end
 
-
 function SetTextOnBarsExample(value)
 
 	if value then

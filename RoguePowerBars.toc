@@ -3,10 +3,10 @@
 ## Notes: Displays statusbars with time left on rogue abilities
 ## Author: Domia (Maiev) - 10-20-2008
 ## SavedVariables: RoguePowerBar_Save
+## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0
+
+includes.xml
+
+RoguePowerBars_Buffs.lua
+RoguePowerBars_Debuffs.lua
 RoguePowerBars.lua
-#RoguePowerBars_Config.lua
-RoguePowerBars_UIConfig.lua
-RoguePowerBars_Settings.lua
-RoguePowerBars.xml
-#RoguePowerBars_Config.xml
-RoguePowerBars_UIConfig.xml

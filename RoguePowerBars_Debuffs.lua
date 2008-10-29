@@ -1,5 +1,7 @@
 
 
+RoguePowerBar_Debuff_Default = {};
+
 local i = 0;
 
 local function GetNext()
@@ -12,8 +14,6 @@ local function ResetIndex()
 end
 
 ResetIndex();
-
-RoguePowerBar_Debuff_Default = {};
 
 
 RoguePowerBar_Debuff_Default[GetNext()] = {

@@ -5,15 +5,35 @@
 -- Libraries
 
 local RoguePowerBars = LibStub("AceAddon-3.0"):NewAddon("RoguePowerBars", "AceConsole-3.0", "AceEvent-3.0")
+local SharedMedia = LibStub("LibSharedMedia-3.0")
 
 ----------------------------------------------
 -- Local variables
-
--- todo: potentially make this save to savedvars and repopulate from there.
-
+local db;
 --------------------------------------------------------------------------------
+
+local defaults = {
+	profile = {
+		buffs = { },
+		debuffs = { },
+		settings = {
+			Scale = 1,
+			Width = 250,
+			Height = 24,
+			Texture = "Blizzard",
+			TexturePath = SharedMedia:Fetch("statusbar", "Blizzard"),
+		},
+	},
+}
+
+
+
 function RoguePowerBars:OnInitialize()
-	RoguePowerBars:SetupOptions()
+	-- TODO: Defaults table
+	self:BuildDefaults()
+	self.db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults);
+	db = self.db.profile;
+	self:SetupOptions()
 end
 
 function RoguePowerBars:OnEnable()
@@ -23,7 +43,6 @@ end
 function RoguePowerBars:OnDisable()
 
 end
-
 
 local buffsPlugin = { };
 local debuffsPlugin = { };
@@ -44,24 +63,65 @@ local options = {
 			type = "group",
 			name = "General",
 			desc = "General Settings",
+			get = function(info) 
+				return db.settings[info[#info]] 
+			end,
+			set = function(info, value) 
+				db.settings[info[#info]] = value 
+			end,
 			args = {
 				intro = {
 					order = 1,
 					type = "description",
 					name = "<A description for RoguePowerBars here>",	
 				},
-				listing = {
+				Scale = {
 					order = 2,
-					type = "group",
-					name = "Option1",
-					args = {
-						Test = {
-							order = 1,
-							type = "toggle",
-							name = "Slice and Dice",
-							desc = "Toggle Slice and Dice",
-						},
-					},
+					type = "range",
+					name = "Scale",
+					min = .25, max = 3, step = .01,
+					set = function(info, value) 
+						db.settings[info[#info]] = value
+						print("scale should be updated to "..value)
+						-- todo: update scale
+					end,
+				},
+				Width = {
+					order = 3,
+					type = "range",
+					name = "Width",
+					min = 100, max = 700, step = 5,
+					set = function(info, value)
+						db.settings[info[#info]] = value
+						print("width should be updated to "..value)
+						-- todo: update width
+					end,
+				},
+				Height = {
+					order = 4,
+					type = "range",
+					name = "Height",
+					min = 10, max = 50, step = 1,
+					set = function(info, value)
+						db.settings[info[#info]] = value
+						print("height should be updated to "..value)
+						-- todo: update height
+					end,
+				},
+				Texture = {
+					type = "select", 
+					dialogControl = 'LSM30_Statusbar',
+					order = 5,
+					name = "Texture",
+					desc = "The texture that will be used",
+					values = AceGUIWidgetLSMlists.statusbar,
+					set = function(info, value)
+						db.settings[info[#info]] = value
+						db.settings["TexturePath"] = SharedMedia:Fetch("statusbar", value)
+						--for i = 0, #bars do
+						--	bars[i].texture:SetTexture(texturepath)
+						--end
+					end,
 				},
 			},
 		},
@@ -70,7 +130,13 @@ local options = {
 			name = "Buff",
 			desc = "Buff Settings",
 			plugins = buffsPlugin,
-			args = {},
+			args = {
+				description = {
+					order = 0,
+					type = "description",
+					name = "Enable or disable buffs here.",
+				},
+			},
 		},
 		Debuffs={
 			type = "group",
@@ -86,7 +152,6 @@ function RoguePowerBars:SetupOptions()
 	self.optionsFrames = {};
 	LibStub("AceConfig-3.0"):RegisterOptionsTable("RoguePowerBars", options);
 	local ACD = LibStub("AceConfigDialog-3.0");
-	-- frame = ACD:AddToBlizOptions("addonname", "sublevel", "parent", "options arg");
 	self:PopulateBuffs();
 	self:PopulateDebuffs();
 	self.optionsFrames.RoguePowerBars = ACD:AddToBlizOptions("RoguePowerBars", nil, nil, "General");
@@ -95,11 +160,11 @@ function RoguePowerBars:SetupOptions()
 	self:RegisterChatCommand("rpb", "ChatCommand");
 end
 
-function RoguePowerBars:ChatCommand(args)
+function RoguePowerBars:ChatCommand(input)
 	if not input or input:trim() == "" then
 		InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.RoguePowerBars);
 	else
-		LibStub("AceConfigCmd-3.0").HandleCommand(RoguePowerBars, "rpb", "RoguePowerBars", args);
+		LibStub("AceConfigCmd-3.0").HandleCommand(RoguePowerBars, "rpb", "RoguePowerBars", input);
 	end
 end
 
@@ -112,18 +177,50 @@ function RoguePowerBars:PopulateBuffs()
 	local buffList = self:GetBuffList();
 	for i = 1, #buffList do
 		local buffSettings = buffList[i];
-		buffs[self:RemoveSpaces(buffSettings.Name)] = {
+		local buffName = self:RemoveSpaces(buffSettings.Name);
+		buffs[buffName] = {
 			type = "group",
 			name = buffSettings.Name,
 			order = i,
 			args = {
-				enabled = {
+				IsEnabled = {
 					type = "toggle",
+					order = 1,
 					name = "Enabled",
-					desc = "Toggle "..buffSettings.Name,
-					value = false,
-					get = function () return value; end,
-					set = function(val) value = val; end,
+					desc = "Enable "..buffSettings.Name,
+					get = function(info) 
+						return db.buffs[info[#info-1]].IsEnabled 
+					end,
+					set = function(info, value) 
+						db.buffs[info[#info-1]].IsEnabled = value 
+					end,
+				},
+				Color = {
+					type = "color",
+					order = 2,
+					name = "Bar Color",
+					hasAlpha = true,
+					get = function(info)
+						local c = db.buffs[info[#info-1]].Color
+						return c.r, c.g, c.b, 1
+					end,
+					set = function(info, r, g, b, a)
+						local c = db.buffs[info[#info-1]].Color
+						c.r, c.g, c.b, c.a = r, g, b, .8
+					end
+				},
+				Priority = {
+					type = "range",
+					order = 3,
+					name = "Priority",
+					min = -10, max = 10, step = 1,
+					isPercent = false,
+					get = function(info)
+						return db.buffs[info[#info-1]].Priority
+					end,
+					set = function(info, value)
+						db.buffs[info[#info-1]].Priority = value
+					end,
 				},
 			},
 		};
@@ -139,18 +236,50 @@ function RoguePowerBars:PopulateDebuffs()
 	local buffList = self:GetDebuffList();
 	for i = 1, #buffList do
 		local buffSettings = buffList[i];
-		buffs[self:RemoveSpaces(buffSettings.Name)] = {
+		local buffName = self:RemoveSpaces(buffSettings.Name);
+		buffs[buffName] = {
 			type = "group",
 			name = buffSettings.Name,
 			order = i,
 			args = {
-				enabled = {
+				IsEnabled = {
 					type = "toggle",
+					order = 1,
 					name = "Enabled",
-					desc = "Toggle "..buffSettings.Name,
-					value = false,
-					get = function () return value; end,
-					set = function(val) value = val; end,
+					desc = "Enable "..buffSettings.Name,
+					get = function(info) 
+						return db.debuffs[info[#info-1]].IsEnabled 
+					end,
+					set = function(info, value) 
+						db.debuffs[info[#info-1]].IsEnabled = value 
+					end,
+				},
+				Color = {
+					type = "color",
+					order = 2,
+					name = "Bar Color",
+					hasAlpha = true,
+					get = function(info)
+						local c = db.debuffs[info[#info-1]].Color
+						return c.r, c.g, c.b, 1
+					end,
+					set = function(info, r, g, b, a)
+						local c = db.debuffs[info[#info-1]].Color
+						c.r, c.g, c.b, c.a = r, g, b, .8
+					end
+				},
+				Priority = {
+					type = "range",
+					order = 3,
+					name = "Priority",
+					min = -10, max = 10, step = 1,
+					isPercent = false,
+					get = function(info)
+						return db.debuffs[info[#info-1]].Priority
+					end,
+					set = function(info, value)
+						db.debuffs[info[#info-1]].Priority = value
+					end,
 				},
 			},
 		};
@@ -159,6 +288,41 @@ end
 
 function RoguePowerBars:RemoveSpaces(s)
 	return (string.gsub(s, " ", ""))
+end
+
+function RoguePowerBars:BuildDefaults()
+	buffDefault = RoguePowerBar_Buff_Default
+	debuffDefault = RoguePowerBar_Debuff_Default
+	for i = 1, #buffDefault do
+		local buff = buffDefault[i]
+		local nameSansSpaces = self:RemoveSpaces(buff.Name);
+		defaults.profile.buffs[nameSansSpaces] = {
+			Name = buff.Name,
+			Color = {
+				r = buff.StatusBarColor.r,
+				g = buff.StatusBarColor.g,
+				b = buff.StatusBarColor.b,
+				a = buff.StatusBarColor.a,
+			},
+			IsEnabled = true,
+			Priority = 0,
+		}
+	end
+	for i = 1, #debuffDefault do
+		local debuff = debuffDefault[i]
+		local nameSansSpaces = self:RemoveSpaces(debuff.Name);
+		defaults.profile.debuffs[nameSansSpaces] = {
+			Name = debuff.Name,
+			Color = {
+				r = debuff.StatusBarColor.r,
+				g = debuff.StatusBarColor.g,
+				b = debuff.StatusBarColor.b,
+				a = debuff.StatusBarColor.a,
+			},
+			IsEnabled = true,
+			Priority = 0,
+		}
+	end
 end
 
 function RoguePowerBars:GetBuffList()

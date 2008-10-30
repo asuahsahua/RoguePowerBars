@@ -130,7 +130,7 @@
       </OnEvent>
 
        <OnMouseDown>
-         if ( arg1 == "LeftButton") then
+         if ( arg1 == "LeftButton" and not BarsAreLocked()) then
            self:StartMoving();
          end
        </OnMouseDown>

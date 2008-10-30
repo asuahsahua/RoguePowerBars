@@ -15,6 +15,9 @@ local UpdateRate = .01;
 ----------------------------------------------
 -- Local variables
 local db;
+local BarSets = { } -- associative array
+local BarsToRecycle = { } -- normal array
+local BarCount = 0;
 --------------------------------------------------------------------------------
 
 local defaults = {
@@ -119,25 +122,34 @@ function RoguePowerBars:UpdateBuffs()
 		end
 		buffIndex = buffIndex + 1;
 	end
-	for x = 1, #buffs do
-		self:SetStatusBar(buffs[x]);
-	end
+	self:SetStatusBars(buffs);
 end
 
-function RoguePowerBars:SetStatusBar(buff)
-	self:ClearAllBars()
-	print("----SetStatusBar----");
-	print(buff.Name);
-	print(self:RemoveSpaces(buff.Name));
-	print(db.buffs[self:RemoveSpaces(buff.Name)]);
-	print(db.buffs[self:RemoveSpaces(buff.Name)].Barset);
-	print(db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset]);
-	local barset = db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset];
-	local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime);
-	bar:GetParent():Show();
-	bar:SetPoint("TOP", barset, "TOP");
-	
-	print("Setting status bar for "..buff.Name);
+function RoguePowerBars:SetStatusBars(buffs)
+	self:ClearAllBars();
+	for x = 1, #buffs do
+		local buff = buffs[x];
+		print("----SetStatusBar----");
+		local barset = BarSets[db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset]];
+		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime);
+		getglobal(bar:GetName().."_StatusBar"):SetMinMaxValues(0, buff.MaxTime);
+		bar:GetParent():Show();
+		bar:SetPoint("TOP", barset, "TOP");
+		bar:Show();
+	end
+	-- TODO: arrange bars here
+	for k,barset in pairs(BarSets) do
+		local lastbar;
+		for i,bar in ipairs(barset.Info.Bars) do
+			if i == 1 then
+				bar:SetPoint("TOP", barset, "TOP");
+				lastbar = bar;
+			else
+				bar:SetPoint("TOP", lastbar, "BOTTOM");
+				lastbar = bar;
+			end
+		end
+	end
 end
 
 local buffsPlugin = { };
@@ -558,14 +570,12 @@ end
 ------------------------------------------------------------------
 -- UI Functions
 
-local BarSets = { } -- associative array
-local Bars = { } -- associative array
-local BarsToRecycle = { } -- normal array
-local BarCount = 0;
+
 
 function RoguePowerBars:InitializeBarSets()
 	for i,v in pairs(db.barsets) do
-		self:CreateBarSet(v);
+		local barset = self:CreateBarSet(v);
+		barset:SetHeight("24"); -- FIXME
 	end
 end
 
@@ -574,55 +584,39 @@ function RoguePowerBars:CreateBarSet(name)
 		local frame = CreateFrame("Frame", "RoguePowerBars_BarSet_"..name, UIParent, "RoguePowerBarSetTemplate");
 		frame.Info = {
 			Name = name,
+			Bars = { },
 		}
-		BarSets[name] = {
-			Name = name;
-			Frame = frame;
-			bars = {
-				
-			}
-		}
-		return BarSets[name].Frame
+		BarSets[name] = frame;
+		return BarSets[name];
 	else
 		error("BarSet "..name.." already exists.");
 	end
 end
 
-function RoguePowerBars:AddBarToSet(bar, barSet)
-	local barSetFrame, barFrame;
-	
+function RoguePowerBars:AddBarToSet(barFrame, barSet)
+	local barSetFrame;
 	if type(barSet) == "string" then
-		barSetFrame = assert(BarSets[barSet].frame, "BarSetFrame "..barSet.." does not exist.");
+		barSetFrame = BarSets[barSet];
 	elseif type(barSet) == "table" then
 		barSetFrame = barSet;
 	end
-	
-	BarSets[barSetFrame.Info.Name].bars[bar.Info.Name] = bar;
-	return barSetFrame;
+	barFrame:SetParent(barSetFrame);
+	barSetFrame.Info.Bars[#barSetFrame.Info.Bars+1] = barFrame;
 end
 
 function RoguePowerBars:CreateBar(name, parentBarset, expirationTime)
+	-- assumes parentBarset is the parent frame.
 	local bar;
 	local currentTime = GetTime();
+	
 	if #BarsToRecycle > 0 then
 		bar = BarsToRecycle[#BarsToRecycle];
 		BarsToRecycle[#BarsToRecycle] = nil;
-		if type(parentBarset) == "string" then
-			bar:SetParent(BarSets[parentBarset].Frame);
-		else
-			bar:SetParent(parentBarset);
-		end
-		bar:Show();
 	else
-		BarCount = BarCount + 1
-		if type(parentBarset) == "string" then
-			parentBarset = assert(BarSets[parentBarset].Frame, "barset "..parentBarset.." does not exist.");
-		elseif type(parentBarset) == "number" then
-			parentBarset = assert(BarSets[db.barsets[parentBarset]], "barset "..parentBarset.." does not exist.");
-		end
+		BarCount = BarCount + 1;
 		bar = CreateFrame("Frame", "RoguePowerBars_Bar_"..BarCount, parentBarset, "RoguePowerBarTemplate");
 	end
-	print(parentBarset);
+	
 	bar.Info = {
 		Name = name,
 		Duration = expirationTime - currentTime,
@@ -633,21 +627,7 @@ function RoguePowerBars:CreateBar(name, parentBarset, expirationTime)
 	getglobal(bar:GetName().."_DescribeText"):SetText(name);
 	getglobal(bar:GetName().."_StatusBar"):SetMinMaxValues(0, bar.Info.Duration);
 	self:AddBarToSet(bar, parentBarset);
-	Bars[bar.Info.Name] = bar;
 	return bar;
-end
-
-function RoguePowerBars:CreateTestBarSet()
-	print("Creating a new barset");
-	local barsetcount = 0;
-	for k,v in pairs(BarSets) do
-		barsetcount = barsetcount + 1;
-	end
-	local barset = self:CreateBarSet("Test"..(barsetcount + 1));
-	local bar = self:CreateBar("Test"..(barsetcount + 1), barset, GetTime()+5);
-	barset:SetHeight(50);
-	barset:Show();
-	bar:SetPoint("TOP", barset, "TOP");
 end
 
 function RoguePowerBars:UpdateBar(bar, updateTime)
@@ -669,23 +649,51 @@ function RoguePowerBars:RemoveBar(bar)
 end
 
 function RoguePowerBars:RemoveBarFromSet(bar)
-	local barSetFrame, barFrame;
+	local barSetFrame;
 	barSetFrame = bar:GetParent();
 	
-	BarSets[barSetFrame.Info.Name].bars[bar.Info.Name] = nil;
-	
-	Bars[bar.Info.Name] = nil;
+	self:tremovebyval(barSetFrame.Info.Bars, bar);
+end
+
+function RoguePowerBars:tremovebyval(t, value)
+	for k,v in ipairs(t) do
+		if v == value then
+			table.remove(t, k)
+			return;
+		end
+	end
+	-- if reached here, throw error
+	error("Value "..tostring(value).." not found in table "..tostring(t));
 end
 
 function RoguePowerBars:ClearAllBars()
-	for k,v in pairs(Bars) do
-		self:RemoveBarFromSet(v);
+	for i,t in pairs(BarSets) do
+		for k,v in ipairs(t.Info.Bars) do
+			print("Clearing bar "..k..": "..v.Info.Name);
+			self:RemoveBar(v);
+		end
 	end
 end
 
 function RoguePowerBars:OnUIUpdate(tick, frame)
 	local updateTime = GetTime();
-	for i,v in pairs(BarSets[frame.Info.Name].bars) do
+	for i,v in pairs(frame.Info.Bars) do
 		self:UpdateBar(v, updateTime);
 	end
+end
+
+
+-----------------------------------------------------------------------
+-- Debug functions
+function RoguePowerBars:CreateTestBarSet()
+	print("Creating a new barset");
+	local barsetcount = 0;
+	for k,v in pairs(BarSets) do
+		barsetcount = barsetcount + 1;
+	end
+	local barset = self:CreateBarSet("Test"..(barsetcount + 1));
+	local bar = self:CreateBar("Test"..(barsetcount + 1), barset, GetTime()+5);
+	barset:SetHeight(24);
+	barset:Show();
+	bar:SetPoint("TOP", barset, "TOP");
 end

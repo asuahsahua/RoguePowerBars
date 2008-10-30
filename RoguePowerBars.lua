@@ -47,6 +47,7 @@ function RoguePowerBars:OnInitialize()
 	self:BuildDefaults()
 	self.db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults);
 	db = self.db.profile;
+	self:InitializeBarSets();
 	self:SetupOptions()
 end
 
@@ -90,7 +91,8 @@ function RoguePowerBars:UpdateBuffs()
 					MaxTime = fullDuration,
 					Settings = buffSettings,
 					Texture = texture,
-					Stacks = count
+					Stacks = count,
+					ExpirationTime = expirationTime,
 				});
 			end
 		end
@@ -110,7 +112,8 @@ function RoguePowerBars:UpdateBuffs()
 					MaxTime = fullDuration,
 					Settings = buffSettings,
 					Texture = texture,
-					Stacks = count
+					Stacks = count,
+					ExpirationTime = expirationTime,
 				});
 			end
 		end
@@ -122,6 +125,18 @@ function RoguePowerBars:UpdateBuffs()
 end
 
 function RoguePowerBars:SetStatusBar(buff)
+	self:ClearAllBars()
+	print("----SetStatusBar----");
+	print(buff.Name);
+	print(self:RemoveSpaces(buff.Name));
+	print(db.buffs[self:RemoveSpaces(buff.Name)]);
+	print(db.buffs[self:RemoveSpaces(buff.Name)].Barset);
+	print(db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset]);
+	local barset = db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset];
+	local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime);
+	bar:GetParent():Show();
+	bar:SetPoint("TOP", barset, "TOP");
+	
 	print("Setting status bar for "..buff.Name);
 end
 
@@ -601,10 +616,13 @@ function RoguePowerBars:CreateBar(name, parentBarset, expirationTime)
 	else
 		BarCount = BarCount + 1
 		if type(parentBarset) == "string" then
-			parentBarset = assert(BarSets[parentBarset].Frame, "that barset does not exist.");
+			parentBarset = assert(BarSets[parentBarset].Frame, "barset "..parentBarset.." does not exist.");
+		elseif type(parentBarset) == "number" then
+			parentBarset = assert(BarSets[db.barsets[parentBarset]], "barset "..parentBarset.." does not exist.");
 		end
 		bar = CreateFrame("Frame", "RoguePowerBars_Bar_"..BarCount, parentBarset, "RoguePowerBarTemplate");
 	end
+	print(parentBarset);
 	bar.Info = {
 		Name = name,
 		Duration = expirationTime - currentTime,
@@ -657,6 +675,12 @@ function RoguePowerBars:RemoveBarFromSet(bar)
 	BarSets[barSetFrame.Info.Name].bars[bar.Info.Name] = nil;
 	
 	Bars[bar.Info.Name] = nil;
+end
+
+function RoguePowerBars:ClearAllBars()
+	for k,v in pairs(Bars) do
+		self:RemoveBarFromSet(v);
+	end
 end
 
 function RoguePowerBars:OnUIUpdate(tick, frame)

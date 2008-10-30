@@ -1,5 +1,6 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
-
+  
+  
   <Frame name="RoguePowerBarTemplate" virtual="true">
     <Size>
       <AbsDimension x="254" y="24"/>
@@ -57,6 +58,7 @@
         <Layers>
           <Layer level="OVERLAY">
             <FontString name="$parent_DescribeText" inherits="GameFontNormal" justifyH="LEFT">
+              <Color r="1" g="1" b="1" a="1"/>
               <Anchors>
                 <Anchor point="LEFT">
                   <Offset>
@@ -121,6 +123,7 @@
       </OnLoad>
 
       <OnUpdate>
+        OnUIUpdate(arg1, self);
       </OnUpdate>
 
       <OnEvent>

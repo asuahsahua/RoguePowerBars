@@ -7,6 +7,11 @@
 local RoguePowerBars = LibStub("AceAddon-3.0"):NewAddon("RoguePowerBars", "AceConsole-3.0", "AceEvent-3.0")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 
+---------------------------------------------
+-- Defined constants
+local UpdateRate = .01;
+
+
 ----------------------------------------------
 -- Local variables
 local db;
@@ -15,7 +20,6 @@ local db;
 local defaults = {
 	profile = {
 		buffs = { },
-		debuffs = { },
 		bars = { },
 		barsets = { 
 			"Buffs",
@@ -37,6 +41,8 @@ local defaults = {
 	},
 }
 
+--------------------------------------------------------------
+-- Event handlers
 function RoguePowerBars:OnInitialize()
 	self:BuildDefaults()
 	self.db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults);
@@ -46,6 +52,7 @@ end
 
 function RoguePowerBars:OnEnable()
 	self:RegisterEvent("UNIT_AURA", "OnUnitAura")
+	self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnTargetChanged")
 end
 
 function RoguePowerBars:OnDisable()
@@ -53,7 +60,69 @@ function RoguePowerBars:OnDisable()
 end
 
 function RoguePowerBars:OnUnitAura(eventName, unitID)
+	if unitID == "player" or unitID == "target" then
+		self:UpdateBuffs();
+	end
+end
 
+function RoguePowerBars:OnTargetChanged(eventName)
+	self:UpdateBuffs();
+end
+
+
+--------------------------------------------------------------
+-- Buff/debuff update handlers
+function RoguePowerBars:UpdateBuffs()
+	local currentTime = GetTime();
+	local buffs = { };
+	local buffIndex = 1;
+	local name = "dummy";
+	local rank, texture, count, buffType, fullDuration, expirationTime;
+	while name do
+		name, rank, texture, count, buffType, fullDuration, expirationTime = UnitAura("player", buffIndex, "HELPFUL");
+		if name then
+			local buffSettings = db.buffs[self:RemoveSpaces(name)];
+			if buffSettings and buffSettings.IsEnabled then
+				table.insert(buffs,{
+					BuffIndex = buffIndex,
+					Name = name,
+					TimeLeft = expirationTime - currentTime,
+					MaxTime = fullDuration,
+					Settings = buffSettings,
+					Texture = texture,
+					Stacks = count
+				});
+			end
+		end
+		buffIndex = buffIndex + 1;
+	end
+	buffIndex = 1;
+	name = "dummy";
+	while name do
+		name, rank, texture, count, buffType, fullDuration, expirationTime = UnitAura("target", buffIndex, "HARMFUL|PLAYER");
+		if name then
+			local buffSettings = db.buffs[self:RemoveSpaces(name)];
+			if buffSettings and buffSettings.IsEnabled then
+				table.insert(buffs, {
+					BuffIndex = buffIndex,
+					Name = name,
+					TimeLeft = expirationTime - currentTime,
+					MaxTime = fullDuration,
+					Settings = buffSettings,
+					Texture = texture,
+					Stacks = count
+				});
+			end
+		end
+		buffIndex = buffIndex + 1;
+	end
+	for x = 1, #buffs do
+		self:SetStatusBar(buffs[x]);
+	end
+end
+
+function RoguePowerBars:SetStatusBar(buff)
+	print("Setting status bar for "..buff.Name);
 end
 
 local buffsPlugin = { };
@@ -241,7 +310,13 @@ local options = {
 			name = "Debuff",
 			desc = "Debuff Settings",
 			plugins = debuffsPlugin,
-			args = {},
+			args = {
+				description = {
+					order = 0,
+					type = "description",
+					name = "Enable or disable debuffs here.",
+				},
+			},
 		},
 	},
 }
@@ -322,9 +397,26 @@ function RoguePowerBars:PopulateBuffs()
 						db.buffs[info[#info-1]].Priority = value
 					end,
 				},
+				Barset = {
+					type = "select",
+					order = 4,
+					name = "Barset",
+					desc = "The barset this bar will be displayed in",
+					values = self:GetBarSets(),
+					get = function(info, value)
+						return db.buffs[info[#info-1]].Barset;
+					end,
+					set = function(info, value)
+						db.buffs[info[#info-1]].Barset = value
+					end,
+				}
 			},
 		};
 	end
+end
+
+function RoguePowerBars:GetBarSets()
+	return db.barsets;
 end
 
 function RoguePowerBars:PopulateDebuffs()
@@ -348,10 +440,10 @@ function RoguePowerBars:PopulateDebuffs()
 					name = "Enabled",
 					desc = "Enable "..buffSettings.Name,
 					get = function(info) 
-						return db.debuffs[info[#info-1]].IsEnabled 
+						return db.buffs[info[#info-1]].IsEnabled 
 					end,
 					set = function(info, value) 
-						db.debuffs[info[#info-1]].IsEnabled = value 
+						db.buffs[info[#info-1]].IsEnabled = value 
 					end,
 				},
 				Color = {
@@ -360,11 +452,11 @@ function RoguePowerBars:PopulateDebuffs()
 					name = "Bar Color",
 					hasAlpha = true,
 					get = function(info)
-						local c = db.debuffs[info[#info-1]].Color
+						local c = db.buffs[info[#info-1]].Color
 						return c.r, c.g, c.b, 1
 					end,
 					set = function(info, r, g, b, a)
-						local c = db.debuffs[info[#info-1]].Color
+						local c = db.buffs[info[#info-1]].Color
 						c.r, c.g, c.b, c.a = r, g, b, .8
 					end
 				},
@@ -375,10 +467,23 @@ function RoguePowerBars:PopulateDebuffs()
 					min = -10, max = 10, step = 1,
 					isPercent = false,
 					get = function(info)
-						return db.debuffs[info[#info-1]].Priority
+						return db.buffs[info[#info-1]].Priority
 					end,
 					set = function(info, value)
-						db.debuffs[info[#info-1]].Priority = value
+						db.buffs[info[#info-1]].Priority = value
+					end,
+				},
+				Barset = {
+					type = "select",
+					order = 4,
+					name = "Barset",
+					desc = "The barset this bar will be displayed in",
+					values = self:GetBarSets(),
+					get = function(info, value)
+						return db.buffs[info[#info-1]].Barset;
+					end,
+					set = function(info, value)
+						db.buffs[info[#info-1]].Barset = value
 					end,
 				},
 			},
@@ -406,12 +511,13 @@ function RoguePowerBars:BuildDefaults()
 			},
 			IsEnabled = true,
 			Priority = 0,
+			Barset = 1,
 		}
 	end
 	for i = 1, #debuffDefault do
 		local debuff = debuffDefault[i]
 		local nameSansSpaces = self:RemoveSpaces(debuff.Name);
-		defaults.profile.debuffs[nameSansSpaces] = {
+		defaults.profile.buffs[nameSansSpaces] = {
 			Name = debuff.Name,
 			Color = {
 				r = debuff.StatusBarColor.r,
@@ -421,6 +527,7 @@ function RoguePowerBars:BuildDefaults()
 			},
 			IsEnabled = true,
 			Priority = 0,
+			Barset = 2,
 		}
 	end
 end
@@ -436,9 +543,10 @@ end
 ------------------------------------------------------------------
 -- UI Functions
 
-local BarSets = { }
-local Bars = { }
-local BarsToRecycle = { }
+local BarSets = { } -- associative array
+local Bars = { } -- associative array
+local BarsToRecycle = { } -- normal array
+local BarCount = 0;
 
 function RoguePowerBars:InitializeBarSets()
 	for i,v in pairs(db.barsets) do
@@ -448,39 +556,112 @@ end
 
 function RoguePowerBars:CreateBarSet(name)
 	if not BarSets[name] then
+		local frame = CreateFrame("Frame", "RoguePowerBars_BarSet_"..name, UIParent, "RoguePowerBarSetTemplate");
+		frame.Info = {
+			Name = name,
+		}
 		BarSets[name] = {
-			frame = CreateFrame("Frame", "RoguePowerBars_BarSet_"..name, UIParent, "RoguePowerBarSetTemplate"),
+			Name = name;
+			Frame = frame;
 			bars = {
 				
 			}
 		}
-		return BarSets[name].frame
+		return BarSets[name].Frame
 	else
 		error("BarSet "..name.." already exists.");
 	end
 end
 
-function RoguePowerBars:AddBarToSet(barName, barSetName)
+function RoguePowerBars:AddBarToSet(bar, barSet)
 	local barSetFrame, barFrame;
-	if BarSets[barSetName] then
-		barSetFrame = BarSets[barSetName].frame;
-		bar = CreateFrame("Frame", "RoguePowerBars_Bar_"..barName, barSetFrame, "RoguePowerBarTemplate");
-		BarSets[barSetName].frame.bars[barName] = bar;
-		Bars[barName] = bar;
-	else
-		error("");
+	
+	if type(barSet) == "string" then
+		barSetFrame = assert(BarSets[barSet].frame, "BarSetFrame "..barSet.." does not exist.");
+	elseif type(barSet) == "table" then
+		barSetFrame = barSet;
 	end
+	
+	BarSets[barSetFrame.Info.Name].bars[bar.Info.Name] = bar;
+	return barSetFrame;
 end
 
-function RoguePowerBars:CreateBar()
-	
+function RoguePowerBars:CreateBar(name, parentBarset, expirationTime)
+	local bar;
+	local currentTime = GetTime();
+	if #BarsToRecycle > 0 then
+		bar = BarsToRecycle[#BarsToRecycle];
+		BarsToRecycle[#BarsToRecycle] = nil;
+		if type(parentBarset) == "string" then
+			bar:SetParent(BarSets[parentBarset].Frame);
+		else
+			bar:SetParent(parentBarset);
+		end
+		bar:Show();
+	else
+		BarCount = BarCount + 1
+		if type(parentBarset) == "string" then
+			parentBarset = assert(BarSets[parentBarset].Frame, "that barset does not exist.");
+		end
+		bar = CreateFrame("Frame", "RoguePowerBars_Bar_"..BarCount, parentBarset, "RoguePowerBarTemplate");
+	end
+	bar.Info = {
+		Name = name,
+		Duration = expirationTime - currentTime,
+		TimeLeft = expirationTime - currentTime,
+		ExpirationTime = expirationTime,
+		StartTime = currentTime,
+	}
+	getglobal(bar:GetName().."_DescribeText"):SetText(name);
+	getglobal(bar:GetName().."_StatusBar"):SetMinMaxValues(0, bar.Info.Duration);
+	self:AddBarToSet(bar, parentBarset);
+	Bars[bar.Info.Name] = bar;
+	return bar;
 end
 
 function RoguePowerBars:CreateTestBarSet()
 	print("Creating a new barset");
-	local barset = self:CreateBarSet("Test");
-	local bar = CreateFrame("Frame", "TestBarSet", barset, "RoguePowerBarTemplate");
+	local barsetcount = 0;
+	for k,v in pairs(BarSets) do
+		barsetcount = barsetcount + 1;
+	end
+	local barset = self:CreateBarSet("Test"..(barsetcount + 1));
+	local bar = self:CreateBar("Test"..(barsetcount + 1), barset, GetTime()+5);
 	barset:SetHeight(50);
 	barset:Show();
 	bar:SetPoint("TOP", barset, "TOP");
+end
+
+function RoguePowerBars:UpdateBar(bar, updateTime)
+	local info = bar.Info;
+	info.TimeLeft = info.ExpirationTime - updateTime;
+	if info.TimeLeft >= 0 then
+		getglobal(bar:GetName().."_StatusBar"):SetValue(info.TimeLeft);
+		getglobal(bar:GetName().."_DurationText"):SetText(string.format("%.1f", info.TimeLeft));
+	else
+		self:RemoveBar(bar);
+	end
+end
+
+function RoguePowerBars:RemoveBar(bar)
+	bar:Hide();
+	self:RemoveBarFromSet(bar);
+	BarsToRecycle[#BarsToRecycle+1] = bar;
+	--todo: update barset.
+end
+
+function RoguePowerBars:RemoveBarFromSet(bar)
+	local barSetFrame, barFrame;
+	barSetFrame = bar:GetParent();
+	
+	BarSets[barSetFrame.Info.Name].bars[bar.Info.Name] = nil;
+	
+	Bars[bar.Info.Name] = nil;
+end
+
+function RoguePowerBars:OnUIUpdate(tick, frame)
+	local updateTime = GetTime();
+	for i,v in pairs(BarSets[frame.Info.Name].bars) do
+		self:UpdateBar(v, updateTime);
+	end
 end

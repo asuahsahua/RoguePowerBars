@@ -1,172 +1,145 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 
-	<Script file="RoguePowerBars.lua"/>
+  <Frame name="RoguePowerBarTemplate" virtual="true">
+    <Size>
+      <AbsDimension x="254" y="24"/>
+    </Size>
 
-	<Frame name="RoguePowerBarTemplate" virtual="true">
-		<Size>
-			<AbsDimension x="254" y="24"/>
-		</Size>
-
-		<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" tiel="true">
-			<Color r="0" g="0" b="0" a="0.8"/>
-		</Backdrop>
+    <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" tile="true">
+      <Color r="0" g="0" b="0" a="0.8"/>
+    </Backdrop>
     
-		<Layers>
-			<Layer level="ARTWORK">
-				<Texture name="$parent_Icon" file="Interface\Icons\Ability_Rogue_MasterOfSubtlety">
-					<Size>
-						<AbsDimension x="21" y="20"/>
-					</Size>
-					<Anchors>
-						<Anchor point="TOPLEFT">
-							<Offset>
-								<AbsDimension x="2" y="-2"/>
-							</Offset>
-						</Anchor>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
+    <Layers>
+      <Layer level="ARTWORK">
+        <Texture name="$parent_Icon" file="Interface\Icons\Ability_Rogue_MasterOfSubtlety">
+          <Size>
+            <AbsDimension x="21" y="20"/>
+          </Size>
+          <Anchors>
+            <Anchor point="TOPLEFT">
+              <Offset>
+                <AbsDimension x="2" y="-2"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </Texture>
+      </Layer>
+    </Layers>
 
-		<Frames>
-			<StatusBar name="$parent_StatusBar" drawLayer="ARTWORK">
+    <Frames>
+      <StatusBar name="$parent_StatusBar" drawLayer="ARTWORK">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+            <Offset>
+              <AbsDimension x="22" y="-2"/>
+            </Offset>
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+            <Offset>
+              <AbsDimension x="-2" y="2"/>
+            </Offset>
+          </Anchor>
 
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
-						<Offset>
-							<AbsDimension x="22" y="-2"/>
-						</Offset>
-					</Anchor>
-					<Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
-						<Offset>
-							<AbsDimension x="-2" y="2"/>
-						</Offset>
-					</Anchor>
+        </Anchors>
 
-				</Anchors>
+        <BarTexture file="Interface\AddOns\RoguePowerBars\BatTextureSmooth.tga"/>   <!-- file="Interface\TargetingFrame\UI-StatusBar" -->
 
-				<BarTexture file="Interface\AddOns\RoguePowerBars\BatTextureSmooth.tga"/>   <!-- file="Interface\TargetingFrame\UI-StatusBar" -->
+        <BarColor r="0" g="0.5" b="1.0"/>
 
-				<BarColor r="0" g="0.5" b="1.0"/>
+        <Scripts>
+          <OnLoad>
+          </OnLoad>
+        </Scripts>
 
-				<Scripts>
-					<OnLoad>
-						--this:SetFrameLevel(this:GetFrameLevel() - 1)
-					</OnLoad>
-				</Scripts>
+      </StatusBar>
 
-			</StatusBar>
+      <Frame>
+        <Layers>
+          <Layer level="OVERLAY">
+            <FontString name="$parent_DescribeText" inherits="GameFontNormal" justifyH="LEFT">
+              <Anchors>
+                <Anchor point="LEFT">
+                  <Offset>
+                    <AbsDimension x="2" y="0"/>
+                  </Offset>
+                </Anchor>
+                <Anchor point="RIGHT">
+                  <Offset>
+                    <AbsDimension x="-35" y="0"/>
+                  </Offset>
+                </Anchor>
+              </Anchors>
+            </FontString>
+            <FontString name="$parent_DurationText" inherits="GameFontNormal" justifyH="RIGHT">
+              <Anchors>
+                <Anchor point="RIGHT">
+                  <Offset>
+                    <AbsDimension x="-2" y="0"/>
+                  </Offset>
+                </Anchor>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parent_StatusBar" relativePoint="TOPLEFT" />
+          <Anchor point="BOTTOMRIGHT" relativeTo="$parent_StatusBar" relativePoint="BOTTOMRIGHT" />
+        </Anchors>
+      </Frame>
+      <Frame name="$parent_BarBackGround">
+        <Backdrop bgFile="Interface\AddOns\RoguePowerBars\BatTextureSmooth.tga" tiel="true"/>
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parent_StatusBar" relativePoint="TOPLEFT" />
+          <Anchor point="BOTTOMRIGHT" relativeTo="$parent_StatusBar" relativePoint="BOTTOMRIGHT" />
+        </Anchors>
+      </Frame>
+    </Frames>
 
-			<Frame>
-				<Layers>
-					<Layer level="OVERLAY">
-						<FontString name="$parent_DescribeText" inherits="GameFontNormal" justifyH="LEFT">
-							<Anchors>
-								<Anchor point="LEFT">
-									<Offset>
-										<AbsDimension x="2" y="0"/>
-									</Offset>
-								</Anchor>
-								<Anchor point="RIGHT">
-									<Offset>
-										<AbsDimension x="-35" y="0"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-						<FontString name="$parent_DurationText" inherits="GameFontNormal" justifyH="RIGHT">
-							<Anchors>
-								<Anchor point="RIGHT">
-									<Offset>
-										<AbsDimension x="-2" y="0"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_StatusBar" relativePoint="TOPLEFT" />
-					<Anchor point="BOTTOMRIGHT" relativeTo="$parent_StatusBar" relativePoint="BOTTOMRIGHT" />
-				</Anchors>
-			</Frame>
-			<Frame name="$parent_BarBackGround">
-				<Backdrop bgFile="Interface\AddOns\RoguePowerBars\BatTextureSmooth.tga" tiel="true"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_StatusBar" relativePoint="TOPLEFT" />
-					<Anchor point="BOTTOMRIGHT" relativeTo="$parent_StatusBar" relativePoint="BOTTOMRIGHT" />
-				</Anchors>
-			</Frame>
-		</Frames>
-
-		<Scripts>
-			<OnLoad>
-				this:SetFrameLevel(this:GetFrameLevel() - 1);
-			</OnLoad>
-		</Scripts>
-	</Frame>
+    <Scripts>
+      <OnLoad>
+      </OnLoad>
+    </Scripts>
+  </Frame>
 
 
-	<Frame name="RoguePowerBar" clampedToScreen="true" parent="UIParent" hidden="false" enableMouse="false" movable="true">
+  <Frame name="RoguePowerBarSetTemplate" virtual="true" clampedToScreen="true" enableMouse="false" movable="true">
 
-		<Size>
-			<AbsDimension x="250" y="1"/>
-		</Size>
+    <Size>
+      <AbsDimension x="250" y="1"/>
+    </Size>
+        
+    <Anchors>
+      <Anchor point="CENTER">
+        <Offset>
+          <AbsDimension x="0" y="80" />
+        </Offset>
+      </Anchor>
+    </Anchors>
 
-		<Anchors>
-			<Anchor point="CENTER">
-				<Offset>
-					<AbsDimension x="0" y="80" />
-				</Offset>
-			</Anchor>
-		</Anchors>
+    <Scripts>
+      <OnLoad>
+      </OnLoad>
 
-		<Scripts>
-			<OnLoad>
-				RoguePowerBar_OnLoad();
-				self:SetFrameLevel(this:GetFrameLevel() - 1);
-			</OnLoad>
+      <OnUpdate>
+      </OnUpdate>
 
-			<OnUpdate>
-				RoguePowerBar_OnUpdate(arg1);
-			</OnUpdate>
+      <OnEvent>
+      </OnEvent>
 
-			<OnEvent>
-				RoguePowerBar_OnEvent(event);
-			</OnEvent>
+       <OnMouseDown>
+         if ( arg1 == "LeftButton") then
+           self:StartMoving();
+         end
+       </OnMouseDown>
 
- 			<OnMouseDown>
- 				if ( arg1 == "LeftButton" and not ROGUEPOWERBAR_LOCKED) then
- 					self:StartMoving();
- 				end
- 			</OnMouseDown>
+       <OnMouseUp>
+         if ( arg1 == "LeftButton" ) then
+           this:StopMovingOrSizing();
+           -- TODO: set the location in the options
+         end
+       </OnMouseUp>
 
- 			<OnMouseUp>
- 				if ( arg1 == "LeftButton" ) then
- 					this:StopMovingOrSizing();
-					local point,relativeTo,relativePoint,xOfs,yOfs = RoguePowerBar:GetPoint();
-
-					RoguePowerBar_Save[ROGUEPOWERBAR_PROFILE].point = point
-					RoguePowerBar_Save[ROGUEPOWERBAR_PROFILE].x = xOfs;
-					RoguePowerBar_Save[ROGUEPOWERBAR_PROFILE].y = yOfs;
-
-					RoguePowerBarsOptions.point = RoguePowerBar_Save[ROGUEPOWERBAR_PROFILE].point;
-					RoguePowerBarsOptions.x = RoguePowerBar_Save[ROGUEPOWERBAR_PROFILE].x;
-					RoguePowerBarsOptions.y = RoguePowerBar_Save[ROGUEPOWERBAR_PROFILE].y;
- 				end
- 			</OnMouseUp>
-
-		</Scripts>
-	</Frame>
-
-
-	<Frame name="RoguePowerBar_Variable_Frame" hidden="false">
-		<Scripts>
-			<OnUpdate>
-				RoguePowerBar_LoadVariables(arg1)
-			</OnUpdate>
-		</Scripts>
-	</Frame>
-
+    </Scripts>
+  </Frame>
 
 </Ui>

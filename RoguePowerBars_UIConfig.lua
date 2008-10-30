@@ -1,3 +1,0 @@
-function RoguePowerBars:SetupOptions()
-
-end

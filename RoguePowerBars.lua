@@ -16,20 +16,28 @@ local defaults = {
 	profile = {
 		buffs = { },
 		debuffs = { },
+		bars = { },
+		barsets = { 
+			"Buffs",
+			"Debuffs",
+		},
 		settings = {
+			Alpha = 1,
 			Scale = 1,
 			Width = 250,
 			Height = 24,
+			Locked = false,
+			Inverted = false,
+			Flash = false,
+			TextEnabled = true,
+			DurationTextEnabled = true,
 			Texture = "Blizzard",
 			TexturePath = SharedMedia:Fetch("statusbar", "Blizzard"),
 		},
 	},
 }
 
-
-
 function RoguePowerBars:OnInitialize()
-	-- TODO: Defaults table
 	self:BuildDefaults()
 	self.db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults);
 	db = self.db.profile;
@@ -37,10 +45,14 @@ function RoguePowerBars:OnInitialize()
 end
 
 function RoguePowerBars:OnEnable()
-
+	self:RegisterEvent("UNIT_AURA", "OnUnitAura")
 end
 
 function RoguePowerBars:OnDisable()
+
+end
+
+function RoguePowerBars:OnUnitAura(eventName, unitID)
 
 end
 
@@ -73,10 +85,96 @@ local options = {
 				intro = {
 					order = 1,
 					type = "description",
-					name = "<A description for RoguePowerBars here>",	
+					name = "<A description for RoguePowerBars here>",
+				},
+				Locked = {
+					order = 2,
+					type = "toggle",
+					name = "Locked",
+					desc = "Lock/unlock the bars",
+					set = function(info, value)
+						db.settings[info[#info]] = value
+						if value then
+							print("bars should be locked")
+						else
+							print("bars should be unlocked")
+						end
+						-- todo: lock/unlock bars
+					end,
+				},
+				Inverted = {
+					order = 3,
+					type = "toggle",
+					name = "Inverted bars",
+					desc = "Invert the bars",
+					set = function(info, value)
+						db.settings[info[#info]] = value
+						if value then
+							print("bars should be inverted")
+						else
+							print("bars should not be inverted")
+						end
+						-- todo: invert/uninvert bars
+					end,
+				},
+				Flash = {
+					order = 4,
+					type = "toggle",
+					name = "Flash low bars",
+					desc = "Flash bars with a few seconds left",
+					set = function(info, value)
+						db.settings[info[#info]] = value
+						if value then
+							print("bars should now flash")
+						else
+							print("bars should now not flash")
+						end
+						-- todo: toggle flash
+					end,
+				},
+				TextEnabled = {
+					order = 5,
+					type = "toggle",
+					name = "Text Enabled",
+					desc = "Enable text on the bars",
+					set = function(info, value)
+						db.settings[info[#info]] = value
+						if value then
+							print("bar text enabled")
+						else
+							print("bar text disabled")
+						end
+						-- todo: show text
+					end,
+				},
+				DurationTextEnabled = {
+					order = 6,
+					type = "toggle",
+					name = "Duration Text Enabled",
+					desc = "Enable duration information on the bars",
+					set = function(info, value)
+						db.settings[info[#info]] = value
+						if value then
+							print("bar duration text enabled")
+						else
+							print("bar duration text disabled")
+						end
+						-- todo: show bar duration text
+					end,
+				},
+				Alpha = {
+					order = 7,
+					type = "range",
+					name = "Alpha",
+					min = 0, max = 1, step = .01,
+					set = function(info, value)
+						db.settings[info[#info]] = value
+						print("bar alpha should be updated to "..value)	
+						-- todo: update alpha
+					end,
 				},
 				Scale = {
-					order = 2,
+					order = 8,
 					type = "range",
 					name = "Scale",
 					min = .25, max = 3, step = .01,
@@ -87,7 +185,7 @@ local options = {
 					end,
 				},
 				Width = {
-					order = 3,
+					order = 9,
 					type = "range",
 					name = "Width",
 					min = 100, max = 700, step = 5,
@@ -98,7 +196,7 @@ local options = {
 					end,
 				},
 				Height = {
-					order = 4,
+					order = 10,
 					type = "range",
 					name = "Height",
 					min = 10, max = 50, step = 1,
@@ -109,20 +207,20 @@ local options = {
 					end,
 				},
 				Texture = {
+					order = 11,
 					type = "select", 
 					dialogControl = 'LSM30_Statusbar',
-					order = 5,
 					name = "Texture",
 					desc = "The texture that will be used",
 					values = AceGUIWidgetLSMlists.statusbar,
 					set = function(info, value)
 						db.settings[info[#info]] = value
 						db.settings["TexturePath"] = SharedMedia:Fetch("statusbar", value)
-						--for i = 0, #bars do
-						--	bars[i].texture:SetTexture(texturepath)
-						--end
+						print("texture set to "..value)
+						-- todo: update textures
 					end,
 				},
+				-- todo: sort order
 			},
 		},
 		Buffs={
@@ -163,6 +261,8 @@ end
 function RoguePowerBars:ChatCommand(input)
 	if not input or input:trim() == "" then
 		InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.RoguePowerBars);
+	elseif input == "create" then
+		self:CreateTestBarSet();
 	else
 		LibStub("AceConfigCmd-3.0").HandleCommand(RoguePowerBars, "rpb", "RoguePowerBars", input);
 	end
@@ -331,4 +431,56 @@ end
 
 function RoguePowerBars:GetDebuffList()
 	return RoguePowerBar_Debuff_Default;
+end
+
+------------------------------------------------------------------
+-- UI Functions
+
+local BarSets = { }
+local Bars = { }
+local BarsToRecycle = { }
+
+function RoguePowerBars:InitializeBarSets()
+	for i,v in pairs(db.barsets) do
+		self:CreateBarSet(v);
+	end
+end
+
+function RoguePowerBars:CreateBarSet(name)
+	if not BarSets[name] then
+		BarSets[name] = {
+			frame = CreateFrame("Frame", "RoguePowerBars_BarSet_"..name, UIParent, "RoguePowerBarSetTemplate"),
+			bars = {
+				
+			}
+		}
+		return BarSets[name].frame
+	else
+		error("BarSet "..name.." already exists.");
+	end
+end
+
+function RoguePowerBars:AddBarToSet(barName, barSetName)
+	local barSetFrame, barFrame;
+	if BarSets[barSetName] then
+		barSetFrame = BarSets[barSetName].frame;
+		bar = CreateFrame("Frame", "RoguePowerBars_Bar_"..barName, barSetFrame, "RoguePowerBarTemplate");
+		BarSets[barSetName].frame.bars[barName] = bar;
+		Bars[barName] = bar;
+	else
+		error("");
+	end
+end
+
+function RoguePowerBars:CreateBar()
+	
+end
+
+function RoguePowerBars:CreateTestBarSet()
+	print("Creating a new barset");
+	local barset = self:CreateBarSet("Test");
+	local bar = CreateFrame("Frame", "TestBarSet", barset, "RoguePowerBarTemplate");
+	barset:SetHeight(50);
+	barset:Show();
+	bar:SetPoint("TOP", barset, "TOP");
 end

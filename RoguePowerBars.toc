@@ -7,6 +7,7 @@
 
 includes.xml
 
+RoguePowerBars.lua
 RoguePowerBars_Buffs.lua
 RoguePowerBars_Debuffs.lua
-RoguePowerBars.lua
+RoguePowerBars.xml

@@ -7,6 +7,5 @@ end
 
 function BarsAreLocked()
 	local arelocked = RoguePowerBars.db.profile.settings.Locked;
-	print(arelocked);
 	return arelocked;
 end

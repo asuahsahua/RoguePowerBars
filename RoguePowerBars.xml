@@ -73,6 +73,7 @@
               </Anchors>
             </FontString>
             <FontString name="$parent_DurationText" inherits="GameFontNormal" justifyH="RIGHT">
+              <Color r="1" g="1" b="1" a="1" />
               <Anchors>
                 <Anchor point="RIGHT">
                   <Offset>
@@ -111,10 +112,7 @@
     </Size>
         
     <Anchors>
-      <Anchor point="CENTER">
-        <Offset>
-          <AbsDimension x="0" y="80" />
-        </Offset>
+      <Anchor point="LEFT">
       </Anchor>
     </Anchors>
 
@@ -138,7 +136,6 @@
        <OnMouseUp>
          if ( arg1 == "LeftButton" ) then
            this:StopMovingOrSizing();
-           -- TODO: set the location in the options
          end
        </OnMouseUp>
 

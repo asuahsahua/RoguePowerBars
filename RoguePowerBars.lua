@@ -3,7 +3,6 @@
 
 ----------------------------------------------
 -- Libraries
-
 local RoguePowerBars = LibStub("AceAddon-3.0"):NewAddon("RoguePowerBars", "AceConsole-3.0", "AceEvent-3.0")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 
@@ -11,15 +10,17 @@ local SharedMedia = LibStub("LibSharedMedia-3.0")
 -- Defined constants
 local UpdateRate = .01;
 
-
 ----------------------------------------------
 -- Local variables
 local db;
 local BarSets = { } -- associative array
 local BarsToRecycle = { } -- normal array
 local BarCount = 0;
---------------------------------------------------------------------------------
+local TimeSinceLastUIUpdate = 0;
 
+
+----------------------------------------------
+-- Defaults for options
 local defaults = {
 	profile = {
 		buffs = { },
@@ -51,7 +52,8 @@ function RoguePowerBars:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults);
 	db = self.db.profile;
 	self:InitializeBarSets();
-	self:SetupOptions()
+	self:SetupOptions();
+	self:ImportCustomTextures();
 end
 
 function RoguePowerBars:OnEnable()
@@ -71,6 +73,11 @@ end
 
 function RoguePowerBars:OnTargetChanged(eventName)
 	self:UpdateBuffs();
+end
+
+function UpdateBuffs()
+	rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
+	rpb:UpdateBuffs();
 end
 
 
@@ -129,16 +136,33 @@ function RoguePowerBars:SetStatusBars(buffs)
 	self:ClearAllBars();
 	for x = 1, #buffs do
 		local buff = buffs[x];
-		print("----SetStatusBar----");
 		local barset = BarSets[db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset]];
 		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime);
-		getglobal(bar:GetName().."_StatusBar"):SetMinMaxValues(0, buff.MaxTime);
-		bar:GetParent():Show();
-		bar:SetPoint("TOP", barset, "TOP");
-		bar:Show();
+		self:ConfigureBar(bar, buff);
 	end
-	-- TODO: arrange bars here
 	for k,barset in pairs(BarSets) do
+		barset:SetScale(db.settings.Scale);
+		barset:SetAlpha(db.settings.Alpha);
+		if db.settings.Locked then
+			barset:SetHeight(db.settings.Height);
+			barset:SetBackdropColor(0,0,0,0);
+			barset:EnableMouse(false);
+		else
+			if #barset.Info.Bars == 0 then
+				barset:SetHeight(db.settings.Height);
+				-- set visible
+				barset:SetBackdrop({
+					bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+					tile = true,
+				});
+				barset:SetBackdropColor(0, 0, 0, .8);
+			else
+				barset:SetHeight(#barset.Info.Bars * db.settings.Height);
+				barset:SetBackdropColor(0,0,0,0);
+			end
+			barset:EnableMouse(true);
+		end
+		barset:SetWidth(db.settings.Width);
 		local lastbar;
 		for i,bar in ipairs(barset.Info.Bars) do
 			if i == 1 then
@@ -148,8 +172,46 @@ function RoguePowerBars:SetStatusBars(buffs)
 				bar:SetPoint("TOP", lastbar, "BOTTOM");
 				lastbar = bar;
 			end
+			bar:SetHeight(db.settings.Height);
+			bar:SetWidth(db.settings.Width);
 		end
 	end
+end
+
+function RoguePowerBars:ConfigureBar(bar, buff)
+	local barname = bar:GetName();
+	local statusbar = getglobal(barname.."_StatusBar")
+	local c = db.buffs[self:RemoveSpaces(buff.Name)].Color -- status bar color
+	statusbar:SetMinMaxValues(0, buff.MaxTime);
+	statusbar:SetStatusBarColor(c.r, c.g, c.b, c.a)
+	statusbar:SetStatusBarTexture(db.settings["TexturePath"])
+	
+	local bg = getglobal(barname.."_BarBackGround");
+	local bgalpha = .3
+	bg:GetBackdrop().bgFile = db.settings["TexturePath"];
+	bg:SetBackdropColor(c.r, c.g, c.b, bgalpha)
+	
+	if buff.Stacks > 0 then
+		getglobal(barname.."_DescribeText"):SetText(buff.Name.." ("..buff.Stacks..")");
+	else
+		getglobal(barname.."_DescribeText"):SetText(buff.Name);
+	end
+	if db.settings.TextEnabled then
+		getglobal(barname.."_DescribeText"):Show();
+	else
+		getglobal(barname.."_DescribeText"):Hide();
+	end
+	
+	if db.settings.DurationTextEnabled then
+		getglobal(barname.."_DurationText"):Show();
+	else
+		getglobal(barname.."_DurationText"):Hide();
+	end
+		
+	getglobal(barname.."_Icon"):SetTexture(buff.Texture)
+	bar:GetParent():Show();
+	bar:SetPoint("TOP", bar:GetParent(), "TOP");
+	bar:Show();
 end
 
 local buffsPlugin = { };
@@ -190,42 +252,29 @@ local options = {
 					desc = "Lock/unlock the bars",
 					set = function(info, value)
 						db.settings[info[#info]] = value
-						if value then
-							print("bars should be locked")
-						else
-							print("bars should be unlocked")
-						end
-						-- todo: lock/unlock bars
+						UpdateBuffs();
 					end,
 				},
 				Inverted = {
 					order = 3,
 					type = "toggle",
-					name = "Inverted bars",
-					desc = "Invert the bars",
+					name = "Inverted bars (NYI)",
+					desc = "Invert the bars (NYI)",
 					set = function(info, value)
 						db.settings[info[#info]] = value
-						if value then
-							print("bars should be inverted")
-						else
-							print("bars should not be inverted")
-						end
-						-- todo: invert/uninvert bars
+						print("That feature is not implemented yet.")
+						-- TODO
 					end,
 				},
 				Flash = {
 					order = 4,
 					type = "toggle",
-					name = "Flash low bars",
-					desc = "Flash bars with a few seconds left",
+					name = "Flash low bars (NYI)",
+					desc = "Flash bars with a few seconds left (NYI)",
 					set = function(info, value)
 						db.settings[info[#info]] = value
-						if value then
-							print("bars should now flash")
-						else
-							print("bars should now not flash")
-						end
-						-- todo: toggle flash
+						print("That feature is not implemented yet.")
+						-- TODO
 					end,
 				},
 				TextEnabled = {
@@ -235,12 +284,7 @@ local options = {
 					desc = "Enable text on the bars",
 					set = function(info, value)
 						db.settings[info[#info]] = value
-						if value then
-							print("bar text enabled")
-						else
-							print("bar text disabled")
-						end
-						-- todo: show text
+						UpdateBuffs();
 					end,
 				},
 				DurationTextEnabled = {
@@ -250,12 +294,7 @@ local options = {
 					desc = "Enable duration information on the bars",
 					set = function(info, value)
 						db.settings[info[#info]] = value
-						if value then
-							print("bar duration text enabled")
-						else
-							print("bar duration text disabled")
-						end
-						-- todo: show bar duration text
+						UpdateBuffs();
 					end,
 				},
 				Alpha = {
@@ -265,8 +304,7 @@ local options = {
 					min = 0, max = 1, step = .01,
 					set = function(info, value)
 						db.settings[info[#info]] = value
-						print("bar alpha should be updated to "..value)	
-						-- todo: update alpha
+						UpdateBuffs();
 					end,
 				},
 				Scale = {
@@ -276,8 +314,7 @@ local options = {
 					min = .25, max = 3, step = .01,
 					set = function(info, value) 
 						db.settings[info[#info]] = value
-						print("scale should be updated to "..value)
-						-- todo: update scale
+						UpdateBuffs();
 					end,
 				},
 				Width = {
@@ -287,21 +324,19 @@ local options = {
 					min = 100, max = 700, step = 5,
 					set = function(info, value)
 						db.settings[info[#info]] = value
-						print("width should be updated to "..value)
-						-- todo: update width
+						UpdateBuffs();
 					end,
 				},
-				Height = {
-					order = 10,
-					type = "range",
-					name = "Height",
-					min = 10, max = 50, step = 1,
-					set = function(info, value)
-						db.settings[info[#info]] = value
-						print("height should be updated to "..value)
-						-- todo: update height
-					end,
-				},
+--				Height = {
+--					order = 10,
+--					type = "range",
+--					name = "Height",
+--					min = 10, max = 50, step = 1,
+--					set = function(info, value)
+--						db.settings[info[#info]] = value
+--						UpdateBuffs()
+--					end,
+--				},
 				Texture = {
 					order = 11,
 					type = "select", 
@@ -312,8 +347,7 @@ local options = {
 					set = function(info, value)
 						db.settings[info[#info]] = value
 						db.settings["TexturePath"] = SharedMedia:Fetch("statusbar", value)
-						print("texture set to "..value)
-						-- todo: update textures
+						UpdateBuffs();
 					end,
 				},
 				-- todo: sort order
@@ -568,6 +602,14 @@ function RoguePowerBars:GetDebuffList()
 end
 
 ------------------------------------------------------------------
+-- Settings changed handlers
+function RoguePowerBars:LockedChanged(value)
+	-- todo:
+		-- show the bar region if unlocked
+		-- update buffs
+end
+
+------------------------------------------------------------------
 -- UI Functions
 
 
@@ -576,6 +618,7 @@ function RoguePowerBars:InitializeBarSets()
 	for i,v in pairs(db.barsets) do
 		local barset = self:CreateBarSet(v);
 		barset:SetHeight("24"); -- FIXME
+		
 	end
 end
 
@@ -667,18 +710,30 @@ function RoguePowerBars:tremovebyval(t, value)
 end
 
 function RoguePowerBars:ClearAllBars()
+	local notClearedYet;
 	for i,t in pairs(BarSets) do
-		for k,v in ipairs(t.Info.Bars) do
-			print("Clearing bar "..k..": "..v.Info.Name);
-			self:RemoveBar(v);
+		notClearedYet = true;
+		while notClearedYet do
+			for k,v in ipairs(t.Info.Bars) do
+				self:RemoveBar(v);
+			end
+			notClearedYet = false;
+			for k,v in ipairs(t.Info.Bars) do
+				notClearedYet = true;
+				break;
+			end
 		end
 	end
 end
 
 function RoguePowerBars:OnUIUpdate(tick, frame)
-	local updateTime = GetTime();
-	for i,v in pairs(frame.Info.Bars) do
-		self:UpdateBar(v, updateTime);
+	TimeSinceLastUIUpdate = TimeSinceLastUIUpdate + tick;
+	if TimeSinceLastUIUpdate > UpdateRate then
+		local updateTime = GetTime();
+		for i,v in pairs(frame.Info.Bars) do
+			self:UpdateBar(v, updateTime);
+		end	
+		TimeSinceLastUIUpdate = 0;
 	end
 end
 
@@ -696,4 +751,18 @@ function RoguePowerBars:CreateTestBarSet()
 	barset:SetHeight(24);
 	barset:Show();
 	bar:SetPoint("TOP", barset, "TOP");
+end
+
+----------------------------------------------------------------------
+-- Imports custom textures into SharedMedia
+local BANTO_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\BarTextureBanto.tga";
+local LITESTEP_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\BarTextureLiteStep.tga";
+local OTRAVI_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\BarTextureCanvas.tga";
+local SMOOTH_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\BatTextureSmooth.tga";
+
+function RoguePowerBars:ImportCustomTextures()
+	SharedMedia:Register("statusbar", "Banto (RPB)", BANTO_TEXTURE);
+	SharedMedia:Register("statusbar", "Litestep (RPB)", LITESTEP_TEXTURE);
+	SharedMedia:Register("statusbar", "Otravi (RPB)", OTRAVI_TEXTURE);
+	SharedMedia:Register("statusbar", "Smooth (RPB)", SMOOTH_TEXTURE);
 end

@@ -297,3 +297,31 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 				StatusBarColor = { r = 0.28, g = 0.25, b = 0.29; a = 0.8 },
 				Name = "Battle Trance", 
 };
+
+-- Disdain
+RoguePowerBar_Buff_Default[GetNext()] = { 
+				BackDropColor = { r = 0.18, g = 0.15, b = 0.19, a = 0.3 },
+				StatusBarColor = { r = .48, g=.09, b=.09},
+				Name = "Disdain", 
+};
+
+-- Shadow dance
+RoguePowerBar_Buff_Default[GetNext()] = { 
+				BackDropColor = { r = 0.18, g = 0.15, b = 0.19, a = 0.3 },
+				StatusBarColor = { r = 0.6, g = 0.6, b = 0.6; a = 0.8 },
+				Name = "Shadow Dance", 
+};
+
+-- Light's strength (Aldor SSO pendant)
+RoguePowerBar_Buff_Default[GetNext()] = { 
+				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
+				StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+				Name = "Light's Strength", 
+};
+
+RoguePowerBar_Buff_Default[GetNext()] = {
+				BackDropColor = { r = 0.78, g = 0.15, b = .15, a = 0.3 },
+				StatusBarColor = { r = 0.78, g = 0.15, b = .15, a = 0.8 },
+				Name = "Bloodlust"
+}
+

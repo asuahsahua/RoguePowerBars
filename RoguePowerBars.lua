@@ -9,6 +9,7 @@ local SharedMedia = LibStub("LibSharedMedia-3.0")
 ---------------------------------------------
 -- Defined constants
 local UpdateRate = .01;
+local version = "@project-version@" or "2.2.x";
 
 ----------------------------------------------
 -- Local variables
@@ -243,7 +244,7 @@ local options = {
 				intro = {
 					order = 1,
 					type = "description",
-					name = "<A description for RoguePowerBars here>",
+					name = "Version "..version.." - Updated by Domia on Maiev-US (Curse profile: Asuah)",
 				},
 				Locked = {
 					order = 2,
@@ -297,6 +298,11 @@ local options = {
 						UpdateBuffs();
 					end,
 				},
+				Divider1 = {
+					order = 7,
+					type = "description",
+					name = "",
+				},
 				Alpha = {
 					order = 7,
 					type = "range",
@@ -337,6 +343,11 @@ local options = {
 --						UpdateBuffs()
 --					end,
 --				},
+				Divider2 = {
+					order = 10,
+					type = "description",
+					name = "",
+				},
 				Texture = {
 					order = 11,
 					type = "select", 

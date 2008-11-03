@@ -9,7 +9,7 @@ local SharedMedia = LibStub("LibSharedMedia-3.0")
 ---------------------------------------------
 -- Defined constants
 local UpdateRate = .01;
-local version = "@project-version@" or "2.2.x";
+local version = "@project-version@";
 
 ----------------------------------------------
 -- Local variables
@@ -35,7 +35,7 @@ local defaults = {
 			Scale = 1,
 			Width = 250,
 			Height = 24,
-			Locked = false,
+			Locked = true,
 			Inverted = false,
 			Flash = false,
 			TextEnabled = true,
@@ -145,10 +145,16 @@ function RoguePowerBars:SetStatusBars(buffs)
 		barset:SetScale(db.settings.Scale);
 		barset:SetAlpha(db.settings.Alpha);
 		if db.settings.Locked then
+			if #barset.Info.Bars == 0 then
+				barset:Hide();
+			else
+				barset:Show();
+			end
 			barset:SetHeight(db.settings.Height);
 			barset:SetBackdropColor(0,0,0,0);
 			barset:EnableMouse(false);
 		else
+			barset:Show();
 			if #barset.Info.Bars == 0 then
 				barset:SetHeight(db.settings.Height);
 				-- set visible
@@ -259,23 +265,21 @@ local options = {
 				Inverted = {
 					order = 3,
 					type = "toggle",
-					name = "Inverted bars (NYI)",
-					desc = "Invert the bars (NYI)",
+					name = "Inverted bars",
+					desc = "Invert the bars",
 					set = function(info, value)
 						db.settings[info[#info]] = value
-						print("That feature is not implemented yet.")
-						-- TODO
+						UpdateBuffs();
 					end,
 				},
 				Flash = {
 					order = 4,
 					type = "toggle",
-					name = "Flash low bars (NYI)",
-					desc = "Flash bars with a few seconds left (NYI)",
+					name = "Flash low bars",
+					desc = "Flash bars with less than 5 seconds left",
 					set = function(info, value)
 						db.settings[info[#info]] = value
-						print("That feature is not implemented yet.")
-						-- TODO
+						UpdateBuffs();
 					end,
 				},
 				TextEnabled = {
@@ -403,16 +407,6 @@ function RoguePowerBars:SetupOptions()
 	self.optionsFrames.Buffs = ACD:AddToBlizOptions("RoguePowerBars", "Buffs", "RoguePowerBars", "Buffs");
 	self.optionsFrames.Debuffs = ACD:AddToBlizOptions("RoguePowerBars", "Debuffs", "RoguePowerBars", "Debuffs");
 	self:RegisterChatCommand("rpb", "ChatCommand");
-end
-
-function RoguePowerBars:ChatCommand(input)
-	if not input or input:trim() == "" then
-		InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.RoguePowerBars);
-	elseif input == "create" then
-		self:CreateTestBarSet();
-	else
-		LibStub("AceConfigCmd-3.0").HandleCommand(RoguePowerBars, "rpb", "RoguePowerBars", input);
-	end
 end
 
 function RoguePowerBars:PopulateBuffs()
@@ -611,13 +605,23 @@ end
 function RoguePowerBars:GetDebuffList()
 	return RoguePowerBar_Debuff_Default;
 end
+-----------------------------------------------------------------
+-- Slash command handler
+function RoguePowerBars:ChatCommand(input)
+	if not input or input:trim() == "" then
+		InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.RoguePowerBars);
+	elseif input == "create" then
+		self:CreateTestBarSet();
+	elseif input == "lock" then
+		self:ToggleLocked();
+	else
+		LibStub("AceConfigCmd-3.0").HandleCommand(RoguePowerBars, "rpb", "RoguePowerBars", input);
+	end
+end
 
-------------------------------------------------------------------
--- Settings changed handlers
-function RoguePowerBars:LockedChanged(value)
-	-- todo:
-		-- show the bar region if unlocked
-		-- update buffs
+function RoguePowerBars:ToggleLocked()
+	db.settings.Locked = not db.settings.Locked;
+	self:UpdateBuffs();
 end
 
 ------------------------------------------------------------------
@@ -662,6 +666,7 @@ function RoguePowerBars:CreateBar(name, parentBarset, expirationTime)
 	-- assumes parentBarset is the parent frame.
 	local bar;
 	local currentTime = GetTime();
+	local timeleft;
 	
 	if #BarsToRecycle > 0 then
 		bar = BarsToRecycle[#BarsToRecycle];
@@ -669,6 +674,12 @@ function RoguePowerBars:CreateBar(name, parentBarset, expirationTime)
 	else
 		BarCount = BarCount + 1;
 		bar = CreateFrame("Frame", "RoguePowerBars_Bar_"..BarCount, parentBarset, "RoguePowerBarTemplate");
+	end
+	
+	if db.settings.Inverted then
+		timeleft = expirationTime - currentTime;
+	else
+	
 	end
 	
 	bar.Info = {
@@ -686,13 +697,36 @@ end
 
 function RoguePowerBars:UpdateBar(bar, updateTime)
 	local info = bar.Info;
+	local statusbar = getglobal(bar:GetName().."_StatusBar");
 	info.TimeLeft = info.ExpirationTime - updateTime;
+	bar:SetAlpha(self:GetFadeAlpha(bar));
 	if info.TimeLeft >= 0 then
-		getglobal(bar:GetName().."_StatusBar"):SetValue(info.TimeLeft);
+		if db.settings.Inverted then
+			local min, max = statusbar:GetMinMaxValues()
+			statusbar:SetValue(max - info.TimeLeft);
+		else
+			statusbar:SetValue(info.TimeLeft);
+		end
 		getglobal(bar:GetName().."_DurationText"):SetText(string.format("%.1f", info.TimeLeft));
 	else
 		self:RemoveBar(bar);
 	end
+end
+
+function RoguePowerBars:GetFadeAlpha(bar)
+	local timeleft = bar.Info.TimeLeft;
+	local value;
+	if timeleft > 5 or not db.settings.Flash then
+		value =  1;
+	else
+		local fadeinterval = 1;
+		if (timeleft % fadeinterval) > (fadeinterval / 2) then
+			value = .2 + (.8 * (2 * (timeleft % (fadeinterval / 2))));
+		else
+			value = .2 + (.8 * (1 - (2 * (timeleft % (fadeinterval / 2)))));
+		end
+	end
+	return value;
 end
 
 function RoguePowerBars:RemoveBar(bar)
@@ -743,7 +777,11 @@ function RoguePowerBars:OnUIUpdate(tick, frame)
 		local updateTime = GetTime();
 		for i,v in pairs(frame.Info.Bars) do
 			self:UpdateBar(v, updateTime);
+			
 		end	
+		if #frame.Info.Bars == 0 and db.settings.Locked then
+			frame:Hide();
+		end
 		TimeSinceLastUIUpdate = 0;
 	end
 end
@@ -772,8 +810,8 @@ local OTRAVI_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\BarTextureCanvas.tga"
 local SMOOTH_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\BatTextureSmooth.tga";
 
 function RoguePowerBars:ImportCustomTextures()
-	SharedMedia:Register("statusbar", "Banto (RPB)", BANTO_TEXTURE);
-	SharedMedia:Register("statusbar", "Litestep (RPB)", LITESTEP_TEXTURE);
-	SharedMedia:Register("statusbar", "Otravi (RPB)", OTRAVI_TEXTURE);
-	SharedMedia:Register("statusbar", "Smooth (RPB)", SMOOTH_TEXTURE);
+	SharedMedia:Register("statusbar", "BantoBar", BANTO_TEXTURE);
+	SharedMedia:Register("statusbar", "LiteStep", LITESTEP_TEXTURE);
+	SharedMedia:Register("statusbar", "Otravi", OTRAVI_TEXTURE);
+	SharedMedia:Register("statusbar", "Smooth", SMOOTH_TEXTURE);
 end

@@ -648,7 +648,7 @@ function RoguePowerBars:CreateBarSet(name)
 			Bars = { },
 		}
 		BarSets[name] = frame;
-		frame:SetPoint("BOTTOM", nil, "BOTTOM");
+		frame:SetPoint("CENTER", nil, "CENTER");
 		return BarSets[name];
 	else
 		error("BarSet "..name.." already exists.");

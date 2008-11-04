@@ -112,7 +112,7 @@
     </Size>
         
     <Anchors>
-      <Anchor point="BOTTOM">
+      <Anchor point="CENTER">
       </Anchor>
     </Anchors>
 

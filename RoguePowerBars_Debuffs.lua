@@ -37,7 +37,7 @@ RoguePowerBar_Debuff_Default[GetNext()] = {
 -- Mind-Numbing Poison
 RoguePowerBar_Debuff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
-	SpellID = 5237,
+	SpellID = 5761,
 	Name = "Mind-numbing Poison",
 };
 
@@ -121,7 +121,7 @@ RoguePowerBar_Debuff_Default[GetNext()] = {
 -- Sap
 RoguePowerBar_Debuff_Default[GetNext()] = { 
 	StatusBarColor = { r = .13, g = .03, b = .48; a = 0.8 },
-	SpellID = 11294,
+	SpellID = 11297,
 	Name = "Sap", 
 };
 

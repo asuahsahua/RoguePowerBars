@@ -40,6 +40,7 @@ local defaults = {
 			Flash = false,
 			TextEnabled = true,
 			DurationTextEnabled = true,
+			GrowDirection = 1, -- 1 Up, 2 Down, 3 Center
 			Texture = "Blizzard",
 			TexturePath = SharedMedia:Fetch("statusbar", "Blizzard"),
 		},
@@ -55,11 +56,13 @@ function RoguePowerBars:OnInitialize()
 	self:InitializeBarSets();
 	self:SetupOptions();
 	self:ImportCustomTextures();
+	self:UpdateBuffs();
 end
 
 function RoguePowerBars:OnEnable()
 	self:RegisterEvent("UNIT_AURA", "OnUnitAura")
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnTargetChanged")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEnteringWorld");
 end
 
 function RoguePowerBars:OnDisable()
@@ -77,8 +80,17 @@ function RoguePowerBars:OnTargetChanged(eventName)
 end
 
 function UpdateBuffs()
-	rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
+	local rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
 	rpb:UpdateBuffs();
+end
+
+function OnBarsetMove(barset)
+	local rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
+	rpb:OnBarsetMove(barset)
+end
+
+function RoguePowerBars:OnEnteringWorld()
+	self:SetupBarsetPositions();
 end
 
 
@@ -175,13 +187,21 @@ function RoguePowerBars:SetStatusBars(buffs)
 		-- positioning follows
 		local lastbar;
 		for i,bar in ipairs(barset.Info.Bars) do
+			bar:ClearAllPoints();
 			if i == 1 then
-				bar:SetPoint("TOP", barset, "TOP");
-				lastbar = bar;
+				if db.settings.GrowDirection == 1 then
+					bar:SetPoint("BOTTOM", barset, "BOTTOM");
+				else
+					bar:SetPoint("TOP", barset, "TOP");
+				end
 			else
-				bar:SetPoint("TOP", lastbar, "BOTTOM");
-				lastbar = bar;
+				if db.settings.GrowDirection == 1 then
+					bar:SetPoint("BOTTOM", lastbar, "TOP");
+				else
+					bar:SetPoint("TOP", lastbar, "BOTTOM");
+				end
 			end
+			lastbar = bar;
 			bar:SetHeight(db.settings.Height);
 			bar:SetWidth(db.settings.Width);
 		end
@@ -247,7 +267,8 @@ local options = {
 				return db.settings[info[#info]] 
 			end,
 			set = function(info, value) 
-				db.settings[info[#info]] = value 
+				db.settings[info[#info]] = value
+				UpdateBuffs();
 			end,
 			args = {
 				intro = {
@@ -260,50 +281,30 @@ local options = {
 					type = "toggle",
 					name = "Locked",
 					desc = "Lock/unlock the bars",
-					set = function(info, value)
-						db.settings[info[#info]] = value
-						UpdateBuffs();
-					end,
 				},
 				Inverted = {
 					order = 3,
 					type = "toggle",
 					name = "Inverted bars",
 					desc = "Invert the bars",
-					set = function(info, value)
-						db.settings[info[#info]] = value
-						UpdateBuffs();
-					end,
 				},
 				Flash = {
 					order = 4,
 					type = "toggle",
 					name = "Flash low bars",
 					desc = "Flash bars with less than 5 seconds left",
-					set = function(info, value)
-						db.settings[info[#info]] = value
-						UpdateBuffs();
-					end,
 				},
 				TextEnabled = {
 					order = 5,
 					type = "toggle",
 					name = "Text Enabled",
 					desc = "Enable text on the bars",
-					set = function(info, value)
-						db.settings[info[#info]] = value
-						UpdateBuffs();
-					end,
 				},
 				DurationTextEnabled = {
 					order = 6,
 					type = "toggle",
 					name = "Duration Text Enabled",
 					desc = "Enable duration information on the bars",
-					set = function(info, value)
-						db.settings[info[#info]] = value
-						UpdateBuffs();
-					end,
 				},
 				Divider1 = {
 					order = 7,
@@ -315,30 +316,18 @@ local options = {
 					type = "range",
 					name = "Alpha",
 					min = 0, max = 1, step = .01,
-					set = function(info, value)
-						db.settings[info[#info]] = value
-						UpdateBuffs();
-					end,
 				},
 				Scale = {
 					order = 8,
 					type = "range",
 					name = "Scale",
 					min = .25, max = 3, step = .01,
-					set = function(info, value) 
-						db.settings[info[#info]] = value
-						UpdateBuffs();
-					end,
 				},
 				Width = {
 					order = 9,
 					type = "range",
 					name = "Width",
 					min = 100, max = 700, step = 5,
-					set = function(info, value)
-						db.settings[info[#info]] = value
-						UpdateBuffs();
-					end,
 				},
 --				Height = {
 --					order = 10,
@@ -355,8 +344,22 @@ local options = {
 					type = "description",
 					name = "",
 				},
-				Texture = {
+				GrowDirection = {
 					order = 11,
+					type = "select",
+					name = "Grow Direction",
+					desc = "The direction that the bar will grow in",
+					values = {"Up", "Down", "Both"},
+					set = function(info, value) 
+						db.settings[info[#info]] = value
+						for k,barset in pairs(BarSets) do
+							OnBarsetMove(barset);
+						end
+						UpdateBuffs();
+					end,
+				},
+				Texture = {
+					order = 12,
 					type = "select", 
 					dialogControl = 'LSM30_Statusbar',
 					name = "Texture",
@@ -630,13 +633,17 @@ end
 ------------------------------------------------------------------
 -- UI Functions
 
-
-
 function RoguePowerBars:InitializeBarSets()
 	for i,v in pairs(db.barsets) do
 		local barset = self:CreateBarSet(v);
+--		self:OnBarsetMove(barset);
 		barset:SetHeight("24"); -- FIXME
-		
+	end
+end
+
+function RoguePowerBars:SetupBarsetPositions()
+	for k,barset in pairs(BarSets) do
+		self:OnBarsetMove(barset);
 	end
 end
 
@@ -794,6 +801,21 @@ function RoguePowerBars:OnUIUpdate(tick, frame)
 	end
 end
 
+function RoguePowerBars:OnBarsetMove(barset)
+	barset:ClearAllPoints();
+	if db.settings.GrowDirection == 1 then 
+		-- grow direction: up, anchor: bottom
+		barset:SetPoint("bottomleft", nil, "bottomleft", barset:GetLeft(), barset:GetBottom());
+	elseif db.settings.GrowDirection== 2 then 
+		-- grow direction: down
+		barset:SetPoint("topleft", nil, "bottomleft", barset:GetLeft(), barset:GetTop());
+	elseif db.settings.GrowDirection == 3 then
+		-- grow direction: both ways
+		barset:SetPoint("left", nil, "bottomleft", barset:GetLeft(), barset:GetBottom() + barset:GetHeight() / 2);
+	else
+		error("That growdirection should not exist.");
+	end
+end
 
 -----------------------------------------------------------------------
 -- Debug functions

@@ -9,3 +9,7 @@ function BarsAreLocked()
 	local arelocked = RoguePowerBars.db.profile.settings.Locked;
 	return arelocked;
 end
+
+function OnBarsetMove(frame)
+	RoguePowerBars:OnBarsetMove(frame);
+end

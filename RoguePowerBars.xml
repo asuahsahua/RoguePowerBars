@@ -117,6 +117,7 @@
     </Anchors>
 
     <Scripts>
+      
       <OnLoad>
       </OnLoad>
 
@@ -135,7 +136,8 @@
 
        <OnMouseUp>
          if ( arg1 == "LeftButton" ) then
-           this:StopMovingOrSizing();
+           self:StopMovingOrSizing();
+           OnBarsetMove(self);
          end
        </OnMouseUp>
 

@@ -146,11 +146,12 @@ function RoguePowerBars:SetStatusBars(buffs)
 		barset:SetAlpha(db.settings.Alpha);
 		if db.settings.Locked then
 			if #barset.Info.Bars == 0 then
+				barset:SetHeight(db.settings.Height);
 				barset:Hide();
 			else
+				barset:SetHeight(#barset.Info.Bars * db.settings.Height);
 				barset:Show();
 			end
-			barset:SetHeight(db.settings.Height);
 			barset:SetBackdropColor(0,0,0,0);
 			barset:EnableMouse(false);
 		else
@@ -170,6 +171,8 @@ function RoguePowerBars:SetStatusBars(buffs)
 			barset:EnableMouse(true);
 		end
 		barset:SetWidth(db.settings.Width);
+		
+		-- positioning follows
 		local lastbar;
 		for i,bar in ipairs(barset.Info.Bars) do
 			if i == 1 then
@@ -214,7 +217,7 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	else
 		getglobal(barname.."_DurationText"):Hide();
 	end
-		
+	
 	getglobal(barname.."_Icon"):SetTexture(buff.Texture)
 	bar:GetParent():Show();
 	bar:SetPoint("TOP", bar:GetParent(), "TOP");
@@ -645,10 +648,15 @@ function RoguePowerBars:CreateBarSet(name)
 			Bars = { },
 		}
 		BarSets[name] = frame;
+		frame:SetPoint("BOTTOM", nil, "BOTTOM");
 		return BarSets[name];
 	else
 		error("BarSet "..name.." already exists.");
 	end
+end
+
+function RoguePowerBars:GetBarsets()
+	return BarSets["Buffs"];
 end
 
 function RoguePowerBars:AddBarToSet(barFrame, barSet)

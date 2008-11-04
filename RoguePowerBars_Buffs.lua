@@ -1,5 +1,3 @@
-
-
 RoguePowerBar_Buff_Default = {};
 
 local i = 0;
@@ -15,313 +13,287 @@ end
 
 ResetIndex();
 
-
+-- Slice and Dice
 RoguePowerBar_Buff_Default[GetNext()] = {
-				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
-				Name = "Slice and Dice",
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 6774,
+	Name = "Slice and Dice",
 };
 
-
-
+-- Sprint
 RoguePowerBar_Buff_Default[GetNext()] = {
-				BackDropColor = { r = 0.5, g = 0.5, b = 1, a = 0.3 },
-				StatusBarColor = { r = 0.5, g = 0.5, b = 1; a = 0.8 },
-				Name = "Holy Strength",
+	StatusBarColor = { r = 0.9, g = 0.5, b = 0; a = 0.8 },
+	SpellID = 11305,
+	Name = "Sprint",
 };
 
-
+-- Cloak of Shadows
 RoguePowerBar_Buff_Default[GetNext()] = {
-				BackDropColor = { r = 0.9, g = 0.5, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.5, b = 0; a = 0.8 },
-				Name = "Sprint",
+	StatusBarColor = { r = 0.4, g = 0, b = 0.5; a = 0.8 },
+	SpellID = 31224,
+	Name = "Cloak of Shadows",
 };
 
-
-
+-- Blade Flurry
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.4, g = 0, b = 0.5, a = 0.3 },
-				StatusBarColor = { r = 0.4, g = 0, b = 0.5; a = 0.8 },
-				Name = "Cloak of Shadows",
+	StatusBarColor = { r = 0.8, g = 0, b = 0; a = 0.8 },
+	SpellID = 13877,
+	Name = "Blade Flurry",
 };
 
-
-
+-- Adrenaline Rush
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.8, g = 0, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.8, g = 0, b = 0; a = 0.8 },
-				Name = "Blade Flurry",
+	StatusBarColor = { r = 0.8, g = 0.5, b = 0.8; a = 0.8 },
+	SpellID = 13750,
+	Name = "Adrenaline Rush",
 };
 
-
-
+-- Evasion
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.8, g = 0.5, b = 0.8, a = 0.3 },
-				StatusBarColor = { r = 0.8, g = 0.5, b = 0.8; a = 0.8 },
-				Name = "Adrenaline Rush",
+	StatusBarColor = { r = 1, g = 0.5, b = 1; a = 0.8 },
+	SpellID = 26669,
+	Name = "Evasion",
 };
 
-
+-- Ghostly Strike
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 1, g = 0.5, b = 1, a = 0.3 },
-				StatusBarColor = { r = 1, g = 0.5, b = 1; a = 0.8 },
-				Name = "Evasion",
-			
+	StatusBarColor = { r = 0.8, g = 0, b = 0; a = 0.8 },
+	SpellID = 14278,
+	Name = "Ghostly Strike",
 };
 
-
+-- Hunger For Blood
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.8, g = 0, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.8, g = 0, b = 0; a = 0.8 },
-				Name = "Ghostly Strike",
-};
-
-RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.6, g = 0.1, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9; g = 0.2; b = 0; a = 0.8 },
-				Name = "Hunger For Blood",
+	StatusBarColor = { r = 0.9; g = 0.2; b = 0; a = 0.8 },
+	SpellID = 51662,
+	Name = "Hunger For Blood",
 }; 
 
-
-
+-- Shadowstep
 RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.6, g = 0, b = 0.7, a = 0.3 },
-				StatusBarColor = { r = 0.6, g = 0, b = 0.7; a = 0.8 },
-				Name = "Shadowstep", 
+	StatusBarColor = { r = 0.6, g = 0, b = 0.7; a = 0.8 },
+	SpellID = 36554,
+	Name = "Shadowstep", 
 };  
 
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0, g = 0.5, b = 0.5, a = 0.3 },
-				StatusBarColor = { r = 0, g = 0.5, b = 0.5; a = 0.8 },
-				Name = "Remorseless", 
-};
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
-				StatusBarColor = { r = 0.3, g = 0.5, b = 0.7; a = 0.8 },
-				Name = "Lightning Speed", 
-};
-
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 1, g = 0.9, b = 0, a = 0.3 },
-				StatusBarColor = { r = 1, g = 0.9, b = 0; a = 0.8 },
-				Name = "Haste", 
-};
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.6, g = 0.6, b = 1, a = 0.3 },
-				StatusBarColor = { r = 0.6, g = 0.6, b = 1; a = 0.8 },
-				Name = "Delusional", 
-};
-
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.0, g = 0.8, b = 0.3, a = 0.3 },
-				StatusBarColor = { r = 0.0, g = 0.8, b = 0.3; a = 0.8 },
-				Name = "Paranoia", 
-};
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.2, g = 0.1, b = 0.9, a = 0.3 },
-				StatusBarColor = { r = 0.2, g = 0.1, b = 0.9; a = 0.8 },
-				Name = "Martyr Complex", 
-				DisplayOrder = 18, 
-};
-
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
-				Name = "Manic", 
-};
-
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
-				Name = "Berserking", 
-};
-
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
-				Name = "Ferocity", 
-};
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
-				Name = "Ancient Power", 
-};
-			
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
-				StatusBarColor = { r = 0.5, g = 0.8, b = 0.7; a = 0.8 },
-				Name = "Executioner", 
-};
-
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.8, g = 0.5, b = 0.3, a = 0.3 },
-				StatusBarColor = { r = 1, g = 0.8, b = 0.3; a = 0.8 },
-				Name = "Battle Shout", 
-};
-
-
+-- Remorseless Attacks
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.6, g = 0.6, b = 0.6; a = 0.8 },
-				Name = "Coup de Grace",
+	StatusBarColor = { r = 0, g = 0.5, b = 0.5; a = 0.8 },
+	SpellID = 14149,
+	Name = "Remorseless", 
 };
 
-
-
+-- Mongoose Enchant
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor =  { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
-				StatusBarColor = { r = 0.3, g = 0.5, b = 0.7; a = 0.8 },
-				Name = "Exploit Weakness",
+	StatusBarColor = { r = 0.3, g = 0.5, b = 0.7; a = 0.8 },
+	SpellID = 28093,
+	Name = "Lightning Speed", 
 };
 
-
-
-RoguePowerBar_Buff_Default[GetNext()] = {
-				BackDropColor =  { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
-				StatusBarColor = { r = 0.3, g = 0.5, b = 0.7; a = 0.8 },
-				Name = "Fury of the Crashing Waves",
+-- Executioner enchant
+RoguePowerBar_Buff_Default[GetNext()] = { 
+	StatusBarColor = { r = 0.5, g = 0.8, b = 0.7; a = 0.8 },
+	SpellID = 42976,
+	Name = "Executioner", 
 };
 
-
-
+-- Crusader enchant
 RoguePowerBar_Buff_Default[GetNext()] = {
-				BackDropColor = { r = 0.9, g = 0.5, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.5, b = 0; a = 0.8 },
-				Name = "Elixir of Demonslaying",
+	StatusBarColor = { r = 0.5, g = 0.5, b = 1; a = 0.8 },
+	SpellID = 20007,
+	Name = "Holy Strength",
 };
 
-
-
+-- Haste Potion
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.3, g = 0.5, b = 0.7, a = 0.3 },
-				StatusBarColor = { r = 0.5, g = 0.8, b = 0.7; a = 0.8 },
-				Name = "Perceived Weakness",
+	StatusBarColor = { r = 1, g = 0.9, b = 0; a = 0.8 },
+	SpellID = 28507,
+	Name = "Haste", 
 };
 
-
-
+-------------------------------------------------------------
+-- The following are all Darkmoon Card: Madness procs.
+--[[
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.8, g = 0, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.8, g = 0, b = 0; a = 0.8 },
-				Name = "Forceful Strike",
+	StatusBarColor = { r = 0.0, g = 0.8, b = 0.3; a = 0.8 },
+	SpellID = 41002,
+	Name = "Paranoia", 
 };
 
-
-RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.9, g = 0.5, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.5, b = 0; a = 0.8 },
-				Name = "Drums of Battle",
+RoguePowerBar_Buff_Default[GetNext()] = { 
+	StatusBarColor = { r = 0.6, g = 0.6, b = 1; a = 0.8 },
+	SpellID = 40997,
+	Name = "Delusional", 
 };
 
-
-RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.9, g = 0.5, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.5, b = 0; a = 0.8 },
-				Name = "Drums of War",
+RoguePowerBar_Buff_Default[GetNext()] = { 
+	StatusBarColor = { r = 0.2, g = 0.1, b = 0.9; a = 0.8 },
+	SpellID = 41011,
+	Name = "Martyr Complex", 
 };
 
+RoguePowerBar_Buff_Default[GetNext()] = { 				 
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 41005,
+	Name = "Manic", 
+};
 
+RoguePowerBar_Buff_Default[GetNext()] = { 				 
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 40998,
+	Name = "Kleptomania", 
+};
+
+]]
+
+-- Troll racial
+RoguePowerBar_Buff_Default[GetNext()] = { 
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 20554,
+	Name = "Berserking", 
+};
+
+-- Buff for Bladefist's Breadth and Ancient Draenei War Talisman
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.8, g = 0.5, b = 0.3, a = 0.3 },
-				StatusBarColor = { r = 1, g = 0.8, b = 0.3; a = 0.8 },
-				Name = "The Twin Blades of Azzinoth",
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 33667,
+	Name = "Ferocity", 
+};
+
+-- Core of Ar'kelos
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 35733,
+	Name = "Ancient Power", 
+};
+
+-- Battle Shout
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 1, g = 0.8, b = 0.3; a = 0.8 },
+	SpellID = 47436,
+	Name = "Battle Shout", 
+};
+
+-- Rogue T5 proc
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.6, g = 0.6, b = 0.6; a = 0.8 },
+	SpellID = 37171,
+	Name = "Coup de Grace",
+};
+
+-- Ashtongue Talisman of Lethality
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.3, g = 0.5, b = 0.7; a = 0.8 },
+	SpellID = 40461,
+	Name = "Exploit Weakness",
+};
+
+-- Tsunami Talisman
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.3, g = 0.5, b = 0.7; a = 0.8 },
+	SpellID = 42084,
+	Name = "Fury of the Crashing Waves",
+};
+
+-- Elixir of Demonslaying
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.5, b = 0; a = 0.8 },
+	SpellID = 11406,
+	Name = "Elixir of Demonslaying",
+};
+
+-- Warp-Spring Coil
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.5, g = 0.8, b = 0.7; a = 0.8 },
+	SpellID = 37174,
+	Name = "Perceived Weakness",
+};
+
+-- Madness of the Betrayer
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.8, g = 0, b = 0; a = 0.8 },
+	SpellID = 40477,
+	Name = "Forceful Strike",
 };
 
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.8, g = 0.0, b = 0.0, a = 0.3 },
-				StatusBarColor = { r = 1, g = 0.0, b = 0.0; a = 0.8 },
-				Name = "Tremendous Fortitude",
+	StatusBarColor = { r = 0.9, g = 0.5, b = 0; a = 0.8 },
+	SpellID = 35476,
+	Name = "Drums of Battle",
 };
-                        
 
 RoguePowerBar_Buff_Default[GetNext()] = {
-				
-				BackDropColor = { r = 0.3, g = 0.5, b = 1, a = 0.3 },
-				StatusBarColor = { r = 0.5; g = 0.5; b = 1; a = 0.8 },
-				Name = "Dragonspine Flurry",
+	StatusBarColor = { r = 0.9, g = 0.5, b = 0; a = 0.8 },
+	SpellID = 35475,
+	Name = "Drums of War",
 };
 
--- Status bar for Blackened Naaru Sliver
-
-RoguePowerBar_Buff_Default[GetNext()] = { 
-				 
-				BackDropColor = { r = 0.18, g = 0.15, b = 0.19, a = 0.3 },
-				StatusBarColor = { r = 0.28, g = 0.25, b = 0.29; a = 0.8 },
-				Name = "Battle Trance", 
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 1, g = 0.8, b = 0.3; a = 0.8 },
+	SpellID = 41434,
+	Name = "The Twin Blades of Azzinoth",
 };
 
--- Disdain
+-- Buff for Battlemaster's trinkets
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 1, g = 0.0, b = 0.0; a = 0.8 },
+	SpellID = 44055,
+	Name = "Tremendous Fortitude",
+};    
+
+-- Buff for Dragonspine Trophy
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.5; g = 0.5; b = 1; a = 0.8 },
+	SpellID = 34775,
+	Name = "Dragonspine Flurry",
+};
+
+-- Buff for Blackened Naaru Sliver
 RoguePowerBar_Buff_Default[GetNext()] = { 
-				BackDropColor = { r = 0.18, g = 0.15, b = 0.19, a = 0.3 },
-				StatusBarColor = { r = .48, g=.09, b=.09},
-				Name = "Disdain", 
+	StatusBarColor = { r = 0.28, g = 0.25, b = 0.29; a = 0.8 },
+	SpellID = 45040,
+	Name = "Battle Trance", 
+};
+
+-- Buff for Shard of Contempt
+RoguePowerBar_Buff_Default[GetNext()] = { 
+	StatusBarColor = { r = 0.48, g = 0.09, b = 0.09, a = 0.8 },
+	SpellID = 45053,
+	Name = "Disdain", 
 };
 
 -- Shadow dance
 RoguePowerBar_Buff_Default[GetNext()] = { 
-				BackDropColor = { r = 0.18, g = 0.15, b = 0.19, a = 0.3 },
-				StatusBarColor = { r = 0.6, g = 0.6, b = 0.6; a = 0.8 },
-				Name = "Shadow Dance", 
+	StatusBarColor = { r = 0.6, g = 0.6, b = 0.6; a = 0.8 },
+	SpellID = 51713,
+	Name = "Shadow Dance", 
 };
 
 -- Light's strength (Aldor SSO pendant)
 RoguePowerBar_Buff_Default[GetNext()] = { 
-				BackDropColor = { r = 0.9, g = 0.8, b = 0, a = 0.3 },
-				StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
-				Name = "Light's Strength", 
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 45480,
+	Name = "Light's Strength", 
 };
 
+-- Bloodlust
 RoguePowerBar_Buff_Default[GetNext()] = {
-				BackDropColor = { r = 0.78, g = 0.15, b = .15, a = 0.3 },
-				StatusBarColor = { r = 0.78, g = 0.15, b = .15, a = 0.8 },
-				Name = "Bloodlust"
+	StatusBarColor = { r = 0.78, g = 0.15, b = .15, a = 0.8 },
+	SpellID = 2825,
+	Name = "Bloodlust",
 }
 
+-- Bloodlust Brooch
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.78, g = 0.15, b = .15, a = 0.8 },
+	SpellID = 35166,
+	Name = "Lust for Battle",
+}
+
+do
+	for i = 1, #RoguePowerBar_Buff_Default do
+		local buff = RoguePowerBar_Buff_Default[i];
+		local name = GetSpellInfo(buff.SpellID);
+		buff.Name = name;
+	end
+end

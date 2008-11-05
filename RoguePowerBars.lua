@@ -44,6 +44,7 @@ local defaults = {
 		},
 		settings = {
 			Alpha = 1,
+			BackgroundAlpha = .3,
 			Scale = 1,
 			Width = 250,
 			Height = 24,
@@ -195,7 +196,8 @@ function RoguePowerBars:SetStatusBars(buffs)
 			barset:EnableMouse(true);
 		end
 		barset:SetWidth(db.settings.Width);
-		
+		table.sort(barset.Info.Bars, 
+			function (a, b) return self:Priority(a,b) end);
 		-- positioning follows
 		local lastbar;
 		for i,bar in ipairs(barset.Info.Bars) do
@@ -220,6 +222,15 @@ function RoguePowerBars:SetStatusBars(buffs)
 	end
 end
 
+-- function used in sorting bars in a barset.Info.Bars according to priority
+-- Since we want items with higher priority to be the more 'constant' part of
+-- our bars, we sort from highest->lowest priority.
+function RoguePowerBars:Priority(a, b)
+	local aName = self:RemoveSpaces(a.Info.Name)
+	local bName = self:RemoveSpaces(b.Info.Name)
+	return db.buffs[aName].Priority > db.buffs[bName].Priority;
+end
+
 function RoguePowerBars:ConfigureBar(bar, buff)
 	local barname = bar:GetName();
 	local statusbar = getglobal(barname.."_StatusBar")
@@ -229,7 +240,7 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	statusbar:SetStatusBarTexture(db.settings["TexturePath"])
 	
 	local bg = getglobal(barname.."_BarBackGround");
-	local bgalpha = .3
+	local bgalpha = db.settings.BackgroundAlpha;
 	bg:GetBackdrop().bgFile = db.settings["TexturePath"];
 	bg:SetBackdropColor(c.r, c.g, c.b, bgalpha)
 	
@@ -329,35 +340,31 @@ local options = {
 					name = "Alpha",
 					min = 0, max = 1, step = .01,
 				},
-				Scale = {
+				BackgroundAlpha = {
 					order = 8,
+					type = "range",
+					name = "Background Alpha",
+					min = 0, max = .5, step = .01,
+				},
+				Scale = {
+					order = 9,
 					type = "range",
 					name = "Scale",
 					min = .25, max = 3, step = .01,
 				},
 				Width = {
-					order = 9,
+					order = 10,
 					type = "range",
 					name = "Width",
 					min = 100, max = 700, step = 5,
 				},
---				Height = {
---					order = 10,
---					type = "range",
---					name = "Height",
---					min = 10, max = 50, step = 1,
---					set = function(info, value)
---						db.settings[info[#info]] = value
---						UpdateBuffs()
---					end,
---				},
 				Divider2 = {
-					order = 10,
+					order = 11,
 					type = "description",
 					name = "",
 				},
 				GrowDirection = {
-					order = 11,
+					order = 12,
 					type = "select",
 					name = "Grow Direction",
 					desc = "The direction that the bar will grow in",
@@ -371,7 +378,7 @@ local options = {
 					end,
 				},
 				Texture = {
-					order = 12,
+					order = 13,
 					type = "select", 
 					dialogControl = 'LSM30_Statusbar',
 					name = "Texture",

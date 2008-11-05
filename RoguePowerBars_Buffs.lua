@@ -48,6 +48,13 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	Name = "Adrenaline Rush",
 };
 
+-- Killing Spree
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 51690,
+	Name = "Killing Spree",
+};
+
 -- Evasion
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 1, g = 0.5, b = 1; a = 0.8 },

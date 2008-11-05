@@ -44,7 +44,8 @@ local defaults = {
 		},
 		settings = {
 			Alpha = 1,
-			BackgroundAlpha = .3,
+			BarBackgroundAlpha = .3,
+			BackgroundAlpha = .8,
 			Scale = 1,
 			Width = 250,
 			Height = 24,
@@ -75,6 +76,7 @@ end
 function RoguePowerBars:OnEnable()
 	self:RegisterEvent("UNIT_AURA", "OnUnitAura")
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnTargetChanged")
+	self:RegisterEvent("PLAYER_FOCUS_CHANGED", "OnTargetChanged")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEnteringWorld");
 end
 
@@ -112,48 +114,47 @@ end
 function RoguePowerBars:UpdateBuffs()
 	local currentTime = GetTime();
 	local buffs = { };
-	local buffIndex = 1;
-	local name = "dummy";
+	local buffIndex, name;
 	local rank, texture, count, buffType, fullDuration, expirationTime;
-	while name do
-		name, rank, texture, count, buffType, fullDuration, expirationTime = UnitAura("player", buffIndex, "HELPFUL");
-		if name then
-			local buffSettings = db.buffs[self:RemoveSpaces(name)];
-			if buffSettings and buffSettings.IsEnabled then
-				table.insert(buffs,{
-					BuffIndex = buffIndex,
-					Name = name,
-					TimeLeft = expirationTime - currentTime,
-					MaxTime = fullDuration,
-					Settings = buffSettings,
-					Texture = texture,
-					Stacks = count,
-					ExpirationTime = expirationTime,
-				});
-			end
-		end
-		buffIndex = buffIndex + 1;
+	local buffmatrix = {
+		OnPlayer = {
+			target = "player",
+			filter = "HELPFUL",
+		},
+		OnTarget = {
+			target = "target",
+			filter = "HARMFUL|PLAYER",
+		},
+	}
+	if UnitGUID("focus") and (UnitGUID("target") ~= UnitGUID("focus")) then
+		buffmatrix.OnFocus = {
+			target = "focus",
+			filter = "HARMFUL|PLAYER",
+		}
 	end
-	buffIndex = 1;
-	name = "dummy";
-	while name do
-		name, rank, texture, count, buffType, fullDuration, expirationTime = UnitAura("target", buffIndex, "HARMFUL|PLAYER");
-		if name then
-			local buffSettings = db.buffs[self:RemoveSpaces(name)];
-			if buffSettings and buffSettings.IsEnabled then
-				table.insert(buffs, {
-					BuffIndex = buffIndex,
-					Name = name,
-					TimeLeft = expirationTime - currentTime,
-					MaxTime = fullDuration,
-					Settings = buffSettings,
-					Texture = texture,
-					Stacks = count,
-					ExpirationTime = expirationTime,
-				});
+	for k,set in pairs(buffmatrix) do
+		name = "dummy";
+		buffIndex = 1;
+		while name do
+			name, rank, texture, count, buffType, fullDuration, expirationTime = UnitAura(set.target, buffIndex, set.filter);
+			if name then
+				local buffSettings = db.buffs[self:RemoveSpaces(name)];
+				if buffSettings and buffSettings.IsEnabled then
+					table.insert(buffs, {
+						BuffIndex = buffIndex,
+						Name = name,
+						TimeLeft = expirationTime - currentTime,
+						MaxTime = fullDuration,
+						Settings = buffSettings,
+						Texture = texture,
+						Stacks = count,
+						ExpirationTime = expirationTime,
+						IsOnFocus = (set.target == "focus"),
+					});
+				end
 			end
+			buffIndex = buffIndex + 1;
 		end
-		buffIndex = buffIndex + 1;
 	end
 	self:SetStatusBars(buffs);
 end
@@ -177,7 +178,7 @@ function RoguePowerBars:SetStatusBars(buffs)
 				barset:SetHeight(#barset.Info.Bars * db.settings.Height);
 				barset:Show();
 			end
-			barset:SetBackdropColor(0,0,0,0);
+			barset:SetBackdropColor(0, 0, 0, db.settings.BackgroundAlpha);
 			barset:EnableMouse(false);
 		else
 			barset:Show();
@@ -191,7 +192,7 @@ function RoguePowerBars:SetStatusBars(buffs)
 				barset:SetBackdropColor(0, 0, 0, .8);
 			else
 				barset:SetHeight(#barset.Info.Bars * db.settings.Height);
-				barset:SetBackdropColor(0,0,0,0);
+				barset:SetBackdropColor(0, 0, 0, .8);
 			end
 			barset:EnableMouse(true);
 		end
@@ -239,20 +240,26 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	statusbar:SetStatusBarColor(c.r, c.g, c.b, c.a)
 	statusbar:SetStatusBarTexture(db.settings["TexturePath"])
 	
-	local bg = getglobal(barname.."_BarBackGround");
-	local bgalpha = db.settings.BackgroundAlpha;
-	bg:GetBackdrop().bgFile = db.settings["TexturePath"];
-	bg:SetBackdropColor(c.r, c.g, c.b, bgalpha)
+	--bar:SetBackdropColor(0, 0, 0, db.settings.BackgroundAlpha);
 	
+	local bg = getglobal(barname.."_BarBackGround");
+	local barbgalpha = db.settings.BarBackgroundAlpha;
+	bg:GetBackdrop().bgFile = db.settings["TexturePath"];
+	bg:SetBackdropColor(c.r, c.g, c.b, barbgalpha)
+	
+	local describetext = getglobal(barname.."_DescribeText");
+	local description = buff.Name;
 	if buff.Stacks > 0 then
-		getglobal(barname.."_DescribeText"):SetText(buff.Name.." ("..buff.Stacks..")");
-	else
-		getglobal(barname.."_DescribeText"):SetText(buff.Name);
+		description = description.." ("..buff.Stacks..")"
+	end
+	if buff.IsOnFocus then
+		description = description.." [Focus]";
 	end
 	if db.settings.TextEnabled then
-		getglobal(barname.."_DescribeText"):Show();
+		describetext:Show();
+		describetext:SetText(description);
 	else
-		getglobal(barname.."_DescribeText"):Hide();
+		describetext:Hide();
 	end
 	
 	if db.settings.DurationTextEnabled then
@@ -334,37 +341,43 @@ local options = {
 					type = "description",
 					name = "",
 				},
-				Alpha = {
-					order = 7,
-					type = "range",
-					name = "Alpha",
-					min = 0, max = 1, step = .01,
-				},
-				BackgroundAlpha = {
-					order = 8,
-					type = "range",
-					name = "Background Alpha",
-					min = 0, max = .5, step = .01,
-				},
 				Scale = {
-					order = 9,
+					order = 8,
 					type = "range",
 					name = "Scale",
 					min = .25, max = 3, step = .01,
 				},
 				Width = {
-					order = 10,
+					order = 9,
 					type = "range",
 					name = "Width",
 					min = 100, max = 700, step = 5,
 				},
-				Divider2 = {
+				Alpha = {
+					order = 10,
+					type = "range",
+					name = "Alpha",
+					min = 0, max = 1, step = .01,
+				},
+				BarBackgroundAlpha = {
 					order = 11,
+					type = "range",
+					name = "Bar Background Alpha",
+					min = 0, max = .5, step = .01,
+				},
+				BackgroundAlpha = {
+					order = 11,
+					type = "range",
+					name = "Background Alpha",
+					min = 0, max = 1, step = .01,
+				},
+				Divider2 = {
+					order = 12,
 					type = "description",
 					name = "",
 				},
 				GrowDirection = {
-					order = 12,
+					order = 13,
 					type = "select",
 					name = "Grow Direction",
 					desc = "The direction that the bar will grow in",
@@ -378,7 +391,7 @@ local options = {
 					end,
 				},
 				Texture = {
-					order = 13,
+					order = 14,
 					type = "select", 
 					dialogControl = 'LSM30_Statusbar',
 					name = "Texture",
@@ -390,7 +403,6 @@ local options = {
 						UpdateBuffs();
 					end,
 				},
-				-- todo: sort order
 			},
 		},
 		Buffs={
@@ -825,7 +837,6 @@ function RoguePowerBars:OnUIUpdate(tick, frame)
 end
 
 function RoguePowerBars:OnBarsetMove(barset)
-	print("Barset "..barset.Info.Name.." being moved.");
 	local relativeto, x, y;
 	x = barset:GetLeft();
 	barset:ClearAllPoints();
@@ -833,17 +844,14 @@ function RoguePowerBars:OnBarsetMove(barset)
 		-- grow direction: up, anchor: bottom
 		relativeto = "bottomleft";
 		y = barset:GetBottom();
-		--barset:SetPoint("bottomleft", nil, "bottomleft", barset:GetLeft(), barset:GetBottom());
 	elseif db.settings.GrowDirection== 2 then 
 		-- grow direction: down
 		relativeto = "topleft";
 		y = barset:GetTop();
-		--barset:SetPoint("topleft", nil, "bottomleft", barset:GetLeft(), barset:GetTop());
 	elseif db.settings.GrowDirection == 3 then
 		-- grow direction: both ways
 		relativeto = "left";
 		y = barset:GetBottom() + barset:GetHeight() / 2;
-		--barset:SetPoint("left", nil, "bottomleft", barset:GetLeft(), barset:GetBottom() + barset:GetHeight() / 2);
 	else
 		error("That growdirection should not exist.");
 	end

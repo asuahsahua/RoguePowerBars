@@ -1,7 +1,7 @@
 ## Interface: 30000
-## Title: Rogue Power Bars V 2.1.3
+## Title: Rogue Power Bars v@project-version@
 ## Notes: Displays statusbars with time left on rogue abilities
-## Author: Domia (Maiev) - 10-20-2008
+## Author: Domia on US-Maiev (Curse profile: Asuah)
 ## SavedVariables: RoguePowerBarsDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0
 

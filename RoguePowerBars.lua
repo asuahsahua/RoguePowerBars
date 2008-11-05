@@ -30,6 +30,18 @@ local defaults = {
 			"Buffs",
 			"Debuffs",
 		},
+		positions = {
+			Buffs = {
+				x = .5,
+				y = .5,
+				relativeto = "CENTER",
+			},
+			Debuffs = {
+				x = .5,
+				y = .5,
+				relativeto = "CENTER",
+			}
+		},
 		settings = {
 			Alpha = 1,
 			Scale = 1,
@@ -40,7 +52,7 @@ local defaults = {
 			Flash = false,
 			TextEnabled = true,
 			DurationTextEnabled = true,
-			GrowDirection = 1, -- 1 Up, 2 Down, 3 Center
+			GrowDirection = 3, -- 1 Up, 2 Down, 3 Center
 			Texture = "Blizzard",
 			TexturePath = SharedMedia:Fetch("statusbar", "Blizzard"),
 		},
@@ -636,14 +648,18 @@ end
 function RoguePowerBars:InitializeBarSets()
 	for i,v in pairs(db.barsets) do
 		local barset = self:CreateBarSet(v);
---		self:OnBarsetMove(barset);
 		barset:SetHeight("24"); -- FIXME
 	end
 end
 
 function RoguePowerBars:SetupBarsetPositions()
+	-- FIXME: Need to have a custom function here that loads the position
+	-- from the database, and not piggyback on the OnBarsetMove function.
 	for k,barset in pairs(BarSets) do
-		self:OnBarsetMove(barset);
+		local settings = db.positions[barset.Info.Name];
+		local x = settings.x * UIParent:GetWidth();
+		local y = settings.y * UIParent:GetHeight();
+		barset:SetPoint(settings.relativeto, nil, "bottomleft", x, y);
 	end
 end
 
@@ -662,7 +678,7 @@ function RoguePowerBars:CreateBarSet(name)
 	end
 end
 
-function RoguePowerBars:GetBarsets()
+function RoguePowerBars:GetBuffBarset() -- debug function
 	return BarSets["Buffs"];
 end
 
@@ -802,19 +818,34 @@ function RoguePowerBars:OnUIUpdate(tick, frame)
 end
 
 function RoguePowerBars:OnBarsetMove(barset)
+	print("Barset "..barset.Info.Name.." being moved.");
+	local relativeto, x, y;
+	x = barset:GetLeft();
 	barset:ClearAllPoints();
 	if db.settings.GrowDirection == 1 then 
 		-- grow direction: up, anchor: bottom
-		barset:SetPoint("bottomleft", nil, "bottomleft", barset:GetLeft(), barset:GetBottom());
+		relativeto = "bottomleft";
+		y = barset:GetBottom();
+		--barset:SetPoint("bottomleft", nil, "bottomleft", barset:GetLeft(), barset:GetBottom());
 	elseif db.settings.GrowDirection== 2 then 
 		-- grow direction: down
-		barset:SetPoint("topleft", nil, "bottomleft", barset:GetLeft(), barset:GetTop());
+		relativeto = "topleft";
+		y = barset:GetTop();
+		--barset:SetPoint("topleft", nil, "bottomleft", barset:GetLeft(), barset:GetTop());
 	elseif db.settings.GrowDirection == 3 then
 		-- grow direction: both ways
-		barset:SetPoint("left", nil, "bottomleft", barset:GetLeft(), barset:GetBottom() + barset:GetHeight() / 2);
+		relativeto = "left";
+		y = barset:GetBottom() + barset:GetHeight() / 2;
+		--barset:SetPoint("left", nil, "bottomleft", barset:GetLeft(), barset:GetBottom() + barset:GetHeight() / 2);
 	else
 		error("That growdirection should not exist.");
 	end
+	barset:SetPoint(relativeto, nil, "bottomleft", x, y);
+	db.positions[barset.Info.Name] = {
+		x = (x / UIParent:GetWidth()),
+		y = (y / UIParent:GetHeight()),
+		relativeto = relativeto,
+	}
 end
 
 -----------------------------------------------------------------------

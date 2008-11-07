@@ -85,7 +85,7 @@ function RoguePowerBars:OnDisable()
 end
 
 function RoguePowerBars:OnUnitAura(eventName, unitID)
-	if unitID == "player" or unitID == "target" then
+	if unitID == "player" or unitID == "target"  or unitID == "focus" then
 		self:UpdateBuffs();
 	end
 end

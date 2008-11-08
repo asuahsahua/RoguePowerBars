@@ -30,17 +30,31 @@ local defaults = {
 			"Buffs",
 			"Debuffs",
 		},
-		positions = {
+		barsetsettings = {
 			Buffs = {
-				x = .5,
-				y = .5,
-				relativeto = "CENTER",
+				IsEnabled = true,
+				Width = 250,
+				Scale = 1,
+				Alpha = 1,
+				GrowDirection = 3, -- 1 Up, 2 Down, 3 Center
+				position = {
+					x = .5,
+					y = .5,
+					relativeto = "CENTER",
+				},
 			},
 			Debuffs = {
-				x = .5,
-				y = .5,
-				relativeto = "CENTER",
-			}
+				IsEnabled = true,
+				Width = 250,
+				Scale = 1,
+				Alpha = 1,
+				GrowDirection = 3, -- 1 Up, 2 Down, 3 Center
+				position = {
+					x = .5,
+					y = .5,
+					relativeto = "CENTER",
+				},
+			},
 		},
 		settings = {
 			Alpha = 1,
@@ -85,7 +99,7 @@ function RoguePowerBars:OnDisable()
 end
 
 function RoguePowerBars:OnUnitAura(eventName, unitID)
-	if unitID == "player" or unitID == "target"  or unitID == "focus" then
+	if unitID == "player" or unitID == "target" or unitID == "focus" then
 		self:UpdateBuffs();
 	end
 end
@@ -168,8 +182,9 @@ function RoguePowerBars:SetStatusBars(buffs)
 		self:ConfigureBar(bar, buff);
 	end
 	for k,barset in pairs(BarSets) do
-		barset:SetScale(db.settings.Scale);
-		barset:SetAlpha(db.settings.Alpha);
+		-- getglobal(barset:GetName().."_BarsetText"):SetText("Rawr");
+		barset:SetScale(db.settings.Scale * db.barsetsettings[barset.Info.Name].Scale);
+		barset:SetAlpha(db.settings.Alpha * db.barsetsettings[barset.Info.Name].Alpha);
 		if db.settings.Locked then
 			if #barset.Info.Bars == 0 then
 				barset:SetHeight(db.settings.Height);
@@ -196,21 +211,22 @@ function RoguePowerBars:SetStatusBars(buffs)
 			end
 			barset:EnableMouse(true);
 		end
-		barset:SetWidth(db.settings.Width);
+		barset:SetWidth(db.barsetsettings[barset.Info.Name].Width);
 		table.sort(barset.Info.Bars, 
 			function (a, b) return self:Priority(a,b) end);
 		-- positioning follows
 		local lastbar;
+		local growdirection = db.barsetsettings[barset.Info.Name].GrowDirection;
 		for i,bar in ipairs(barset.Info.Bars) do
 			bar:ClearAllPoints();
 			if i == 1 then
-				if db.settings.GrowDirection == 1 then
+				if growdirection == 1 then
 					bar:SetPoint("BOTTOM", barset, "BOTTOM");
 				else
 					bar:SetPoint("TOP", barset, "TOP");
 				end
 			else
-				if db.settings.GrowDirection == 1 then
+				if growdirection == 1 then
 					bar:SetPoint("BOTTOM", lastbar, "TOP");
 				else
 					bar:SetPoint("TOP", lastbar, "BOTTOM");
@@ -218,7 +234,7 @@ function RoguePowerBars:SetStatusBars(buffs)
 			end
 			lastbar = bar;
 			bar:SetHeight(db.settings.Height);
-			bar:SetWidth(db.settings.Width);
+			bar:SetWidth(db.barsetsettings[barset.Info.Name].Width);
 		end
 	end
 end
@@ -239,8 +255,6 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	statusbar:SetMinMaxValues(0, buff.MaxTime);
 	statusbar:SetStatusBarColor(c.r, c.g, c.b, c.a)
 	statusbar:SetStatusBarTexture(db.settings["TexturePath"])
-	
-	--bar:SetBackdropColor(0, 0, 0, db.settings.BackgroundAlpha);
 	
 	local bg = getglobal(barname.."_BarBackGround");
 	local barbgalpha = db.settings.BarBackgroundAlpha;
@@ -276,6 +290,7 @@ end
 
 local buffsPlugin = { };
 local debuffsPlugin = { };
+local barsetsPlugin = { };
 
 local options = {
 	name = "RoguePowerBars",
@@ -347,12 +362,12 @@ local options = {
 					name = "Scale",
 					min = .25, max = 3, step = .01,
 				},
-				Width = {
-					order = 9,
-					type = "range",
-					name = "Width",
-					min = 100, max = 700, step = 5,
-				},
+				-- Width = {
+				-- 	order = 9,
+				-- 	type = "range",
+				-- 	name = "Width",
+				-- 	min = 100, max = 700, step = 5,
+				-- },
 				Alpha = {
 					order = 10,
 					type = "range",
@@ -376,20 +391,20 @@ local options = {
 					type = "description",
 					name = "",
 				},
-				GrowDirection = {
-					order = 13,
-					type = "select",
-					name = "Grow Direction",
-					desc = "The direction that the bar will grow in",
-					values = {"Up", "Down", "Both"},
-					set = function(info, value) 
-						db.settings[info[#info]] = value
-						for k,barset in pairs(BarSets) do
-							OnBarsetMove(barset);
-						end
-						UpdateBuffs();
-					end,
-				},
+				-- GrowDirection = {
+				-- 	order = 13,
+				-- 	type = "select",
+				-- 	name = "Grow Direction",
+				-- 	desc = "The direction that the bar will grow in",
+				-- 	values = {"Up", "Down", "Both"},
+				-- 	set = function(info, value) 
+				-- 		db.settings[info[#info]] = value
+				-- 		for k,barset in pairs(BarSets) do
+				-- 			OnBarsetMove(barset);
+				-- 		end
+				-- 		UpdateBuffs();
+				-- 	end,
+				-- },
 				Texture = {
 					order = 14,
 					type = "select", 
@@ -431,8 +446,88 @@ local options = {
 				},
 			},
 		},
+		Barsets={
+			type = "group",
+			name = "Barsets",
+			desc = "Barset Settings",
+			plugins = barsetsPlugin,
+			args = {
+				description = {
+					order = 0,
+					type = "description",
+					name = "Create or modify barsets here.",
+				},
+				AddBarInput = {
+					order = 1,
+					type = "input",
+					name = "AddBarInput",
+					set = function(info, value)
+						CreateNewBarSet(value);
+					end
+				}
+			},
+		},
 	},
 }
+
+function CreateNewBarSet(name)
+	local rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars");
+	rpb:CreateNewBarSet(name);
+end
+
+function RoguePowerBars:CreateNewBarSet(name)
+	name = self:RemoveSpaces(name);
+	db.barsets[#db.barsets+1] = name;
+	db.barsetsettings[name] = {
+		IsEnabled = true,
+		Width = 250,
+		Scale = 1,
+		Alpha = 1,
+		GrowDirection = 3,
+		position = {
+			x = .5,
+			y = .5,
+			relativeto = "CENTER",
+		},
+	};
+	local barset = self:CreateBarSet(name);
+	barset:SetHeight(24);
+	self:PopulateBarsetsSettings();
+	self:UpdateBuffs();
+end
+
+function RoguePowerBars:RemoveBarset(name)
+	if self:CountInBarset(name) ~= 0 then
+		self:Print("That barset is not empty. Printed above are all the buffs/debuffs that are in that barset. Please change them to another barset.");
+	else
+		name = self:RemoveSpaces(name);
+		for i = 1,#db.barsets do
+			if db.barsets[i] == name then
+				db.barsets[i] = nil;
+				break;
+			end
+		end
+		db.barsetsettings[name] = nil;
+		local frame = BarSets[name];
+		frame:Hide();
+		BarSets[name] = nil;
+		self:PopulateBarsetsSettings();
+		self:UpdateBuffs();
+		local ACD = LibStub("AceConfigDialog-3.0");
+		ACD:CloseAll();
+	end
+end
+
+function RoguePowerBars:CountInBarset(name)
+	local count = 0;
+	for k,v in pairs(db.buffs) do
+		if db.barsets[v.Barset] == name then
+			count = count + 1;
+			self:Print(k);
+		end
+	end
+	return count;
+end
 
 function RoguePowerBars:SetupOptions()
 	self.optionsFrames = {};
@@ -440,9 +535,11 @@ function RoguePowerBars:SetupOptions()
 	local ACD = LibStub("AceConfigDialog-3.0");
 	self:PopulateBuffs();
 	self:PopulateDebuffs();
+	self:PopulateBarsetsSettings();
 	self.optionsFrames.RoguePowerBars = ACD:AddToBlizOptions("RoguePowerBars", nil, nil, "General");
 	self.optionsFrames.Buffs = ACD:AddToBlizOptions("RoguePowerBars", "Buffs", "RoguePowerBars", "Buffs");
 	self.optionsFrames.Debuffs = ACD:AddToBlizOptions("RoguePowerBars", "Debuffs", "RoguePowerBars", "Debuffs");
+	self.optionsFrames.Barsets = ACD:AddToBlizOptions("RoguePowerBars", "Barsets", "RoguePowerBars", "Barsets");
 	self:RegisterChatCommand("rpb", "ChatCommand");
 end
 
@@ -594,6 +691,71 @@ function RoguePowerBars:PopulateDebuffs()
 	end
 end
 
+function RoguePowerBars:PopulateBarsetsSettings()
+	
+	barsetsPlugin.barsets = {};
+	
+	local barsets = db.barsets;
+	local bs = barsetsPlugin.barsets;
+	for i,v in ipairs(barsets) do
+		local barsetSettings = db.barsetsettings[v];
+		bs[v] = {
+			type = "group",
+			name = v,
+			order = i,
+			get = function(info) 
+				return db.barsetsettings[info[#info-1]][info[#info]]
+			end,
+			set = function(info, value)
+				UpdateBuffs();
+				db.barsetsettings[info[#info-1]][info[#info]] = value
+			end,
+			args = {
+				-- IsEnabled = {
+				-- 	type = "toggle",
+				-- 	order = 1,
+				-- 	name = "Enabled",
+				-- 	desc = "Enable "..v,
+				-- },
+				Width = {
+					type = "range",
+					order = 2,
+					name = "Width",
+					min = 100, max = 700, step = 5,
+				},
+				Scale = {
+					type = "range",
+					order = 3,
+					name = "Scale",
+					min = .25, max = 3, step = .01,
+				},
+				Alpha = {
+					order = 4,
+					type = "range",
+					name = "Alpha",
+					min = 0, max = 1, step = .01,
+				},
+				GrowDirection = {
+					order = 5,
+					type = "select",
+					name = "Grow Direction",
+					values = {"Up", "Down", "Both"},
+					set = function(info, value)
+						db.barsetsettings[info[#info-1]][info[#info]] = value
+						OnBarsetMove(BarSets[info[#info-1]]);
+					end,
+				},
+				Remove = {
+					order = 6,
+					type = "execute",
+					name = "Remove Barset",
+					func = function(info) self:RemoveBarset(info[#info-1]) end,
+				},
+			},
+		}
+	end
+end
+
 function RoguePowerBars:RemoveSpaces(s)
 	return (string.gsub(s, " ", ""))
 end
@@ -675,7 +837,7 @@ function RoguePowerBars:SetupBarsetPositions()
 	-- FIXME: Need to have a custom function here that loads the position
 	-- from the database, and not piggyback on the OnBarsetMove function.
 	for k,barset in pairs(BarSets) do
-		local settings = db.positions[barset.Info.Name];
+		local settings = db.barsetsettings[barset.Info.Name].position;
 		local x = settings.x * UIParent:GetWidth();
 		local y = settings.y * UIParent:GetHeight();
 		barset:SetPoint(settings.relativeto, nil, "bottomleft", x, y);
@@ -840,15 +1002,16 @@ function RoguePowerBars:OnBarsetMove(barset)
 	local relativeto, x, y;
 	x = barset:GetLeft();
 	barset:ClearAllPoints();
-	if db.settings.GrowDirection == 1 then 
+	local growdirection = db.barsetsettings[barset.Info.Name].GrowDirection
+	if growdirection == 1 then 
 		-- grow direction: up, anchor: bottom
 		relativeto = "bottomleft";
 		y = barset:GetBottom();
-	elseif db.settings.GrowDirection== 2 then 
+	elseif growdirection == 2 then 
 		-- grow direction: down
 		relativeto = "topleft";
 		y = barset:GetTop();
-	elseif db.settings.GrowDirection == 3 then
+	elseif growdirection == 3 then
 		-- grow direction: both ways
 		relativeto = "left";
 		y = barset:GetBottom() + barset:GetHeight() / 2;
@@ -856,7 +1019,7 @@ function RoguePowerBars:OnBarsetMove(barset)
 		error("That growdirection should not exist.");
 	end
 	barset:SetPoint(relativeto, nil, "bottomleft", x, y);
-	db.positions[barset.Info.Name] = {
+	db.barsetsettings[barset.Info.Name].position = {
 		x = (x / UIParent:GetWidth()),
 		y = (y / UIParent:GetHeight()),
 		relativeto = relativeto,

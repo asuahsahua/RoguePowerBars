@@ -111,6 +111,31 @@
       <AbsDimension x="250" y="1"/>
     </Size>
         
+        
+    <Frames>
+      <Frame>
+        <Layers>
+          <Layer level="OVERLAY">
+            <FontString name="$parent_BarsetText" inherits="GameFontNormal" justifyH="LEFT">
+              <Color r="1" g="1" b="1" a="1"/>
+              <Anchors>
+                <Anchor point="LEFT">
+                  <Offset>
+                    <AbsDimension x="2" y="0"/>
+                  </Offset>
+                </Anchor>
+                <Anchor point="RIGHT">
+                  <Offset>
+                    <AbsDimension x="-35" y="0"/>
+                  </Offset>
+                </Anchor>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+      </Frame>
+    </Frames>
+    
     <Anchors>
     </Anchors>
 

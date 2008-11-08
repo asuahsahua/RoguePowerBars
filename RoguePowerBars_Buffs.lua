@@ -297,6 +297,13 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	Name = "Lust for Battle",
 }
 
+-- Vanish
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = .5, g = .5, b = .5, a = .8 },
+	SpellID = 26889,
+	Name = "Vanish",
+}
+
 do
 	for i = 1, #RoguePowerBar_Buff_Default do
 		local buff = RoguePowerBar_Buff_Default[i];

@@ -394,20 +394,6 @@ local options = {
 					type = "description",
 					name = "",
 				},
-				-- GrowDirection = {
-				-- 	order = 13,
-				-- 	type = "select",
-				-- 	name = "Grow Direction",
-				-- 	desc = "The direction that the bar will grow in",
-				-- 	values = {"Up", "Down", "Both"},
-				-- 	set = function(info, value) 
-				-- 		db.settings[info[#info]] = value
-				-- 		for k,barset in pairs(BarSets) do
-				-- 			OnBarsetMove(barset);
-				-- 		end
-				-- 		UpdateBuffs();
-				-- 	end,
-				-- },
 				Texture = {
 					order = 14,
 					type = "select", 
@@ -463,7 +449,8 @@ local options = {
 				AddBarInput = {
 					order = 1,
 					type = "input",
-					name = "AddBarInput",
+					name = "Create barset:",
+					desc = "Input a name here to create a new barset",
 					set = function(info, value)
 						CreateNewBarSet(value);
 					end
@@ -560,18 +547,25 @@ function RoguePowerBars:PopulateBuffs()
 			type = "group",
 			name = buffSettings.Name,
 			order = i,
+			get = function(info)
+				return db.buffs[info[#info-1]][info[#info]];
+			end,
+			set = function(info, value)
+				db.buffs[info[#info-1]][info[#info]] = value;
+				UpdateBuffs();
+			end,
 			args = {
 				IsEnabled = {
 					type = "toggle",
 					order = 1,
 					name = "Enabled",
 					desc = "Enable "..buffSettings.Name,
-					get = function(info) 
-						return db.buffs[info[#info-1]].IsEnabled 
-					end,
-					set = function(info, value) 
-						db.buffs[info[#info-1]].IsEnabled = value 
-					end,
+					-- get = function(info) 
+					-- 	return db.buffs[info[#info-1]].IsEnabled 
+					-- end,
+					-- set = function(info, value) 
+					-- 	db.buffs[info[#info-1]].IsEnabled = value 
+					-- end,
 				},
 				Color = {
 					type = "color",
@@ -585,6 +579,7 @@ function RoguePowerBars:PopulateBuffs()
 					set = function(info, r, g, b, a)
 						local c = db.buffs[info[#info-1]].Color
 						c.r, c.g, c.b, c.a = r, g, b, .8
+						UpdateBuffs();
 					end
 				},
 				Priority = {
@@ -593,12 +588,12 @@ function RoguePowerBars:PopulateBuffs()
 					name = "Priority",
 					min = -10, max = 10, step = 1,
 					isPercent = false,
-					get = function(info)
-						return db.buffs[info[#info-1]].Priority
-					end,
-					set = function(info, value)
-						db.buffs[info[#info-1]].Priority = value
-					end,
+					-- get = function(info)
+					-- 	return db.buffs[info[#info-1]].Priority
+					-- end,
+					-- set = function(info, value)
+					-- 	db.buffs[info[#info-1]].Priority = value
+					-- end,
 				},
 				Barset = {
 					type = "select",
@@ -606,12 +601,12 @@ function RoguePowerBars:PopulateBuffs()
 					name = "Barset",
 					desc = "The barset this bar will be displayed in",
 					values = self:GetBarSets(),
-					get = function(info, value)
-						return db.buffs[info[#info-1]].Barset;
-					end,
-					set = function(info, value)
-						db.buffs[info[#info-1]].Barset = value
-					end,
+					-- get = function(info, value)
+					-- 	return db.buffs[info[#info-1]].Barset;
+					-- end,
+					-- set = function(info, value)
+					-- 	db.buffs[info[#info-1]].Barset = value
+					-- end,
 				}
 			},
 		};
@@ -636,18 +631,25 @@ function RoguePowerBars:PopulateDebuffs()
 			type = "group",
 			name = buffSettings.Name,
 			order = i,
+			get = function(info)
+				return db.buffs[info[#info-1]][info[#info]];
+			end,
+			set = function(info, value)
+				db.buffs[info[#info-1]][info[#info]] = value;
+				UpdateBuffs();
+			end,
 			args = {
 				IsEnabled = {
 					type = "toggle",
 					order = 1,
 					name = "Enabled",
 					desc = "Enable "..buffSettings.Name,
-					get = function(info) 
-						return db.buffs[info[#info-1]].IsEnabled 
-					end,
-					set = function(info, value) 
-						db.buffs[info[#info-1]].IsEnabled = value 
-					end,
+					-- get = function(info) 
+					-- 	return db.buffs[info[#info-1]].IsEnabled 
+					-- end,
+					-- set = function(info, value) 
+					-- 	db.buffs[info[#info-1]].IsEnabled = value 
+					-- end,
 				},
 				Color = {
 					type = "color",
@@ -661,6 +663,7 @@ function RoguePowerBars:PopulateDebuffs()
 					set = function(info, r, g, b, a)
 						local c = db.buffs[info[#info-1]].Color
 						c.r, c.g, c.b, c.a = r, g, b, .8
+						UpdateBuffs();
 					end
 				},
 				Priority = {
@@ -669,12 +672,12 @@ function RoguePowerBars:PopulateDebuffs()
 					name = "Priority",
 					min = -10, max = 10, step = 1,
 					isPercent = false,
-					get = function(info)
-						return db.buffs[info[#info-1]].Priority
-					end,
-					set = function(info, value)
-						db.buffs[info[#info-1]].Priority = value
-					end,
+					-- get = function(info)
+					-- 	return db.buffs[info[#info-1]].Priority
+					-- end,
+					-- set = function(info, value)
+					-- 	db.buffs[info[#info-1]].Priority = value
+					-- end,
 				},
 				Barset = {
 					type = "select",
@@ -682,12 +685,12 @@ function RoguePowerBars:PopulateDebuffs()
 					name = "Barset",
 					desc = "The barset this bar will be displayed in",
 					values = self:GetBarSets(),
-					get = function(info, value)
-						return db.buffs[info[#info-1]].Barset;
-					end,
-					set = function(info, value)
-						db.buffs[info[#info-1]].Barset = value
-					end,
+					-- get = function(info, value)
+					-- 	return db.buffs[info[#info-1]].Barset;
+					-- end,
+					-- set = function(info, value)
+					-- 	db.buffs[info[#info-1]].Barset = value
+					-- end,
 				},
 			},
 		};
@@ -714,12 +717,6 @@ function RoguePowerBars:PopulateBarsetsSettings()
 				db.barsetsettings[info[#info-1]][info[#info]] = value
 			end,
 			args = {
-				-- IsEnabled = {
-				-- 	type = "toggle",
-				-- 	order = 1,
-				-- 	name = "Enabled",
-				-- 	desc = "Enable "..v,
-				-- },
 				Width = {
 					type = "range",
 					order = 2,

@@ -182,7 +182,8 @@ function RoguePowerBars:SetStatusBars(buffs)
 		self:ConfigureBar(bar, buff);
 	end
 	for k,barset in pairs(BarSets) do
-		-- getglobal(barset:GetName().."_BarsetText"):SetText("Rawr");
+		local label = getglobal(barset:GetName().."_BarsetText");
+		label:Hide();
 		barset:SetScale(db.settings.Scale * db.barsetsettings[barset.Info.Name].Scale);
 		barset:SetAlpha(db.settings.Alpha * db.barsetsettings[barset.Info.Name].Alpha);
 		if db.settings.Locked then
@@ -205,6 +206,8 @@ function RoguePowerBars:SetStatusBars(buffs)
 					tile = true,
 				});
 				barset:SetBackdropColor(0, 0, 0, .8);
+				label:Show();
+				label:SetText(barset.Info.Name);
 			else
 				barset:SetHeight(#barset.Info.Bars * db.settings.Height);
 				barset:SetBackdropColor(0, 0, 0, .8);

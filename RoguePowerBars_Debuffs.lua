@@ -26,12 +26,27 @@ RoguePowerBar_Debuff_Default[GetNext()] = {
 	SpellID = 27188,
 	Name = "Wound Poison V",
 };
+RoguePowerBar_Debuff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
+	SpellID = 27188,
+	Name = "Wound Poison VI",
+};
+RoguePowerBar_Debuff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
+	SpellID = 27188,
+	Name = "Wound Poison VII",
+};
 
 -- Deadly Poison
 RoguePowerBar_Debuff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
 	SpellID = 27186,
 	Name = "Deadly Poison VII",
+};
+RoguePowerBar_Debuff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
+	SpellID = 27186,
+	Name = "Deadly Poison VIII",
 };
 
 -- Mind-Numbing Poison

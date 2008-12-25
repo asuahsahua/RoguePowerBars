@@ -300,7 +300,11 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	
 	-- local c = db.buffs[self:RemoveSpaces(buff.Name)].Color -- status bar color
 	local c = settings.Color
-	statusbar:SetMinMaxValues(0, buff.MaxTime);
+	if buff.ExpirationTime == 0 then
+		statusbar:SetMinMaxValues(0, 1);
+	else
+		statusbar:SetMinMaxValues(0, buff.MaxTime);
+	end
 	statusbar:SetStatusBarColor(c.r, c.g, c.b, c.a)
 	statusbar:SetStatusBarTexture(db.settings["TexturePath"])
 	
@@ -337,6 +341,7 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	bar:GetParent():Show();
 	bar:SetPoint("TOP", bar:GetParent(), "TOP");
 	bar:Show();
+	bar.Info.BuffInfo = buff;
 end
 
 local buffsPlugin = { };
@@ -1157,7 +1162,10 @@ function RoguePowerBars:UpdateBar(bar, updateTime)
 	local statusbar = getglobal(bar:GetName().."_StatusBar");
 	info.TimeLeft = info.ExpirationTime - updateTime;
 	bar:SetAlpha(self:GetFadeAlpha(bar));
-	if info.TimeLeft >= 0 then
+	if info.BuffInfo.ExpirationTime == 0 then
+		statusbar:SetValue(1);
+		getglobal(bar:GetName().."_DurationText"):SetText("");
+	elseif info.TimeLeft >= 0 then
 		if db.settings.Inverted then
 			local min, max = statusbar:GetMinMaxValues()
 			statusbar:SetValue(max - info.TimeLeft);

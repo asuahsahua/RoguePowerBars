@@ -156,7 +156,7 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 -- Troll racial
 RoguePowerBar_Buff_Default[GetNext()] = { 
 	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
-	SpellID = 20554,
+	SpellID = 26297,
 	Name = "Berserking", 
 };
 

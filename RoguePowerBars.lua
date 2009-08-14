@@ -438,13 +438,13 @@ local options = {
 					min = 0, max = .5, step = .01,
 				},
 				BackgroundAlpha = {
-					order = 11,
+					order = 12,
 					type = "range",
 					name = "Background Alpha",
 					min = 0, max = 1, step = .01,
 				},
 				Divider2 = {
-					order = 12,
+					order = 13,
 					type = "description",
 					name = "",
 				},
@@ -709,7 +709,7 @@ function RoguePowerBars:PopulateBuffs()
 		buffs[buffName] = {
 			type = "group",
 			name = buffSettings.Name,
-			order = i,
+--			order = i,
 			get = function(info)
 				return db.buffs[info[#info-1]][info[#info]];
 			end,
@@ -793,7 +793,7 @@ function RoguePowerBars:PopulateDebuffs()
 		buffs[buffName] = {
 			type = "group",
 			name = buffSettings.Name,
-			order = i,
+--			order = i,
 			get = function(info)
 				return db.debuffs[info[#info-1]][info[#info]];
 			end,
@@ -873,7 +873,7 @@ function RoguePowerBars:PopulateOthersDebuffs()
 		buffs[name] = {
 			type = "group",
 			name = settings.Name,
-			order = i,
+--			order = i,
 			get = function(info)
 				return db.othersDebuffs[info[#info-1]][info[#info]];
 			end,

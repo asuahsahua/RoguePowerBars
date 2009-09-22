@@ -18,11 +18,13 @@ local BarSets = { } -- associative array
 local BarsToRecycle = { } -- normal array
 local BarCount = 0;
 local TimeSinceLastUIUpdate = 0;
+local inCombat=false; --FIXME tag
 
 ----------------------------------------------
 -- Defaults for options
 local defaults = {
 	profile = {
+		firstrun=true,
 		buffs = { },
 		debuffs = { },
 		othersDebuffs = { },
@@ -34,25 +36,25 @@ local defaults = {
 		barsetsettings = {
 			Buffs = {
 				IsEnabled = true,
-				Width = 250,
+				Width = 256,
 				Scale = 1,
 				Alpha = 1,
 				GrowDirection = 3, -- 1 Up, 2 Down, 3 Center
 				position = {
-					x = .5,
-					y = .5,
+					x = 0.375,
+					y = 0.280,
 					relativeto = "CENTER",
 				},
 			},
 			Debuffs = {
 				IsEnabled = true,
-				Width = 250,
+				Width = 256,
 				Scale = 1,
 				Alpha = 1,
 				GrowDirection = 3, -- 1 Up, 2 Down, 3 Center
 				position = {
-					x = .5,
-					y = .5,
+					x = 0.625,
+					y = 0.280,
 					relativeto = "CENTER",
 				},
 			},
@@ -62,9 +64,10 @@ local defaults = {
 			BarBackgroundAlpha = .3,
 			BackgroundAlpha = .8,
 			Scale = 1,
-			Width = 250,
+			Width = 256,
 			Height = 24,
 			Locked = false,
+			HideOOC = false,
 			TrackOthersDebuffs = true,
 			Inverted = false,
 			Flash = false,
@@ -80,9 +83,18 @@ local defaults = {
 --------------------------------------------------------------
 -- Event handlers
 function RoguePowerBars:OnInitialize()
-	self:BuildDefaults()
 	self.db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults);
 	db = self.db.profile;
+
+	if(db.firstrun==nil or db.firstrun==true) then
+		
+		self:BuildDefaults(4);
+		db.firstrun=false;
+		print("RoguePowerBars: First time running.  Setting up default buffs.");
+	else
+		self:BuildDefaults(0);
+	end
+
 	self:InitializeBarSets();
 	self:SetupOptions();
 	self:ImportCustomTextures();
@@ -94,6 +106,9 @@ function RoguePowerBars:OnEnable()
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnTargetChanged")
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED", "OnTargetChanged")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEnteringWorld");
+	--Test Combat watching
+	self:RegisterEvent("PLAYER_REGEN_ENABLED","OnRegenEnabled");
+	self:RegisterEvent("PLAYER_REGEN_DISABLED","OnRegenDisabled")
 end
 
 function RoguePowerBars:OnDisable()
@@ -110,6 +125,15 @@ function RoguePowerBars:OnTargetChanged(eventName)
 	self:UpdateBuffs();
 end
 
+--FIXME marker
+function RoguePowerBars:OnRegenEnabled(eventName)
+	inCombat=false;
+end
+
+function RoguePowerBars:OnRegenDisabled(eventName)
+	inCombat=true;
+end
+
 -- function RoguePowerBars:OnProfileChanged(event, database, newProfileKey)
 -- 	db = database.profile
 -- 	self:PopulateBuffs();
@@ -120,16 +144,6 @@ end
 -- 	self:SetupBarsetPositions();
 -- 	self:UpdateBuffs();
 -- end
-
-function UpdateBuffs()
-	local rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
-	rpb:UpdateBuffs();
-end
-
-function OnBarsetMove(barset)
-	local rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
-	rpb:OnBarsetMove(barset)
-end
 
 function RoguePowerBars:OnEnteringWorld()
 	self:SetupBarsetPositions();
@@ -142,14 +156,16 @@ function RoguePowerBars:UpdateBuffs()
 	local currentTime = GetTime();
 	local buffs = { };
 	local buffIndex, name;
-	local rank, texture, count, buffType, fullDuration, expirationTime;
+	local rank, texture, count, buffType, fullDuration, expirationTime, caster;
 	local buffmatrix = {
 		OnPlayer = {
+			source = "OnPlayer",
 			target = "player",
 			filter = "HELPFUL",
 			searchTable = db.buffs,
 		},
 		OnTarget = {
+			source = "OnTarget",
 			target = "target",
 			filter = "HARMFUL|PLAYER",
 			searchTable = db.debuffs,
@@ -157,6 +173,7 @@ function RoguePowerBars:UpdateBuffs()
 	}
 	if db.settings.TrackOthersDebuffs then
 		buffmatrix.OthersDebuffsOnTarget = {
+			source = "OthersDebuffsOnTarget",
 			target = "target",
 			filter = "HARMFUL",
 			searchTable = db.othersDebuffs,
@@ -164,6 +181,7 @@ function RoguePowerBars:UpdateBuffs()
 	end
 	if UnitGUID("focus") and (UnitGUID("target") ~= UnitGUID("focus")) then
 		buffmatrix.OnFocus = {
+			source = "OnFocus",
 			target = "focus",
 			filter = "HARMFUL|PLAYER",
 			searchTable = db.debuffs,
@@ -173,23 +191,36 @@ function RoguePowerBars:UpdateBuffs()
 		name = "dummy";
 		buffIndex = 1;
 		while name do
-			name, rank, texture, count, buffType, fullDuration, expirationTime, isMine = UnitAura(set.target, buffIndex, set.filter);
-			if name then
-				local buffSettings = set.searchTable[self:RemoveSpaces(name)];
-				if buffSettings and buffSettings.IsEnabled then
-					table.insert(buffs, {
-						BuffIndex = buffIndex,
-						Name = name,
-						TimeLeft = expirationTime - currentTime,
-						MaxTime = fullDuration,
-						Settings = buffSettings,
-						Texture = texture,
-						Stacks = count,
-						ExpirationTime = expirationTime,
-						IsOnFocus = (set.target == "focus"),
-						IsMine = isMine,
-						IsOn = set.target,
-					});
+			name, rank, texture, count, buffType, fullDuration, expirationTime, caster = UnitAura(set.target, buffIndex, set.filter);
+
+			if( set.source == "OthersDebuffsOnTarget" and caster == "player" ) then
+				--prevents a bar from showing up if you're going through the other debuffs
+				--list and find one that you've cast.  This prevents two bars at once with
+				--the same spell on them.
+
+			--	print("RoguePowerBars: skipped bar (other): "..name);
+
+			else
+
+				if name then
+					local buffSettings = set.searchTable[self:RemoveSpaces(name)];
+					if buffSettings and buffSettings.IsEnabled then
+						table.insert(buffs, {
+							BuffIndex = buffIndex,
+							Name = name,
+							TimeLeft = expirationTime - currentTime,
+							MaxTime = fullDuration,
+							Settings = buffSettings,
+							Texture = texture,
+							Stacks = count,
+							ExpirationTime = expirationTime,
+							IsOnFocus = UnitIsUnit(set.target,"focus"),
+							Caster = caster,
+							IsMine = (caster=="player" or caster=="vehicle"),
+							IsOn = set.target,
+							Source = set.source,
+					    	});
+					end
 				end
 			end
 			buffIndex = buffIndex + 1;
@@ -198,17 +229,29 @@ function RoguePowerBars:UpdateBuffs()
 	self:SetStatusBars(buffs);
 end
 
+
 function RoguePowerBars:SetStatusBars(buffs)
 	self:ClearAllBars();
 	for x = 1, #buffs do
 		local buff = buffs[x];
 		local barset;
+
 		if buff.IsOn == "player" then -- my buff, on myself
 			barset = BarSets[db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset]];
 		elseif buff.IsMine then -- my debuff, on target or focus
 			barset = BarSets[db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset]];
 		else -- someone else's debuff, on our target or focus
-			barset = BarSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]]
+			-- once got a random nil error here and I have no idea what caused it and have never seen it again
+			if (BarSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]]) then --FIXME  --temp fix
+				barset = BarSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]]
+			else
+				if(buff) then
+					-- asks them to report it if they get the same error
+					print("RoguePowerBars: PM Verik on curse the following: "..tostring(buff.Name) .." " ..tostring(buff.Source).." "..tostring(buff.IsOn).." "..tostring(buff.Caster));
+				else
+					--print("RoguePowerBars: no buff") -- hide this
+				end
+			end
 		end
 		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime);
 		self:ConfigureBar(bar, buff);
@@ -246,6 +289,16 @@ function RoguePowerBars:SetStatusBars(buffs)
 			end
 			barset:EnableMouse(true);
 		end
+
+		--FIXME tagging to remember this is here
+		if(db.settings.HideOOC) then
+			if (inCombat) then
+				barset:Show();
+			else
+				barset:Hide();
+			end
+		end
+
 		barset:SetWidth(db.barsetsettings[barset.Info.Name].Width);
 		table.sort(barset.Info.Bars, 
 			function (a, b) return self:Priority(a,b) end);
@@ -370,7 +423,7 @@ local options = {
 			end,
 			set = function(info, value) 
 				db.settings[info[#info]] = value
-				UpdateBuffs();
+				RoguePowerBars:UpdateBuffs();
 			end,
 			args = {
 				intro = {
@@ -383,6 +436,12 @@ local options = {
 					type = "toggle",
 					name = "Locked",
 					desc = "Lock/unlock the bars",
+				},
+				HideOOC = {
+					order = 3,
+					type = "toggle",
+					name = "Hide out of combat",
+					desc = "Hide/Show the bars when not in combat",
 				},
 				Inverted = {
 					order = 3,
@@ -458,7 +517,7 @@ local options = {
 					set = function(info, value)
 						db.settings[info[#info]] = value
 						db.settings["TexturePath"] = SharedMedia:Fetch("statusbar", value)
-						UpdateBuffs();
+						RoguePowerBars:UpdateBuffs();
 					end,
 				},
 			},
@@ -475,7 +534,23 @@ local options = {
 					name = "Add buff:",
 					desc = "Input a buff name here to be tracked:",
 					set = function(info, value)
-						CreateNewBuff(value);
+						RoguePowerBars:CreateNewBuff(value);
+					end
+				},
+				Divider = {
+					type = "description",
+					name = "",
+					order = 1,
+					width = "half", -- hacky
+				},
+				RestoreDefaultBuffs = {
+					order = 2,
+					type = "execute",
+					name = "Reset to default buffs",
+					desc = "Restore buff lists to default values",
+					func = function()
+						RoguePowerBars:BuildDefaults(1);
+						RoguePowerBars:PopulateBuffs();
 					end
 				},
 			},
@@ -492,7 +567,23 @@ local options = {
 					name = "Add debuff:",
 					desc = "Input a debuff name here to be tracked:",
 					set = function(info, value)
-						CreateNewDebuff(value);
+						RoguePowerBars:CreateNewDebuff(value);
+					end
+				},
+				Divider = {
+					type = "description",
+					name = "",
+					order = 1,
+					width = "half", -- hacky
+				},
+				RestoreDefaultDebuffs = {
+					order = 2,
+					type = "execute",
+					name = "Reset to default debuffs",
+					desc = "Restore debuff lists to default values",
+					func = function()
+						RoguePowerBars:BuildDefaults(2);
+						RoguePowerBars:PopulateDebuffs();
 					end
 				},
 			},
@@ -509,7 +600,23 @@ local options = {
 					name = "Add debuff:",
 					desc = "Input a debuff name here to be tracked:",
 					set = function(info, value)
-						CreateNewOthersDebuff(value);
+						RoguePowerBars:CreateNewOthersDebuff(value);
+					end
+				},
+				Divider = {
+					type = "description",
+					name = "",
+					order = 1,
+					width = "half", -- hacky
+				},
+				RestoreDefaultOthersDebuffs = {
+					order = 2,
+					type = "execute",
+					name = "Reset to defaults", -- button isn't long enough for better description
+					desc = "Restore other's debuffs lists to default values",
+					func = function()
+						RoguePowerBars:BuildDefaults(3);
+						RoguePowerBars:PopulateOthersDebuffs();
 					end
 				},
 			},
@@ -526,33 +633,13 @@ local options = {
 					name = "Create barset:",
 					desc = "Input a name here to create a new barset",
 					set = function(info, value)
-						CreateNewBarSet(value);
+						RoguePowerBars:CreateNewBarSet(value);
 					end
 				},
 			},
 		},
 	},
 }
-
-function CreateNewBarSet(name)
-	local rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars");
-	rpb:CreateNewBarSet(name);
-end
-
-function CreateNewBuff(name)
-	local rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars");
-	rpb:CreateNewBuff(name);
-end
-
-function CreateNewDebuff(name)
-	local rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars");
-	rpb:CreateNewDebuff(name);
-end
-
-function CreateNewOthersDebuff(name)
-	local rpb = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars");
-	rpb:CreateNewOthersDebuff(name);
-end
 
 function RoguePowerBars:CreateNewBarSet(name)
 	name = self:RemoveSpaces(name);
@@ -715,7 +802,7 @@ function RoguePowerBars:PopulateBuffs()
 			end,
 			set = function(info, value)
 				db.buffs[info[#info-1]][info[#info]] = value;
-				UpdateBuffs();
+				self:UpdateBuffs();
 			end,
 			args = {
 				IsEnabled = {
@@ -736,7 +823,7 @@ function RoguePowerBars:PopulateBuffs()
 					set = function(info, r, g, b, a)
 						local c = db.buffs[info[#info-1]].Color
 						c.r, c.g, c.b, c.a = r, g, b, .8
-						UpdateBuffs();
+						self:UpdateBuffs();
 					end
 				},
 				Priority = {
@@ -799,7 +886,7 @@ function RoguePowerBars:PopulateDebuffs()
 			end,
 			set = function(info, value)
 				db.debuffs[info[#info-1]][info[#info]] = value;
-				UpdateBuffs();
+				self:UpdateBuffs();
 			end,
 			args = {
 				IsEnabled = {
@@ -820,7 +907,7 @@ function RoguePowerBars:PopulateDebuffs()
 					set = function(info, r, g, b, a)
 						local c = db.debuffs[info[#info-1]].Color
 						c.r, c.g, c.b, c.a = r, g, b, .8
-						UpdateBuffs();
+						self:UpdateBuffs();
 					end
 				},
 				Priority = {
@@ -879,7 +966,7 @@ function RoguePowerBars:PopulateOthersDebuffs()
 			end,
 			set = function(info, value)
 				db.othersDebuffs[info[#info-1]][info[#info]] = value;
-				UpdateBuffs();
+				self:UpdateBuffs();
 			end,
 			args = {
 				IsEnabled = {
@@ -900,7 +987,7 @@ function RoguePowerBars:PopulateOthersDebuffs()
 					set = function(info, r, g, b, a)
 						local c = db.othersDebuffs[info[#info-1]].Color
 						c.r, c.g, c.b, c.a = r, g, b, .8
-						UpdateBuffs();
+						self:UpdateBuffs();
 					end,
 				},
 				Priority = {
@@ -957,7 +1044,7 @@ function RoguePowerBars:PopulateBarsetsSettings()
 				return db.barsetsettings[info[#info-1]][info[#info]]
 			end,
 			set = function(info, value)
-				UpdateBuffs();
+				self:UpdateBuffs();
 				db.barsetsettings[info[#info-1]][info[#info]] = value
 			end,
 			args = {
@@ -986,7 +1073,7 @@ function RoguePowerBars:PopulateBarsetsSettings()
 					values = {"Up", "Down", "Both"},
 					set = function(info, value)
 						db.barsetsettings[info[#info-1]][info[#info]] = value
-						OnBarsetMove(BarSets[info[#info-1]]);
+						self:OnBarsetMove(BarSets[info[#info-1]]);
 					end,
 				},
 				Divider1 = {
@@ -1009,24 +1096,47 @@ function RoguePowerBars:RemoveSpaces(s)
 	return (string.gsub(s, " ", ""))
 end
 
-function RoguePowerBars:BuildDefaults()
-	local defaultmatrix = {
-		buffDefault = {
+function RoguePowerBars:BuildDefaults(restore)
+
+	-- This basically stops it from adding the default buffs if buffs
+	-- already exist.  Assumes you want at least one item tracked in each list type
+	-- even if it's disabled.  Removing full list resets to default on next load.
+	
+
+	-- restore 	1=buffs
+	-- 		2=debuffs
+	-- 		3=otherdebuffs
+	-- 		4=all
+
+
+	local defaultmatrix = {};
+
+	if (restore==1 or restore==4) then
+		db.buffs={};
+		defaultmatrix.buffDefault = {
 			defaults = RoguePowerBar_Buff_Default,
-			destTable = defaults.profile.buffs,
+			destTable = db.buffs,
 			defaultBarset = 1,
-		},
-		debuffDefault = {
+		}
+	end
+	if (restore==2 or restore==4) then
+		db.debuffs={};
+		defaultmatrix.debuffDefault = {
 			defaults = RoguePowerBar_Debuff_Default,
-			destTable = defaults.profile.debuffs,
+			destTable = db.debuffs,
 			defaultBarset = 2,
-		},
-		othersDebuffsDefault = {
+		}
+	end
+	if (restore==3 or restore==4) then
+		db.othersDebuffs={};
+		defaultmatrix.othersDebuffsDefault = {
 			defaults = RoguePowerBar_OthersDebuffs_Default,
-			destTable = defaults.profile.othersDebuffs,
+			destTable = db.othersDebuffs,
 			defaultBarset = 2,
-		},
-	}
+		}
+	end
+
+
 	for k,set in pairs(defaultmatrix) do
 		for i = 1, #set.defaults do
 			local buff = set.defaults[i];
@@ -1247,6 +1357,16 @@ function RoguePowerBars:OnUIUpdate(tick, frame)
 		if #frame.Info.Bars == 0 and db.settings.Locked then
 			frame:Hide();
 		end
+
+		--I Don't really like putting this in an OnUpdate --tagged FIXME
+		if(db.settings.HideOOC) then
+			if (inCombat) then
+				frame:Show();
+			else
+				frame:Hide();
+			end
+		end
+
 		TimeSinceLastUIUpdate = 0;
 	end
 end

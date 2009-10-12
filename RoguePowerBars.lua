@@ -10,6 +10,7 @@ local SharedMedia = LibStub("LibSharedMedia-3.0")
 -- Defined constants
 local UpdateRate = .01;
 local version = "@project-version@";
+local revision = "@project-revision@";
 
 ----------------------------------------------
 -- Local variables
@@ -24,7 +25,7 @@ local inCombat=false; --FIXME tag
 -- Defaults for options
 local defaults = {
 	profile = {
-		firstrun=true,
+		version=0,
 		buffs = { },
 		debuffs = { },
 		othersDebuffs = { },
@@ -86,13 +87,23 @@ function RoguePowerBars:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults);
 	db = self.db.profile;
 
-	if(db.firstrun==nil or db.firstrun==true) then
+	local firstrun=true;
+
+	if (next(db.buffs)) then
+		firstrun=false;
+	elseif (next(db.debuffs)) then
+		firstrun=false;
+	elseif (next(db.othersDebuffs)) then
+		firstrun=false;
+	end
+
+	if(db.version==nil or db.version==0) then
 		
-		self:BuildDefaults(4);
-		db.firstrun=false;
+		self:BuildDefaults(4,firstrun);
+		db.version=revision;
 		print("RoguePowerBars: First time running.  Setting up default buffs.");
 	else
-		self:BuildDefaults(0);
+		self:BuildDefaults(0,firstrun);
 	end
 
 	self:InitializeBarSets();
@@ -125,7 +136,7 @@ function RoguePowerBars:OnTargetChanged(eventName)
 	self:UpdateBuffs();
 end
 
---FIXME marker
+--FIXME Reminder of testing for combat checks
 function RoguePowerBars:OnRegenEnabled(eventName)
 	inCombat=false;
 end
@@ -247,6 +258,7 @@ function RoguePowerBars:SetStatusBars(buffs)
 			else
 				if(buff) then
 					-- asks them to report it if they get the same error
+					-- this might spam people's default chat box.
 					print("RoguePowerBars: PM Verik on curse the following: "..tostring(buff.Name) .." " ..tostring(buff.Source).." "..tostring(buff.IsOn).." "..tostring(buff.Caster));
 				else
 					--print("RoguePowerBars: no buff") -- hide this
@@ -291,6 +303,7 @@ function RoguePowerBars:SetStatusBars(buffs)
 		end
 
 		--FIXME tagging to remember this is here
+		--combat testing reminder
 		if(db.settings.HideOOC) then
 			if (inCombat) then
 				barset:Show();
@@ -549,7 +562,7 @@ local options = {
 					name = "Reset to default buffs",
 					desc = "Restore buff lists to default values",
 					func = function()
-						RoguePowerBars:BuildDefaults(1);
+						RoguePowerBars:BuildDefaults(1,true);
 						RoguePowerBars:PopulateBuffs();
 					end
 				},
@@ -582,7 +595,7 @@ local options = {
 					name = "Reset to default debuffs",
 					desc = "Restore debuff lists to default values",
 					func = function()
-						RoguePowerBars:BuildDefaults(2);
+						RoguePowerBars:BuildDefaults(2,true);
 						RoguePowerBars:PopulateDebuffs();
 					end
 				},
@@ -615,7 +628,7 @@ local options = {
 					name = "Reset to defaults", -- button isn't long enough for better description
 					desc = "Restore other's debuffs lists to default values",
 					func = function()
-						RoguePowerBars:BuildDefaults(3);
+						RoguePowerBars:BuildDefaults(3,true);
 						RoguePowerBars:PopulateOthersDebuffs();
 					end
 				},
@@ -1096,7 +1109,7 @@ function RoguePowerBars:RemoveSpaces(s)
 	return (string.gsub(s, " ", ""))
 end
 
-function RoguePowerBars:BuildDefaults(restore)
+function RoguePowerBars:BuildDefaults(restore,clear)
 
 	-- This basically stops it from adding the default buffs if buffs
 	-- already exist.  Assumes you want at least one item tracked in each list type
@@ -1112,7 +1125,9 @@ function RoguePowerBars:BuildDefaults(restore)
 	local defaultmatrix = {};
 
 	if (restore==1 or restore==4) then
-		db.buffs={};
+		if(clear) then
+			db.buffs={};
+		end
 		defaultmatrix.buffDefault = {
 			defaults = RoguePowerBar_Buff_Default,
 			destTable = db.buffs,
@@ -1120,7 +1135,9 @@ function RoguePowerBars:BuildDefaults(restore)
 		}
 	end
 	if (restore==2 or restore==4) then
-		db.debuffs={};
+		if(clear) then
+			db.debuffs={};
+		end
 		defaultmatrix.debuffDefault = {
 			defaults = RoguePowerBar_Debuff_Default,
 			destTable = db.debuffs,
@@ -1128,7 +1145,9 @@ function RoguePowerBars:BuildDefaults(restore)
 		}
 	end
 	if (restore==3 or restore==4) then
-		db.othersDebuffs={};
+		if(clear) then
+			db.othersDebuffs={};
+		end
 		defaultmatrix.othersDebuffsDefault = {
 			defaults = RoguePowerBar_OthersDebuffs_Default,
 			destTable = db.othersDebuffs,
@@ -1359,6 +1378,7 @@ function RoguePowerBars:OnUIUpdate(tick, frame)
 		end
 
 		--I Don't really like putting this in an OnUpdate --tagged FIXME
+		--Really needed here?
 		if(db.settings.HideOOC) then
 			if (inCombat) then
 				frame:Show();
@@ -1412,3 +1432,4 @@ function RoguePowerBars:ImportCustomTextures()
 	SharedMedia:Register("statusbar", "Otravi", OTRAVI_TEXTURE);
 	SharedMedia:Register("statusbar", "Smooth", SMOOTH_TEXTURE);
 end
+

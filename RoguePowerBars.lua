@@ -21,6 +21,8 @@ local BarCount = 0;
 local TimeSinceLastUIUpdate = 0;
 local inCombat=false; --FIXME tag
 
+local debug=true;
+
 ----------------------------------------------
 -- Defaults for options
 local defaults = {
@@ -259,7 +261,10 @@ function RoguePowerBars:SetStatusBars(buffs)
 				if(buff) then
 					-- asks them to report it if they get the same error
 					-- this might spam people's default chat box.
-					print("RoguePowerBars: PM Verik on curse the following: "..tostring(buff.Name) .." " ..tostring(buff.Source).." "..tostring(buff.IsOn).." "..tostring(buff.Caster));
+					if(debug) then
+						print("RoguePowerBars: PM Verik on curse the following: "..tostring(buff.Name) .." " ..tostring(buff.Source).." "..tostring(buff.IsOn).." "..tostring(buff.Caster));
+						print("RoguePowerBars: type '/rpb debug' to disable till next session");
+					end
 				else
 					--print("RoguePowerBars: no buff") -- hide this
 				end
@@ -1194,6 +1199,13 @@ function RoguePowerBars:ChatCommand(input)
 		InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.RoguePowerBars);
 	elseif input == "lock" then
 		self:ToggleLocked();
+	elseif input == "debug" then
+		self:ToggleDebug();
+		if(debug) then
+			print("RoguePowerBars: Debug messages are now on");
+		else
+			print("RoguePowerBars: Debug messages are now off");
+		end
 	else
 		LibStub("AceConfigCmd-3.0").HandleCommand(RoguePowerBars, "rpb", "RoguePowerBars", input);
 	end
@@ -1202,6 +1214,10 @@ end
 function RoguePowerBars:ToggleLocked()
 	db.settings.Locked = not db.settings.Locked;
 	self:UpdateBuffs();
+end
+
+function RoguePowerBars:ToggleDebug()
+	debug = not debug;
 end
 
 ------------------------------------------------------------------

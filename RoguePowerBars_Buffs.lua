@@ -269,6 +269,72 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 --]]
 
 
+--3.3
+--============
+-- Needle-Encrusted Scorpion (needs testing) 
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 71403,
+	Name = "Fatal Flaws",
+}
+
+-- Whispering Fanged Skull (needs testing) 
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.1, g = 0.2, b = 0.9, a = 0.8 },
+	SpellID = 71401,
+	Name = "Icy Rage",
+}
+
+
+-- Deathbringer's Will (needs testing) --prob needs tracking of random buff instead as it doesn't seem to have a duration?
+--[[
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 71519,
+	Name = "Deathbringer's Will", --temp name
+}
+]]
+-- These are probably the different 'forms' of Deathbringer's Will's random buffs
+-- Normal mode ids only.  Should work for heroic as long as ability names match
+-- I probably have the wrong spellIds on these
+-- (all need testing)
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 71485,
+	Name = "Agility of the Vrykul",
+}
+--
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 71492,
+	Name = "Speed of the Vrykul",
+}
+--
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 71486,
+	Name = "Power of the Taunka",
+}
+--
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 71484,
+	Name = "Strength of the Taunka",
+}
+--
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 71491,
+	Name = "Aim of the Iron Dwarves",
+}
+--
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 71487,
+	Name = "Precision of the Iron Dwarves",
+}
+
+
 --===========================
 -- Weapon Enchants
 --===========================
@@ -513,7 +579,6 @@ do
 			buff.Name = name;
 		else
 			print("RoguePowerBars: Warning - SpellID: "..buff.SpellID.." for "..buff.Name.." does not exist.  Using default name instead")
-			buff.Name = name;
 		end
 	end
 end

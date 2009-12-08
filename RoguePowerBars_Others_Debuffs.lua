@@ -37,15 +37,22 @@ RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
 RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
 	SpellID = 48564,
-	Name = "Mangle - Bear",
+	Name = "Mangle (Bear)",
 };
 
 -- Mangle - Cat
 RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
 	SpellID = 48566,
-	Name = "Mangle - Cat",
+	Name = "Mangle (Cat)",
 };
+
+--Trauma
+RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 46857,
+	Name = "Trauma",
+}
 
 do
 	for i = 1, #RoguePowerBar_OthersDebuffs_Default do

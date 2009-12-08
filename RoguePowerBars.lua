@@ -21,7 +21,7 @@ local BarCount = 0;
 local TimeSinceLastUIUpdate = 0;
 local inCombat=false; --FIXME tag
 
-local debug=true;
+local debug=false;
 
 ----------------------------------------------
 -- Defaults for options
@@ -664,7 +664,7 @@ function RoguePowerBars:CreateNewBarSet(name)
 	db.barsets[#db.barsets+1] = name;
 	db.barsetsettings[name] = {
 		IsEnabled = true,
-		Width = 250,
+		Width = 256,
 		Scale = 1,
 		Alpha = 1,
 		GrowDirection = 3,
@@ -810,70 +810,76 @@ function RoguePowerBars:PopulateBuffs()
 	-- for i = 1, #buffList do
 	for k,buffSettings in pairs(buffList) do
 		-- local buffSettings = v;
-		local buffName = self:RemoveSpaces(buffSettings.Name);
-		buffs[buffName] = {
-			type = "group",
-			name = buffSettings.Name,
---			order = i,
-			get = function(info)
-				return db.buffs[info[#info-1]][info[#info]];
-			end,
-			set = function(info, value)
-				db.buffs[info[#info-1]][info[#info]] = value;
-				self:UpdateBuffs();
-			end,
-			args = {
-				IsEnabled = {
-					type = "toggle",
-					order = 1,
-					name = "Enabled",
-					desc = "Enable "..buffSettings.Name,
+		if(buffSettings.Name ~= nil) then
+			local buffName = self:RemoveSpaces(buffSettings.Name);
+			buffs[buffName] = {
+				type = "group",
+				name = buffSettings.Name,
+	--			order = i,
+				get = function(info)
+					return db.buffs[info[#info-1]][info[#info]];
+				end,
+				set = function(info, value)
+					db.buffs[info[#info-1]][info[#info]] = value;
+					self:UpdateBuffs();
+				end,
+				args = {
+					IsEnabled = {
+						type = "toggle",
+						order = 1,
+						name = "Enabled",
+						desc = "Enable "..buffSettings.Name,
+					},
+					Color = {
+						type = "color",
+						order = 2,
+						name = "Bar Color",
+						hasAlpha = true,
+						get = function(info)
+							local c = db.buffs[info[#info-1]].Color
+							return c.r, c.g, c.b, 1
+						end,
+						set = function(info, r, g, b, a)
+							local c = db.buffs[info[#info-1]].Color
+							c.r, c.g, c.b, c.a = r, g, b, .8
+							self:UpdateBuffs();
+						end
+					},
+					Priority = {
+						type = "range",
+						order = 3,
+						name = "Priority",
+						min = -10, max = 10, step = 1,
+						isPercent = false,
+					},
+					Barset = {
+						type = "select",
+						order = 4,
+						name = "Barset",
+						desc = "The barset this bar will be displayed in",
+						values = self:GetBarSets(),
+					},
+					Divider1 = {
+						type = "description",
+						name = "",
+						order = 5,
+					},
+					Remove = {
+						order = 6,
+						type = "execute",
+						name = "Remove Buff",
+						desc = "Removes this buff from the listing completely",
+						func = function(info) 
+							self:RemoveBuffOption(info[#info-1]) 
+						end,
+					},
 				},
-				Color = {
-					type = "color",
-					order = 2,
-					name = "Bar Color",
-					hasAlpha = true,
-					get = function(info)
-						local c = db.buffs[info[#info-1]].Color
-						return c.r, c.g, c.b, 1
-					end,
-					set = function(info, r, g, b, a)
-						local c = db.buffs[info[#info-1]].Color
-						c.r, c.g, c.b, c.a = r, g, b, .8
-						self:UpdateBuffs();
-					end
-				},
-				Priority = {
-					type = "range",
-					order = 3,
-					name = "Priority",
-					min = -10, max = 10, step = 1,
-					isPercent = false,
-				},
-				Barset = {
-					type = "select",
-					order = 4,
-					name = "Barset",
-					desc = "The barset this bar will be displayed in",
-					values = self:GetBarSets(),
-				},
-				Divider1 = {
-					type = "description",
-					name = "",
-					order = 5,
-				},
-				Remove = {
-					order = 6,
-					type = "execute",
-					name = "Remove Buff",
-					desc = "Removes this buff from the listing completely",
-					func = function(info) 
-						self:RemoveBuffOption(info[#info-1]) 
-					end,
-				},
-			},
-		};
+			};
+		else
+			print("RoguePowerBars: ".. tostring(k) .." possibly corrupt in buff list. Attempting to remove.")
+			db.buffs[k]=nil
+			self:PopulateBuffs();
+		end
 	end
 end
 
@@ -894,70 +900,76 @@ function RoguePowerBars:PopulateDebuffs()
 	-- for i = 1, #buffList do
 	for k,buffSettings in pairs(buffList) do
 		-- local buffSettings = buffList[i];
-		local buffName = self:RemoveSpaces(buffSettings.Name);
-		buffs[buffName] = {
-			type = "group",
-			name = buffSettings.Name,
---			order = i,
-			get = function(info)
-				return db.debuffs[info[#info-1]][info[#info]];
-			end,
-			set = function(info, value)
-				db.debuffs[info[#info-1]][info[#info]] = value;
-				self:UpdateBuffs();
-			end,
-			args = {
-				IsEnabled = {
-					type = "toggle",
-					order = 1,
-					name = "Enabled",
-					desc = "Enable "..buffSettings.Name,
+		if(buffSettings.Name ~= nil) then	
+			local buffName = self:RemoveSpaces(buffSettings.Name);
+			buffs[buffName] = {
+				type = "group",
+				name = buffSettings.Name,
+	--			order = i,
+				get = function(info)
+					return db.debuffs[info[#info-1]][info[#info]];
+				end,
+				set = function(info, value)
+					db.debuffs[info[#info-1]][info[#info]] = value;
+					self:UpdateBuffs();
+				end,
+				args = {
+					IsEnabled = {
+						type = "toggle",
+						order = 1,
+						name = "Enabled",
+						desc = "Enable "..buffSettings.Name,
+					},
+					Color = {
+						type = "color",
+						order = 2,
+						name = "Bar Color",
+						hasAlpha = true,
+						get = function(info)
+							local c = db.debuffs[info[#info-1]].Color
+							return c.r, c.g, c.b, 1
+						end,
+						set = function(info, r, g, b, a)
+							local c = db.debuffs[info[#info-1]].Color
+							c.r, c.g, c.b, c.a = r, g, b, .8
+							self:UpdateBuffs();
+						end
+					},
+					Priority = {
+						type = "range",
+						order = 3,
+						name = "Priority",
+						min = -10, max = 10, step = 1,
+						isPercent = false,
+					},
+					Barset = {
+						type = "select",
+						order = 4,
+						name = "Barset",
+						desc = "The barset this bar will be displayed in",
+						values = self:GetBarSets(),
+					},
+					Divider1 = {
+						type = "description",
+						name = "",
+						order = 5,
+					},
+					Remove = {
+						order = 6,
+						type = "execute",
+						name = "Remove Debuff",
+						desc = "Removes this debuff from the listing completely",
+						func = function(info) 
+							self:RemoveDebuffOption(info[#info-1]) 
+						end,
+					},
 				},
-				Color = {
-					type = "color",
-					order = 2,
-					name = "Bar Color",
-					hasAlpha = true,
-					get = function(info)
-						local c = db.debuffs[info[#info-1]].Color
-						return c.r, c.g, c.b, 1
-					end,
-					set = function(info, r, g, b, a)
-						local c = db.debuffs[info[#info-1]].Color
-						c.r, c.g, c.b, c.a = r, g, b, .8
-						self:UpdateBuffs();
-					end
-				},
-				Priority = {
-					type = "range",
-					order = 3,
-					name = "Priority",
-					min = -10, max = 10, step = 1,
-					isPercent = false,
-				},
-				Barset = {
-					type = "select",
-					order = 4,
-					name = "Barset",
-					desc = "The barset this bar will be displayed in",
-					values = self:GetBarSets(),
-				},
-				Divider1 = {
-					type = "description",
-					name = "",
-					order = 5,
-				},
-				Remove = {
-					order = 6,
-					type = "execute",
-					name = "Remove Debuff",
-					desc = "Removes this debuff from the listing completely",
-					func = function(info) 
-						self:RemoveDebuffOption(info[#info-1]) 
-					end,
-				},
-			},
-		};
+			};
+		else
+			print("RoguePowerBars: ".. tostring(k) .." possibly corrupt in debuff list. Attempting to remove.")
+			db.debuffs[k]=nil
+			self:PopulateDebuffs();
+		end
 	end
 end
 
@@ -974,70 +986,76 @@ function RoguePowerBars:PopulateOthersDebuffs()
 	-- for i = 1, #listing do
 	for k,settings in pairs(listing) do
 		-- local settings = listing[i];
-		local name = self:RemoveSpaces(settings.Name);
-		buffs[name] = {
-			type = "group",
-			name = settings.Name,
---			order = i,
-			get = function(info)
-				return db.othersDebuffs[info[#info-1]][info[#info]];
-			end,
-			set = function(info, value)
-				db.othersDebuffs[info[#info-1]][info[#info]] = value;
-				self:UpdateBuffs();
-			end,
-			args = {
-				IsEnabled = {
-					type = "toggle",
-					order = 1,
-					name = "Enabled",
-					desc = "Enable "..settings.Name,
+		if(settings.Name ~= nil) then
+			local name = self:RemoveSpaces(settings.Name);
+			buffs[name] = {
+				type = "group",
+				name = settings.Name,
+	--			order = i,
+				get = function(info)
+					return db.othersDebuffs[info[#info-1]][info[#info]];
+				end,
+				set = function(info, value)
+					db.othersDebuffs[info[#info-1]][info[#info]] = value;
+					self:UpdateBuffs();
+				end,
+				args = {
+					IsEnabled = {
+						type = "toggle",
+						order = 1,
+						name = "Enabled",
+						desc = "Enable "..settings.Name,
+					},
+					Color = {
+						type = "color",
+						order = 2,
+						name = "Bar Color",
+						hasAlpha = true,
+						get = function(info)
+							local c = db.othersDebuffs[info[#info-1]].Color
+							return c.r, c.g, c.b, 1
+						end,
+						set = function(info, r, g, b, a)
+							local c = db.othersDebuffs[info[#info-1]].Color
+							c.r, c.g, c.b, c.a = r, g, b, .8
+							self:UpdateBuffs();
+						end,
+					},
+					Priority = {
+						type = "range",
+						order = 3,
+						name = "Priority",
+						min = -10, max = 10, step = 1,
+						isPercent = false,
+					},
+					Barset = {
+						type = "select",
+						order = 4,
+						name = "Barset",
+						desc = "The barset this bar will be displayed in",
+						values = self:GetBarSets(),
+					},
+					Divider1 = {
+						type = "description",
+						name = "",
+						order = 5,
+					},
+					Remove = {
+						order = 6,
+						type = "execute",
+						name = "Remove Debuff",
+						desc = "Removes this debuff from the listing completely",
+						func = function(info) 
+							self:RemoveOthersDebuffOption(info[#info-1]) 
+						end,
+					},
 				},
-				Color = {
-					type = "color",
-					order = 2,
-					name = "Bar Color",
-					hasAlpha = true,
-					get = function(info)
-						local c = db.othersDebuffs[info[#info-1]].Color
-						return c.r, c.g, c.b, 1
-					end,
-					set = function(info, r, g, b, a)
-						local c = db.othersDebuffs[info[#info-1]].Color
-						c.r, c.g, c.b, c.a = r, g, b, .8
-						self:UpdateBuffs();
-					end,
-				},
-				Priority = {
-					type = "range",
-					order = 3,
-					name = "Priority",
-					min = -10, max = 10, step = 1,
-					isPercent = false,
-				},
-				Barset = {
-					type = "select",
-					order = 4,
-					name = "Barset",
-					desc = "The barset this bar will be displayed in",
-					values = self:GetBarSets(),
-				},
-				Divider1 = {
-					type = "description",
-					name = "",
-					order = 5,
-				},
-				Remove = {
-					order = 6,
-					type = "execute",
-					name = "Remove Debuff",
-					desc = "Removes this debuff from the listing completely",
-					func = function(info) 
-						self:RemoveOthersDebuffOption(info[#info-1]) 
-					end,
-				},
-			},
-		};
+			};
+		else
+			print("RoguePowerBars: ".. tostring(k) .." possibly corrupt in others debuff list. Attempting to remove.")
+			db.othersDebuffs[k]=nil
+			self:PopulateOthersDebuffs();
+		end
 	end
 end
 

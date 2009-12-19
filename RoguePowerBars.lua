@@ -103,15 +103,26 @@ function RoguePowerBars:OnInitialize()
 		
 		self:BuildDefaults(4,firstrun);
 		db.version=revision;
-		print("RoguePowerBars: First time running.  Setting up default buffs.");
+		print("RoguePowerBars: First time running.  Setting up defaults.");
 	else
 		self:BuildDefaults(0,firstrun);
 	end
+
+	self:UpdateSavedData();
 
 	self:InitializeBarSets();
 	self:SetupOptions();
 	self:ImportCustomTextures();
 	self:UpdateBuffs();
+end
+
+function RoguePowerBars:UpdateSavedData()
+	local _,_,num=string.find(db.version, "%s*(%d+)")
+
+	if(tonumber(num)<85) then
+		self:BuildDefaults(4,false);
+		db.version=revision;
+	end
 end
 
 function RoguePowerBars:OnEnable()

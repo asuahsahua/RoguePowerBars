@@ -116,12 +116,21 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	Name = "Ghostly Strike",
 };
 
--- Turn the Tables (3 versions. All 3 should work with spellid from any of them )
+-- Turn the Tables
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 1.0, g = 1.0, b = 0.4; a = 0.8 },
 	SpellID = 52914,
 	Name = "Turn the Tables",
 };
+
+-- Overkill
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 1.0, g = 1.0, b = 0.4; a = 0.8 },
+	SpellID = 58426,
+	Name = "Overkill",
+};
+
+
 
 
 --===========================
@@ -235,38 +244,34 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	Name = "Fury",
 }
 
+-- Mark of Supremacy
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.2, b = 0, a = 0.8 },
+	SpellID = 67695,
+	Name = "Rage",
+}
 
---These two probably conflict having the same Name twice.  I suggest only using one
--- Death's Verdict/Choice Normal Mode (Paragon[agi]) (needs testing)
+-- Shard of the Crystal Heart
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.2, b = 0, a = 0.8 },
+	SpellID = 67683,
+	Name = "Celerity",
+}
+
+
+-- Death's Verdict/Choice Normal Mode and probably heroic (Paragon[agi]) (needs testing)
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.2, g = 0.3, b = 0.45, a = 0.8 },
 	SpellID = 67703,
 	Name = "Paragon",
 }
---[[
--- Death's Verdict/Choice Heroic Mode (Paragon[agi]) (needs testing)
-RoguePowerBar_Buff_Default[GetNext()] = {
-	StatusBarColor = { r = 0.5, g = 0.15, b = .15, a = 0.8 },
-	SpellID = 67772,
-	Name = "Paragon",
-}
-]]
 
---These two probably conflict having the same Name twice.  I suggest only using one
--- Victor's Call/Vengeance of the Forsaken Normal Mode (needs testing)
+-- Victor's Call/Vengeance of the Forsaken Normal Mode and probably heroic (needs testing)
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 67737,
 	Name = "Risen Fury",
 }
---[[
--- Victor's Call/Vengeance of the Forsaken Heroic Mode (Paragon[agi]) (needs testing)
-RoguePowerBar_Buff_Default[GetNext()] = {
-	StatusBarColor = { r = 0.78, g = 0.15, b = .15, a = 0.8 },
-	SpellID = 67746,
-	Name = "Risen Fury",
-}
---]]
 
 
 --3.3
@@ -296,7 +301,7 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 ]]
 -- These are probably the different 'forms' of Deathbringer's Will's random buffs
 -- Normal mode ids only.  Should work for heroic as long as ability names match
--- I probably have the wrong spellIds on these
+-- I may have the wrong spellIds on these
 -- (all need testing)
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
@@ -334,6 +339,25 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	Name = "Precision of the Iron Dwarves",
 }
 
+-- Herkuml War Token
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
+	SpellID = 71396,
+	Name = "Rage of the Fallen",
+}
+
+
+
+--===========================
+-- Weapon Effects
+--===========================
+
+--Heartpierce
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 1.0, g = 1.0, b = 0.4; a = 0.8 },
+	SpellID = 71882,
+	Name = "Invigoration",
+}
 
 --===========================
 -- Weapon Enchants
@@ -578,7 +602,7 @@ do
 		if(name) then
 			buff.Name = name;
 		else
-			print("RoguePowerBars: Warning - SpellID: "..buff.SpellID.." for "..buff.Name.." does not exist.  Using default name instead")
+			print("RoguePowerBars: Warning - SpellID: "..buff.SpellID.." for "..buff.Name.." does not exist.  Using default name instead.")
 		end
 	end
 end

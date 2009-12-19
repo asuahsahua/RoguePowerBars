@@ -119,7 +119,7 @@ end
 function RoguePowerBars:UpdateSavedData()
 	local _,_,num=string.find(db.version, "%s*(%d+)")
 
-	if(tonumber(num)<85) then
+	if(tonumber(num)<=85) then
 		self:BuildDefaults(4,false);
 		db.version=revision;
 	end

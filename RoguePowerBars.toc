@@ -9,6 +9,19 @@
 #@no-lib-strip@
 includes.xml
 #@end-no-lib-strip@
+
+
+##localizations\Locale-enUS.lua
+localizations\enUS.lua
+localizations\frFR.lua
+localizations\deDE.lua
+localizations\koKR.lua
+localizations\esMX.lua
+localizations\ruRU.lua
+localizations\zhCN.lua
+localizations\esES.lua
+localizations\zhTW.lua
+
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 RoguePowerBars.lua

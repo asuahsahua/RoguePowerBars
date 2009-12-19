@@ -1,5 +1,6 @@
 local self = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
-  
+local L = LibStub("AceLocale-3.0"):GetLocale("RoguePowerBars")
+
 LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("RoguePowerBars", {
 	type = "launcher",
 	icon = "Interface\\Icons\\INV_ThrowingKnife_04",
@@ -9,7 +10,7 @@ LibStub:GetLibrary("LibDataBroker-1.1"):NewDataObject("RoguePowerBars", {
 	end,
 	OnTooltipShow = function(tooltip)
 			tooltip:AddLine("RoguePowerBars")
-			tooltip:AddLine("Click to open options.")
+			tooltip:AddLine(L["Click to open options."])
 	end,
 })
 

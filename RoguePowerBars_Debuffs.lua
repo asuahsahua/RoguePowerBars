@@ -1,3 +1,5 @@
+local L = LibStub("AceLocale-3.0"):GetLocale("RoguePowerBars")
+
 RoguePowerBar_Debuff_Default = {};
 
 local i = 0;
@@ -188,7 +190,7 @@ do
 		if(name) then
 			buff.Name = name;
 		else
-			print("RoguePowerBars: Warning - SpellID: "..buff.SpellID.." for "..buff.Name.." does not exist.  Using default name instead")
+			print(L["RoguePowerBars: Warning - SpellID: %s for %s does not exist.  Using default name instead."]:format(buff.SpellID,buff.Name))
 		end
 	end
 end

@@ -4,7 +4,7 @@
 ## Author: Domia on Maiev-US (Curse profile: Asuah)
 ## Version: @project-version@
 ## SavedVariables: RoguePowerBarsDB
-## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0
+## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSink-2.0, tekDebug
 
 #@no-lib-strip@
 includes.xml

@@ -130,6 +130,7 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 1.0, g = 1.0, b = 0.4; a = 0.8 },
 	SpellID = 58426,
 	Name = "Overkill",
+	Version = "87",
 };
 
 
@@ -166,6 +167,22 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	SpellID = 67210,
 	Name = "Clearcasting", 
 };
+
+--Ashen Band of X Vengeance
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.85, g = 0.35, b = 0.2; a = 0.8 },
+	SpellID = 72412,
+	Name = "Frostforged Champion",
+	Version = "93",
+}
+
+--Swordguard Embroidery
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.85, g = 0.35, b = 0.2; a = 0.8 },
+	SpellID = 55775,
+	Name = "Swordguard Embroidery",
+	Version = "93",
+}
 
 --===========================
 -- Epic Trinkets
@@ -251,6 +268,7 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.2, b = 0, a = 0.8 },
 	SpellID = 67695,
 	Name = "Rage",
+	Version = "87",
 }
 
 -- Shard of the Crystal Heart
@@ -258,6 +276,7 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.2, b = 0, a = 0.8 },
 	SpellID = 67683,
 	Name = "Celerity",
+	Version = "87",
 }
 
 
@@ -283,6 +302,7 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71403,
 	Name = "Fatal Flaws",
+	Version = "85",
 }
 
 -- Whispering Fanged Skull (needs testing) 
@@ -290,6 +310,7 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.1, g = 0.2, b = 0.9, a = 0.8 },
 	SpellID = 71401,
 	Name = "Icy Rage",
+	Version = "85",
 }
 
 
@@ -305,47 +326,33 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 -- Normal mode ids only.  Should work for heroic as long as ability names match
 -- I may have the wrong spellIds on these
 -- (all need testing)
+-- Agi
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71485,
 	Name = "Agility of the Vrykul",
+	Version = "85",
 }
---
+-- Haste
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71492,
 	Name = "Speed of the Vrykul",
+	Version = "85",
 }
---
+--Ap
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71486,
 	Name = "Power of the Taunka",
+	Version = "85",
 }
---
-RoguePowerBar_Buff_Default[GetNext()] = {
-	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
-	SpellID = 71484,
-	Name = "Strength of the Taunka",
-}
---
-RoguePowerBar_Buff_Default[GetNext()] = {
-	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
-	SpellID = 71491,
-	Name = "Aim of the Iron Dwarves",
-}
---
-RoguePowerBar_Buff_Default[GetNext()] = {
-	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
-	SpellID = 71487,
-	Name = "Precision of the Iron Dwarves",
-}
-
 -- Herkuml War Token
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71396,
 	Name = "Rage of the Fallen",
+	Version = "87",
 }
 
 
@@ -359,7 +366,17 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 1.0, g = 1.0, b = 0.4; a = 0.8 },
 	SpellID = 71882,
 	Name = "Invigoration",
+	Version = "87",
 }
+
+--Black Bruise
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.25, g = 0.25, b = 0.5, a = 0.8 },
+	SpellID = 71875,
+	Name = "Necrotic Touch",
+	Version = "93",
+}
+
 
 --===========================
 -- Weapon Enchants

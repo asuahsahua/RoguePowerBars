@@ -7,9 +7,12 @@ local RoguePowerBars = LibStub("AceAddon-3.0"):NewAddon("RoguePowerBars", "AceCo
 local L = LibStub("AceLocale-3.0"):GetLocale("RoguePowerBars")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 
+local debugf = tekDebug and tekDebug:GetFrame("RoguePowerBars")
+local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
+
 ---------------------------------------------
 -- Defined constants
-local UpdateRate = .01;
+local UpdateRate = 0.01;
 local version = "@project-version@";
 local revision = "@project-revision@";
 
@@ -106,10 +109,11 @@ function RoguePowerBars:OnInitialize()
 		db.version=revision;
 		print("RoguePowerBars: First time running.  Setting up defaults.");
 	else
-		self:BuildDefaults(0,firstrun);
+--		self:BuildDefaults(0,firstrun);
+		self:UpdateSavedData();
 	end
 
-	self:UpdateSavedData();
+
 
 	self:InitializeBarSets();
 	self:SetupOptions();
@@ -121,9 +125,17 @@ function RoguePowerBars:UpdateSavedData()
 	local _,_,num=string.find(db.version, "%s*(%d+)")
 
 	if(tonumber(num)<=85) then
-		self:BuildDefaults(4,false);
+		self:BuildDefaults(4,false,85);
+		db.version=revision;
+	elseif(tonumber(num)<=87) then
+		self:BuildDefaults(4,false,87);
+		db.version=revision;
+	elseif(tonumber(num)<93) then --change to <= on next buff revision
+		self:BuildDefaults(4,false,93);
 		db.version=revision;
 	end
+
+
 end
 
 function RoguePowerBars:OnEnable()
@@ -181,7 +193,8 @@ function RoguePowerBars:UpdateBuffs()
 	local currentTime = GetTime();
 	local buffs = { };
 	local buffIndex, name;
-	local rank, texture, count, buffType, fullDuration, expirationTime, caster;
+	local rank, texture, count, buffType, duration, expirationTime, caster;
+
 	local buffmatrix = {
 		OnPlayer = {
 			source = "OnPlayer",
@@ -216,7 +229,7 @@ function RoguePowerBars:UpdateBuffs()
 		name = "dummy";
 		buffIndex = 1;
 		while name do
-			name, rank, texture, count, buffType, fullDuration, expirationTime, caster = UnitAura(set.target, buffIndex, set.filter);
+			name, rank, texture, count, buffType, duration, expirationTime, caster = UnitAura(set.target, buffIndex, set.filter);
 
 			if( set.source == "OthersDebuffsOnTarget" and caster == "player" ) then
 				--prevents a bar from showing up if you're going through the other debuffs
@@ -234,7 +247,7 @@ function RoguePowerBars:UpdateBuffs()
 							BuffIndex = buffIndex,
 							Name = name,
 							TimeLeft = expirationTime - currentTime,
-							MaxTime = fullDuration,
+							MaxTime = duration,
 							Settings = buffSettings,
 							Texture = texture,
 							Stacks = count,
@@ -267,24 +280,29 @@ function RoguePowerBars:SetStatusBars(buffs)
 			barset = BarSets[db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset]];
 		else -- someone else's debuff, on our target or focus
 			-- once got a random nil error here and I have no idea what caused it and have never seen it again
-			if (BarSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]]) then --FIXME  --temp fix
+			if (buff and buff.Name and self:RemoveSpaces(buff.Name) and
+			    db.othersDebuffs[self:RemoveSpaces(buff.Name)] and
+			    db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset and
+			    db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset] and
+			    BarSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]]) then --FIXME  --temp fix
 				barset = BarSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]]
 			else
 				if(buff) then
 					-- asks them to report it if they get the same error
 					-- this might spam people's default chat box.
-					if(debug) then
-						print("RoguePowerBars: PM Verik on curse the following: "..tostring(buff.Name) .." " ..tostring(buff.Source).." "..tostring(buff.IsOn).." "..tostring(buff.Caster));
-						print("RoguePowerBars: type '/rpb debug' to disable till next session");
-					end
+					Debug("RoguePowerBars: PM Verik on curse the following: "..tostring(buff.Name) .." " ..tostring(buff.Source).." "..tostring(buff.IsOn).." "..tostring(buff.Caster));
 				else
-					--print("RoguePowerBars: no buff") -- hide this
+					Debug("RoguePowerBars: no buff") -- hide this
 				end
+				--self:RemoveSpaces(nil) --trigger error so i know it occured
+
 			end
 		end
 		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime);
 		self:ConfigureBar(bar, buff);
 	end
+
+
 	for k,barset in pairs(BarSets) do
 		local label = getglobal(barset:GetName().."_BarsetText");
 		label:Hide();
@@ -846,14 +864,14 @@ function RoguePowerBars:PopulateBuffs()
 						type = "color",
 						order = 2,
 						name = L["Bar Color"],
-						hasAlpha = true,
+						hasAlpha = false,
 						get = function(info)
 							local c = db.buffs[info[#info-1]].Color
 							return c.r, c.g, c.b, 1
 						end,
 						set = function(info, r, g, b, a)
 							local c = db.buffs[info[#info-1]].Color
-							c.r, c.g, c.b, c.a = r, g, b, .8
+							c.r, c.g, c.b, c.a = r, g, b, a
 							self:UpdateBuffs();
 						end
 					},
@@ -936,14 +954,14 @@ function RoguePowerBars:PopulateDebuffs()
 						type = "color",
 						order = 2,
 						name = L["Bar Color"],
-						hasAlpha = true,
+						hasAlpha = false,
 						get = function(info)
 							local c = db.debuffs[info[#info-1]].Color
 							return c.r, c.g, c.b, 1
 						end,
 						set = function(info, r, g, b, a)
 							local c = db.debuffs[info[#info-1]].Color
-							c.r, c.g, c.b, c.a = r, g, b, .8
+							c.r, c.g, c.b, c.a = r, g, b, a
 							self:UpdateBuffs();
 						end
 					},
@@ -1022,14 +1040,14 @@ function RoguePowerBars:PopulateOthersDebuffs()
 						type = "color",
 						order = 2,
 						name = L["Bar Color"],
-						hasAlpha = true,
+						hasAlpha = false,
 						get = function(info)
 							local c = db.othersDebuffs[info[#info-1]].Color
 							return c.r, c.g, c.b, 1
 						end,
 						set = function(info, r, g, b, a)
 							local c = db.othersDebuffs[info[#info-1]].Color
-							c.r, c.g, c.b, c.a = r, g, b, .8
+							c.r, c.g, c.b, c.a = r, g, b, a
 							self:UpdateBuffs();
 						end,
 					},
@@ -1144,7 +1162,7 @@ function RoguePowerBars:RemoveSpaces(s)
 	return (string.gsub(s, " ", ""))
 end
 
-function RoguePowerBars:BuildDefaults(restore,clear)
+function RoguePowerBars:BuildDefaults(restore,clear,...)
 
 	-- This basically stops it from adding the default buffs if buffs
 	-- already exist.  Assumes you want at least one item tracked in each list type
@@ -1155,7 +1173,16 @@ function RoguePowerBars:BuildDefaults(restore,clear)
 	-- 		2=debuffs
 	-- 		3=otherdebuffs
 	-- 		4=all
+	
+	--pull in optional argument
+	local spversion =...;
 
+	if (spversion == nil) then
+		spversion=0;
+	end
+
+
+	--Debug("r:"..tostring(restore).." c:"..tostring(clear).." v:"..tostring(spversion))
 
 	local defaultmatrix = {};
 
@@ -1195,18 +1222,25 @@ function RoguePowerBars:BuildDefaults(restore,clear)
 		for i = 1, #set.defaults do
 			local buff = set.defaults[i];
 			local nameSansSpaces = self:RemoveSpaces(buff.Name);
-			set.destTable[nameSansSpaces] = {
-				Name = buff.Name,
-				Color = {
-					r = buff.StatusBarColor.r,
-					g = buff.StatusBarColor.g,
-					b = buff.StatusBarColor.b,
-					a = buff.StatusBarColor.a,
-				},
-				IsEnabled = true,
-				Priority = 0,
-				Barset = set.defaultBarset,
-			}
+			if(not set.destTable[nameSansSpaces]) then
+
+				if(spversion==0 or (buff.Version and tonumber(buff.Version)>=spversion)) then
+				    Debug(tostring(buff.Name).. " added")
+					set.destTable[nameSansSpaces] = {
+						Name = buff.Name,
+						Color = {
+							r = buff.StatusBarColor.r,
+							g = buff.StatusBarColor.g,
+							b = buff.StatusBarColor.b,
+							a = buff.StatusBarColor.a,
+						},
+						IsEnabled = true,
+						Priority = 0,
+						Barset = set.defaultBarset,
+					}
+				end
+			end
+
 		end
 	end
 end
@@ -1413,12 +1447,15 @@ end
 
 function RoguePowerBars:OnUIUpdate(tick, frame)
 	TimeSinceLastUIUpdate = TimeSinceLastUIUpdate + tick;
-	if TimeSinceLastUIUpdate > UpdateRate then
+
+	while (TimeSinceLastUIUpdate > UpdateRate) do
+
 		local updateTime = GetTime();
+
 		for i,v in pairs(frame.Info.Bars) do
 			self:UpdateBar(v, updateTime);
-			
-		end	
+		end
+
 		if #frame.Info.Bars == 0 and db.settings.Locked then
 			frame:Hide();
 		end
@@ -1433,7 +1470,7 @@ function RoguePowerBars:OnUIUpdate(tick, frame)
 			end
 		end
 
-		TimeSinceLastUIUpdate = 0;
+		TimeSinceLastUIUpdate = TimeSinceLastUIUpdate - UpdateRate;
 	end
 end
 

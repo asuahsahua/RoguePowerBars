@@ -138,7 +138,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 1.0, g = 1.0, b = 0.4; a = 0.8 },
 	SpellID = 58426,
 	Name = "Overkill",
-	Version = "87",
 };
 
 
@@ -189,7 +188,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.85, g = 0.35, b = 0.2; a = 0.8 },
 	SpellID = 72412,
 	Name = "Frostforged Champion",
-	Version = "93",
 }
 
 --Swordguard Embroidery
@@ -197,7 +195,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.85, g = 0.35, b = 0.2; a = 0.8 },
 	SpellID = 55775,
 	Name = "Swordguard Embroidery",
-	Version = "93",
 }
 
 --===========================
@@ -208,13 +205,14 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 
 --4.0 Cataclysm
 --============
+--[[
 --Unsolvable Riddle
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
 	SpellID = 92123,
 	Name = "Enigma",
 }
-
+]]
 
 --3.0
 --============
@@ -296,7 +294,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.2, b = 0, a = 0.8 },
 	SpellID = 67695,
 	Name = "Rage",
-	Version = "87",
 }
 
 -- Shard of the Crystal Heart
@@ -304,7 +301,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.2, b = 0, a = 0.8 },
 	SpellID = 67683,
 	Name = "Celerity",
-	Version = "87",
 }
 
 
@@ -330,7 +326,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71403,
 	Name = "Fatal Flaws",
-	Version = "85",
 }
 
 -- Whispering Fanged Skull
@@ -338,7 +333,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.1, g = 0.2, b = 0.9, a = 0.8 },
 	SpellID = 71401,
 	Name = "Icy Rage",
-	Version = "85",
 }
 
 
@@ -351,28 +345,24 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71485,
 	Name = "Agility of the Vrykul",
-	Version = "85",
 }
 -- Haste
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71492,
 	Name = "Speed of the Vrykul",
-	Version = "85",
 }
 --Ap
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71486,
 	Name = "Power of the Taunka",
-	Version = "85",
 }
 -- Herkuml War Token
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 71396,
 	Name = "Rage of the Fallen",
-	Version = "87",
 }
 
 --3.3.5
@@ -382,7 +372,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.3, g = 0.1, b = 0.6; a = 0.8 },
 	SpellID = 75458,
 	Name = "Piercing Twilight",
-	Version = "93",
 }
 
 
@@ -395,7 +384,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 1.0, g = 1.0, b = 0.4; a = 0.8 },
 	SpellID = 71882,
 	Name = "Invigoration",
-	Version = "87",
 }
 
 --Black Bruise
@@ -403,7 +391,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.25, g = 0.25, b = 0.5, a = 0.8 },
 	SpellID = 71875,
 	Name = "Necrotic Touch",
-	Version = "93",
 }
 
 
@@ -480,13 +467,14 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	Name = "Bloodlust", 
 };
 
+--[[
 -- Time Warp
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0, g = 0, b = 0.8; a = 0.8 },
 	SpellID = 80353,
 	Name = "Time Warp", 
 };
-
+]]
 
 
 --===========================

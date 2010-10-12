@@ -156,6 +156,7 @@ RoguePowerBar_Debuff_Default[GetNext()] = {
 	SpellID = 13219,
 	Name = "Wound Poison",
 };
+
 -- Deadly Poison
 RoguePowerBar_Debuff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },

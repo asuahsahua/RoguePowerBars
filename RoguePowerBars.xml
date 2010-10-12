@@ -1,5 +1,6 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
   
+  
   <Frame name="RoguePowerBarTemplate" virtual="true">
     <Size>
       <AbsDimension x="254" y="24"/>
@@ -139,11 +140,20 @@
 
       <OnUpdate function="OnUIUpdate" />
 
-      <OnEvent />
+      <OnEvent>
 
-      <OnMouseDown function="RPB_OnMouseDown" />
+       <OnMouseDown>
+         if ( button == "LeftButton" and not BarsAreLocked()) then
+           self:StartMoving();
+         end
+       </OnMouseDown>
 
-      <OnMouseUp function="RPB_OnMouseUp" />
+       <OnMouseUp>
+         if ( button == "LeftButton" ) then
+           self:StopMovingOrSizing();
+           OnBarsetMove(self);
+         end
+       </OnMouseUp>
 
     </Scripts>
   </Frame>

@@ -8,6 +8,7 @@ local SharedMedia = LibStub("LibSharedMedia-3.0")
 
 local debugf = tekDebug and tekDebug:GetFrame("RoguePowerBars")
 local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
+local function RPBPrint(...) print("RoguePowerBars: " .. string.join(" ", ...)) end
 
 ---------------------------------------------
 -- Defined constants
@@ -132,11 +133,12 @@ local defaults = {
 -- Event handlers
 function RoguePowerBars:OnInitialize()
 	self.db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults);
---	self.db.profile = defaults.profile;
 	db = self.db.profile;
 
 	local firstrun=true;
 
+	--checks if spell data is already saved in the database to prevent 
+	--clearing data from dbs created before the database had version information
 	if (next(db.buffs)) then
 		firstrun=false;
 	elseif (next(db.debuffs)) then
@@ -145,13 +147,14 @@ function RoguePowerBars:OnInitialize()
 		firstrun=false;
 	end
 
+	--automatically push known spells to database if the current database doesn't
+	--have proper version information.
+	-- First run people will get a clean database while old dbs will get missing spells added
 	if(db.version==nil or db.version==0) then
-		
 		self:BuildDefaults(4,firstrun);
-		db.version=revision;
-		print("RoguePowerBars: First time running.  Setting up defaults.");
+		db.version=revision; --update db version
+		RPBPrint(L["This appears to be the first time you have run the addon. Setting up default values."]);
 	else
---		self:BuildDefaults(0,firstrun);
 		self:UpdateSavedData();
 	end
 
@@ -164,14 +167,8 @@ end
 function RoguePowerBars:UpdateSavedData()
 	local _,_,num=string.find(db.version, "%s*(%d+)")
 
-	if(tonumber(num)<=85) then
-		self:BuildDefaults(4,false,85);
-		db.version=revision;
-	elseif(tonumber(num)<=87) then
-		self:BuildDefaults(4,false,87);
-		db.version=revision;
-	elseif(tonumber(num)<93) then --change to <= on next buff revision
-		self:BuildDefaults(4,false,93);
+	if(tonumber(num) < tonumber(revision)) then --change to <= on next buff revision
+		RPBPrint(L["Almost all of the spells have changed with patch 4.0.1+  It is highly recommended that you reset each buff type to defaults."]);
 		db.version=revision;
 	end
 
@@ -326,16 +323,26 @@ end
 
 function RoguePowerBars:SetStatusBars(buffs)
 	self:ClearAllBars();
-
 	local barset;
-
 	for x = 1, #buffs do
 		local buff = buffs[x];
+
+
+		--FIXME TODO
+		--This entire section is a bit FUBAR with the nil checking that probably doesn't work.
+		--I really need to take care of this.
 
 		if buff.IsOn == "player" then -- my buff, on myself
 			barset = BarSets[db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset]];
 		elseif buff.IsMine then -- my debuff, on target or focus
-			barset = BarSets[db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset]];
+			if (buff and buff.Name and self:RemoveSpaces(buff.Name) and
+			    db.debuffs[self:RemoveSpaces(buff.Name)] and
+			    db.debuffs[self:RemoveSpaces(buff.Name)].Barset and
+			    db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset] and
+			    BarSets[db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset]]) then --FIXME  --temp fix
+				barset = BarSets[db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset]];
+			end			
+			
 		else -- someone else's debuff, on our target or focus
 			-- once got a random nil error here and I have no idea what caused it and have never seen it again
 			if (buff and buff.Name and self:RemoveSpaces(buff.Name) and
@@ -357,7 +364,11 @@ function RoguePowerBars:SetStatusBars(buffs)
 			end
 		end
 		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime, BARTYPE_TIMER);
+
+	    if(db.barsetsettings[barset.Info.Name].IsEnabled) then
+		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime);
 		self:ConfigureBar(bar, buff);
+	    end
 	end
 
 --	if comboEnabled then
@@ -370,8 +381,16 @@ function RoguePowerBars:SetStatusBars(buffs)
 --		self:ConfigureEnergyBar(bar);
 --	end
 
+--[[ old profiling info
+12.8 -status
+-1.7 create
+-4 -config
+-6.3 profileC
+]]
+
 	for k,barset in pairs(BarSets) do
-		local label = getglobal(barset:GetName().."_BarsetText");
+
+		local label = _G[barset:GetName().."_BarsetText"];
 		label:Hide();
 		barset:SetScale(db.settings.Scale * db.barsetsettings[barset.Info.Name].Scale);
 		barset:SetAlpha(db.settings.Alpha * db.barsetsettings[barset.Info.Name].Alpha);
@@ -380,13 +399,17 @@ function RoguePowerBars:SetStatusBars(buffs)
 				barset:SetHeight(db.settings.Height);
 				barset:Hide();
 			else
+			    if(db.barsetsettings[barset.Info.Name].IsEnabled) then
 				barset:SetHeight(#barset.Info.Bars * db.settings.Height);
 				barset:Show();
+			    end
 			end
 			barset:SetBackdropColor(0, 0, 0, db.settings.BackgroundAlpha);
 			barset:EnableMouse(false);
 		else
-			barset:Show();
+			if(db.barsetsettings[barset.Info.Name].IsEnabled) then
+				barset:Show();
+			end
 			if #barset.Info.Bars == 0 then
 				barset:SetHeight(db.settings.Height);
 				-- set visible
@@ -407,7 +430,7 @@ function RoguePowerBars:SetStatusBars(buffs)
 		--FIXME tagging to remember this is here
 		--combat testing reminder
 		if(db.settings.HideOOC) then
-			if (inCombat) then
+			if (inCombat and db.barsetsettings[barset.Info.Name].IsEnabled) then
 				barset:Show();
 			else
 				barset:Hide();
@@ -454,7 +477,7 @@ end
 
 function RoguePowerBars:ConfigureBar(bar, buff)
 	local barname = bar:GetName();
-	local statusbar = getglobal(barname.."_StatusBar")
+	local statusbar = _G[barname.."_StatusBar"];
 	local settings;
 	if buff.IsOn == "player" then
 		settings = db.buffs[self:RemoveSpaces(buff.Name)];
@@ -475,13 +498,15 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	end
 	statusbar:SetStatusBarColor(c.r, c.g, c.b, c.a)
 	statusbar:SetStatusBarTexture(db.settings["TexturePath"])
+	statusbar:GetStatusBarTexture():SetHorizTile(false)
+	statusbar:GetStatusBarTexture():SetVertTile(false)
 	
-	local bg = getglobal(barname.."_BarBackGround");
+	local bg = _G[barname.."_BarBackGround"];
 	local barbgalpha = db.settings.BarBackgroundAlpha;
 	bg:GetBackdrop().bgFile = db.settings["TexturePath"];
 	bg:SetBackdropColor(c.r, c.g, c.b, barbgalpha)
 	
-	local describetext = getglobal(barname.."_DescribeText");
+	local describetext = _G[barname.."_DescribeText"];
 	local description = buff.Name;
 	if buff.Stacks > 0 then
 		description = description.." ("..buff.Stacks..")"
@@ -500,12 +525,12 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	end
 	
 	if db.settings.DurationTextEnabled then
-		getglobal(barname.."_DurationText"):Show();
+		_G[barname.."_DurationText"]:Show();
 	else
-		getglobal(barname.."_DurationText"):Hide();
+		_G[barname.."_DurationText"]:Hide();
 	end
 	
-	getglobal(barname.."_Icon"):SetTexture(buff.Texture)
+	_G[barname.."_Icon"]:SetTexture(buff.Texture)
 	bar:GetParent():Show();
 	bar:SetPoint("TOP", bar:GetParent(), "TOP");
 	bar:Show();
@@ -895,7 +920,7 @@ function RoguePowerBars:CreateNewBarSet(name)
 		Width = 256,
 		Scale = 1,
 		Alpha = 1,
-		GrowDirection = 3,
+		GrowDirection = 1,
 		position = {
 			x = .5,
 			y = .5,
@@ -924,7 +949,7 @@ function RoguePowerBars:CreateNewBuff(name)
 		}
 		self:PopulateBuffs();
 	else
-		self:Print(L["That buff is already being tracked."]);
+		RPBPrint(L["That buff is already being tracked."]);
 	end
 end
 
@@ -945,7 +970,7 @@ function RoguePowerBars:CreateNewDebuff(name)
 		self:PopulateDebuffs();
 		self:UpdateBuffs();
 	else
-		self:Print(L["That debuff is already being tracked."]);
+		RPBPrint(L["That debuff is already being tracked."]);
 	end
 end
 
@@ -965,28 +990,55 @@ function RoguePowerBars:CreateNewOthersDebuff(name)
 		}
 		self:PopulateOthersDebuffs();
 	else
-		self:Print(L["That debuff is already being tracked."]);
+		RPBPrint(L["That debuff is already being tracked."]);
 	end
 end
 
 function RoguePowerBars:RemoveBarset(name)
 	if self:CountInBarset(name) ~= 0 then
-		self:Print(L["That barset is not empty. Printed above are all the buffs/debuffs that are in that barset. Please change them to another barset."]);
+		RPBPrint(L["That barset is not empty. Printed above are all the buffs/debuffs that are in that barset. Please change them to another barset."]);
 	else
+
+		local removeIndex = -1;
 		name = self:RemoveSpaces(name);
-		for i = 1,#db.barsets do
+		for i = 1, #db.barsets do
 			if db.barsets[i] == name then
-				db.barsets[i] = nil;
+				--db.barsets[i] = nil;
+				table.remove(db.barsets,i);  -- stop gaps from forming and causing nil errors with certain usage patterns
+				removeIndex=i;
 				break;
 			end
 		end
+
+		-- shifts spells down an index for bars so they stay associated with the correct bar
+		if ( removeIndex >-1 ) then
+			for k,v in pairs(db.buffs) do
+				if(db.buffs[k].Barset>pos) then
+					db.buffs[k].Barset=db.buffs[k].Barset-1;
+				end
+			end
+			for k,v in pairs(db.debuffs) do
+				if(db.debuffs[k].Barset>pos) then
+					db.debuffs[k].Barset=db.debuffs[k].Barset-1;
+				end
+			end
+			for k,v in pairs(db.othersDebuffs) do
+				if(db.othersDebuffs[k].Barset>pos) then
+					db.othersDebuffs[k].Barset=db.othersDebuffs[k].Barset-1;
+				end
+			end
+		end
+
 		db.barsetsettings[name] = nil;
+		
 		local frame = BarSets[name];
 		frame:Hide();
 		BarSets[name] = nil;
+		
 		self:PopulateBarsetsSettings();
 		self:UpdateBuffs();
 		local ACD = LibStub("AceConfigDialog-3.0");
+		LibStub("AceConfigRegistry-3.0"):NotifyChange("RoguePowerBars") -- Tell options something changed (hopefully this does what I think it does)
 		ACD:CloseAll();
 	end
 end
@@ -1001,7 +1053,7 @@ function RoguePowerBars:CountInBarset(name)
 		for k2,v2 in pairs(v1) do
 			if db.barsets[v2.Barset] == name then
 				count = count + 1;
-				self:Print(v2.Name);
+				RPBPrint(v2.Name);
 			end
 		end
 	end
@@ -1107,7 +1159,7 @@ function RoguePowerBars:PopulateBuffs()
 				},
 			};
 		else
-			print(L["RoguePowerBars: %s possibly corrupt in buff list. Attempting to remove."]:format(tostring(k)))
+			RPBPrint(L["%s possibly corrupt in buff list. Attempting to remove."]:format(tostring(k)))
 			db.buffs[k]=nil
 			self:PopulateBuffs();
 		end
@@ -1197,7 +1249,7 @@ function RoguePowerBars:PopulateDebuffs()
 				},
 			};
 		else
-			print(L["RoguePowerBars: %s possibly corrupt in debuff list. Attempting to remove."]:format(tostring(k)))
+			RPBPrint(L["%s possibly corrupt in debuff list. Attempting to remove."]:format(tostring(k)))
 			db.debuffs[k]=nil
 			self:PopulateDebuffs();
 		end
@@ -1283,7 +1335,7 @@ function RoguePowerBars:PopulateOthersDebuffs()
 				},
 			};
 		else
-			print(L["RoguePowerBars: %s possibly corrupt in others debuff list. Attempting to remove."]:format(tostring(k)))		
+			RPBPrint(L["%s possibly corrupt in others debuff list. Attempting to remove."]:format(tostring(k)))
 			db.othersDebuffs[k]=nil
 			self:PopulateOthersDebuffs();
 		end
@@ -1300,13 +1352,12 @@ end
 --	energyBarPlugin.enabled = {};
 --	comboBarPlugin.enabled = {};
 --end
-
 function RoguePowerBars:PopulateBarsetsSettings()
 	barsetsPlugin.barsets = {};
 	
 	local barsets = db.barsets;
 	local bs = barsetsPlugin.barsets;
-	for i,v in ipairs(barsets) do
+	for i,v in pairs(barsets) do -- was ipairs
 		local barsetSettings = db.barsetsettings[v];
 		bs[v] = {
 			type = "group",
@@ -1320,6 +1371,24 @@ function RoguePowerBars:PopulateBarsetsSettings()
 				db.barsetsettings[info[#info-1]][info[#info]] = value
 			end,
 			args = {
+				IsEnabled = {
+					type = "toggle",
+					order = 1,
+					name = L["Enabled"],
+					desc = L["Enable %s"]:format(tostring(v)),
+					set = function(info, value)
+						db.barsetsettings[info[#info-1]][info[#info]] = value
+						--RPBPrint("The " .. info[#info-1].." + ".. info[#info] .. " was set to: " .. tostring(value) )
+						RPBPrint(L["The %s + %s was set to: %s"]:format(tostring(info[#info-1]),tostring(info[#info]),tostring(value)));
+						self:UpdateBuffs()
+						if(value) then
+							BarSets[info[#info-1]]:Show();
+						else
+							BarSets[info[#info-1]]:Hide();
+						end
+
+					end,
+				},
 				Width = {
 					type = "range",
 					order = 2,
@@ -1361,6 +1430,10 @@ function RoguePowerBars:PopulateBarsetsSettings()
 				},
 			},
 		}
+		if (v and (v==L["Buffs"] or v==L["Debuffs"])) then
+			bs[v]["args"]["Remove"]=nil;
+			--RPBPrint("removed");
+		end
 	end
 end
 
@@ -1379,16 +1452,6 @@ function RoguePowerBars:BuildDefaults(restore,clear,...)
 	-- 		2=debuffs
 	-- 		3=otherdebuffs
 	-- 		4=all
-	
-	--pull in optional argument
-	local spversion =...;
-
-	if (spversion == nil) then
-		spversion=0;
-	end
-
-
-	--Debug("r:"..tostring(restore).." c:"..tostring(clear).." v:"..tostring(spversion))
 
 	local defaultmatrix = {};
 
@@ -1429,22 +1492,19 @@ function RoguePowerBars:BuildDefaults(restore,clear,...)
 			local buff = set.defaults[i];
 			local nameSansSpaces = self:RemoveSpaces(buff.Name);
 			if(not set.destTable[nameSansSpaces]) then
-
-				if(spversion==0 or (buff.Version and tonumber(buff.Version)>=spversion)) then
-				    Debug(tostring(buff.Name).. " added")
-					set.destTable[nameSansSpaces] = {
-						Name = buff.Name,
-						Color = {
-							r = buff.StatusBarColor.r,
-							g = buff.StatusBarColor.g,
-							b = buff.StatusBarColor.b,
-							a = buff.StatusBarColor.a,
-						},
-						IsEnabled = true,
-						Priority = 0,
-						Barset = set.defaultBarset,
-					}
-				end
+				Debug(tostring(buff.Name).. " added")
+				set.destTable[nameSansSpaces] = {
+					Name = buff.Name,
+					Color = {
+						r = buff.StatusBarColor.r,
+						g = buff.StatusBarColor.g,
+						b = buff.StatusBarColor.b,
+						a = buff.StatusBarColor.a,
+					},
+					IsEnabled = true,
+					Priority = 0,
+					Barset = set.defaultBarset,
+				}
 			end
 
 		end
@@ -1472,9 +1532,9 @@ function RoguePowerBars:ChatCommand(input)
 	elseif input == L["debug"] then
 		self:ToggleDebug();
 		if(debug) then
-			print("RoguePowerBars: Debug messages are now on");
+			RPBPrint(L["Debug messages are now on"]);
 		else
-			print("RoguePowerBars: Debug messages are now off");
+			RPBPrint(L["Debug messages are now off"]);
 		end
 	else
 		LibStub("AceConfigCmd-3.0").HandleCommand(RoguePowerBars, "rpb", "RoguePowerBars", input);
@@ -1568,13 +1628,13 @@ function RoguePowerBars:CreateBar(name, parentBarset, expirationTime, bartype)
 		Name = name,
 		BarType = bartype,
 	}
-	getglobal(bar:GetName().."_DescribeText"):SetText(name);
+	_G[bar:GetName().."_DescribeText"]:SetText(name);
 	if bartype == BARTYPE_TIMER then
 		bar.Info.Duration = expirationTime - currentTime
 		bar.Info.TimeLeft = expirationTime - currentTime
 		bar.Info.ExpirationTime = expirationTime
 		bar.Info.StartTime = currentTime
-		getglobal(bar:GetName().."_StatusBar"):SetMinMaxValues(0, bar.Info.Duration)
+		_G[bar:GetName().."_StatusBar"]:SetMinMaxValues(0, bar.Info.Duration)
 	end
 	self:AddBarToSet(bar, parentBarset);
 	return bar;
@@ -1582,8 +1642,8 @@ end
 
 function RoguePowerBars:UpdateBar(bar, updateTime)
 	local info = bar.Info;
-	local statusbar = getglobal(bar:GetName().."_StatusBar");
-	local durationtext = getglobal(bar:GetName().."_DurationText")
+	local statusbar = _G[bar:GetName().."_StatusBar"];
+	local durationtext = _G[bar:GetName().."_DurationText"];
 	if info.BarType == BARTYPE_TIMER then
 		info.TimeLeft = info.ExpirationTime - updateTime;
 		bar:SetAlpha(self:GetFadeAlpha(bar));
@@ -1615,6 +1675,63 @@ function RoguePowerBars:UpdateBar(bar, updateTime)
 		durationtext:SetText(string.format("%d / %d", energy, maxenergy))
 	end
 end
+
+
+--[[
+function RoguePowerBars:CreateBar(name, parentBarset, expirationTime, bartype)
+	-- assumes parentBarset is the parent frame.
+	local bar;
+	local currentTime = GetTime();
+	local timeleft;
+	
+	if #BarsToRecycle > 0 then
+		bar = BarsToRecycle[#BarsToRecycle];
+		BarsToRecycle[#BarsToRecycle] = nil;
+	else
+		BarCount = BarCount + 1;
+		bar = CreateFrame("Frame", "RoguePowerBars_Bar_"..BarCount, parentBarset, "RoguePowerBarTemplate");
+	end
+	
+	if db.settings.Inverted then
+		timeleft = expirationTime - currentTime;
+	else
+	
+	end
+	
+	bar.Info = {
+		Name = name,
+		Duration = expirationTime - currentTime,
+		TimeLeft = expirationTime - currentTime,
+		ExpirationTime = expirationTime,
+		StartTime = currentTime,
+	}
+	_G[bar:GetName().."_DescribeText"]:SetText(name);
+	_G[bar:GetName().."_StatusBar"]:SetMinMaxValues(0, bar.Info.Duration);
+	self:AddBarToSet(bar, parentBarset);
+	return bar;
+end
+
+function RoguePowerBars:UpdateBar(bar, updateTime)
+	local info = bar.Info;
+	local statusbar = _G[bar:GetName().."_StatusBar"];
+	info.TimeLeft = info.ExpirationTime - updateTime;
+	bar:SetAlpha(self:GetFadeAlpha(bar));
+	if info.BuffInfo.ExpirationTime == 0 then
+		statusbar:SetValue(1);
+		_G[bar:GetName().."_DurationText"]:SetText("");
+	elseif info.TimeLeft >= 0 then
+		if db.settings.Inverted then
+			local min, max = statusbar:GetMinMaxValues()
+			statusbar:SetValue(max - info.TimeLeft);
+		else
+			statusbar:SetValue(info.TimeLeft);
+		end
+		_G[bar:GetName().."_DurationText"]:SetText(string.format("%.1f", info.TimeLeft));
+	else
+		self:RemoveBar(bar);
+	end
+end
+]]
 
 function RoguePowerBars:GetFadeAlpha(bar)
 	local timeleft = bar.Info.TimeLeft;
@@ -1674,10 +1791,16 @@ function RoguePowerBars:ClearAllBars()
 	end
 end
 
-function RoguePowerBars:OnUIUpdate(frame, tick)
-	TimeSinceLastUIUpdate = TimeSinceLastUIUpdate + tick
+--New style accurate timer
+--May cause performance issues
+function RoguePowerBars:OnUIUpdate(frame,tick)
+
+	-- self,elapsed
+
+	TimeSinceLastUIUpdate = TimeSinceLastUIUpdate + tick;
 
 	while (TimeSinceLastUIUpdate > UpdateRate) do
+
 		local updateTime = GetTime();
 
 		for i,v in pairs(frame.Info.Bars) do
@@ -1691,7 +1814,7 @@ function RoguePowerBars:OnUIUpdate(frame, tick)
 		--I Don't really like putting this in an OnUpdate --tagged FIXME
 		--Really needed here?
 		if(db.settings.HideOOC) then
-			if (inCombat) then
+			if (inCombat and db.barsetsettings[frame.Info.Name].IsEnabled) then
 				frame:Show();
 			else
 				frame:Hide();
@@ -1699,6 +1822,33 @@ function RoguePowerBars:OnUIUpdate(frame, tick)
 		end
 
 		TimeSinceLastUIUpdate = TimeSinceLastUIUpdate - UpdateRate;
+	end
+end
+
+--Old style simiaccurate timer
+function RoguePowerBars:OnUIUpdate2(frame,tick)
+	TimeSinceLastUIUpdate = TimeSinceLastUIUpdate + tick;
+	if TimeSinceLastUIUpdate > UpdateRate then
+		local updateTime = GetTime();
+		for i,v in pairs(frame.Info.Bars) do
+			self:UpdateBar(v, updateTime);
+			
+		end	
+		if #frame.Info.Bars == 0 and db.settings.Locked then
+			frame:Hide();
+		end
+
+		--I Don't really like putting this in an OnUpdate --tagged FIXME
+		--Really needed here?
+		if(db.settings.HideOOC) then
+			if (inCombat and db.barsetsettings[frame.Info.Name].IsEnabled) then
+				frame:Show();
+			else
+				frame:Hide();
+			end
+		end
+
+		TimeSinceLastUIUpdate = 0;
 	end
 end
 

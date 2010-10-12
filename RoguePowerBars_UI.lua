@@ -1,7 +1,8 @@
+
 local RoguePowerBars = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
 
-function OnUIUpdate(tick, frame)
-	RoguePowerBars:OnUIUpdate(tick, frame);
+function OnUIUpdate(frame,tick,...)
+	RoguePowerBars:OnUIUpdate(frame,tick);-- self,elapsed
 end
 
 function BarsAreLocked()
@@ -9,15 +10,6 @@ function BarsAreLocked()
 	return arelocked;
 end
 
-function RPB_OnMouseDown(frame, arg1, arg2, arg3)
-	if arg1 == "LeftButton" and not BarsAreLocked() then
-		frame:StartMoving();
-	end
-end
-
-function RPB_OnMouseUp(frame, arg1)
-	if arg1 == "LeftButton" then
-		frame:StopMovingOrSizing();
-		RoguePowerBars:OnBarsetMove(frame);
-	end
+function OnBarsetMove(frame)
+	RoguePowerBars:OnBarsetMove(frame);
 end

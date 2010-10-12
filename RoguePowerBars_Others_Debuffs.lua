@@ -15,6 +15,7 @@ end
 
 ResetIndex();
 
+--[[
 --===========================
 -- Rogues
 --===========================
@@ -24,37 +25,7 @@ RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
 	SpellID = 26866,
 	Name = "Expose Armor", 
 };
-
---===========================
--- Other
---===========================
--- Sunder Armor
-RoguePowerBar_OthersDebuffs_Default[GetNext()] = { 
-	StatusBarColor = { r = 0.55, g = 0.3, b = 0.1; a = 0.8 },
-	SpellID = 58567,
-	Name = "Sunder Armor", 
-};
-
--- Mangle - Bear
-RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
-	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
-	SpellID = 48564,
-	Name = "Mangle (Bear)",
-};
-
--- Mangle - Cat
-RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
-	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
-	SpellID = 48566,
-	Name = "Mangle (Cat)",
-};
-
---Trauma
-RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
-	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
-	SpellID = 46857,
-	Name = "Trauma",
-}
+]]
 
 do
 	for i = 1, #RoguePowerBar_OthersDebuffs_Default do

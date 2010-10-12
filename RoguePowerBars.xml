@@ -1,6 +1,5 @@
 ﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
   
-  
   <Frame name="RoguePowerBarTemplate" virtual="true">
     <Size>
       <AbsDimension x="254" y="24"/>
@@ -43,7 +42,7 @@
 
         </Anchors>
 
-        <BarTexture file="Interface\AddOns\RoguePowerBars\BatTextureSmooth.tga"/>   <!-- file="Interface\TargetingFrame\UI-StatusBar" -->
+        <BarTexture file="Interface\AddOns\RoguePowerBars\textures\BatTextureSmooth.tga"/>   <!-- file="Interface\TargetingFrame\UI-StatusBar" -->
 
         <BarColor r="0" g="0.5" b="1.0"/>
 
@@ -90,7 +89,7 @@
         </Anchors>
       </Frame>
       <Frame name="$parent_BarBackGround">
-        <Backdrop bgFile="Interface\AddOns\RoguePowerBars\BatTextureSmooth.tga" tiel="true"/>
+        <Backdrop bgFile="Interface\AddOns\RoguePowerBars\textures\BatTextureSmooth.tga" tiel="true"/>
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parent_StatusBar" relativePoint="TOPLEFT" />
           <Anchor point="BOTTOMRIGHT" relativeTo="$parent_StatusBar" relativePoint="BOTTOMRIGHT" />
@@ -136,28 +135,15 @@
 
     <Scripts>
       
-      <OnLoad>
-      </OnLoad>
+      <OnLoad />
 
-      <OnUpdate>
-        OnUIUpdate(arg1, self);
-      </OnUpdate>
+      <OnUpdate function="OnUIUpdate" />
 
-      <OnEvent>
-      </OnEvent>
+      <OnEvent />
 
-       <OnMouseDown>
-         if ( arg1 == "LeftButton" and not BarsAreLocked()) then
-           self:StartMoving();
-         end
-       </OnMouseDown>
+      <OnMouseDown function="RPB_OnMouseDown" />
 
-       <OnMouseUp>
-         if ( arg1 == "LeftButton" ) then
-           self:StopMovingOrSizing();
-           OnBarsetMove(self);
-         end
-       </OnMouseUp>
+      <OnMouseUp function="RPB_OnMouseUp" />
 
     </Scripts>
   </Frame>

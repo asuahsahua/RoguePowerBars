@@ -1012,17 +1012,17 @@ function RoguePowerBars:RemoveBarset(name)
 		-- shifts spells down an index for bars so they stay associated with the correct bar
 		if ( removeIndex >-1 ) then
 			for k,v in pairs(db.buffs) do
-				if(db.buffs[k].Barset>pos) then
+				if(db.buffs[k].Barset>removeIndex) then
 					db.buffs[k].Barset=db.buffs[k].Barset-1;
 				end
 			end
 			for k,v in pairs(db.debuffs) do
-				if(db.debuffs[k].Barset>pos) then
+				if(db.debuffs[k].Barset>removeIndex) then
 					db.debuffs[k].Barset=db.debuffs[k].Barset-1;
 				end
 			end
 			for k,v in pairs(db.othersDebuffs) do
-				if(db.othersDebuffs[k].Barset>pos) then
+				if(db.othersDebuffs[k].Barset>removeIndex) then
 					db.othersDebuffs[k].Barset=db.othersDebuffs[k].Barset-1;
 				end
 			end

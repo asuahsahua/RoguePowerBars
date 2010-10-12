@@ -13,8 +13,8 @@ local function RPBPrint(...) print("RoguePowerBars: " .. string.join(" ", ...)) 
 ---------------------------------------------
 -- Defined constants
 local UpdateRate = 0.01;
-local version = "@project-version@";
-local revision = "@project-revision@";
+local version = "4.0.1";
+local revision = "99";
 
 local GROW_UP = 1
 local GROW_DOWN = 2
@@ -363,10 +363,9 @@ function RoguePowerBars:SetStatusBars(buffs)
 
 			end
 		end
-		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime, BARTYPE_TIMER);
 
 	    if(db.barsetsettings[barset.Info.Name].IsEnabled) then
-		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime);
+		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime,BARTYPE_TIMER);
 		self:ConfigureBar(bar, buff);
 	    end
 	end

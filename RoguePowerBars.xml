@@ -140,7 +140,7 @@
 
       <OnUpdate function="OnUIUpdate" />
 
-      <OnEvent>
+      <OnEvent />
 
        <OnMouseDown>
          if ( button == "LeftButton" and not BarsAreLocked()) then

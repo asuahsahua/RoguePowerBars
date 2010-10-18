@@ -59,31 +59,31 @@ local defaults = {
 --			L["Energy"]
 		},
 		barsetsettings = {
-			Buffs = {
+			[L["Buffs"]] = {
 				IsEnabled = true,
 				Width = 256,
 				Scale = 1,
 				Alpha = 1,
-				GrowDirection = GROW_CENTER, -- 1 Up, 2 Down, 3 Center
+				GrowDirection = GROW_UP, -- 1 Up, 2 Down, 3 Center
 				position = {
 					x = 0.375,
 					y = 0.280,
 					relativeto = "CENTER",
 				},
 			},
-			Debuffs = {
+			[L["Debuffs"]] = {
 				IsEnabled = true,
 				Width = 256,
 				Scale = 1,
 				Alpha = 1,
-				GrowDirection = GROW_CENTER, -- 1 Up, 2 Down, 3 Center
+				GrowDirection = GROW_UP, -- 1 Up, 2 Down, 3 Center
 				position = {
 					x = 0.625,
 					y = 0.280,
 					relativeto = "CENTER",
 				},
 			},
---			Combo = {
+--			[L[Combo]] = {
 --				IsEnabled = true,
 --				Width = 256,
 --				Scale = 1,
@@ -95,7 +95,7 @@ local defaults = {
 --					relativeto = "CENTER",
 --				},
 --			},
---			Energy = {
+--			[L[Energy]] = {
 --				IsEnabled = true,
 --				Width = 256,
 --				Scale = 1,
@@ -1378,7 +1378,7 @@ function RoguePowerBars:PopulateBarsetsSettings()
 					set = function(info, value)
 						db.barsetsettings[info[#info-1]][info[#info]] = value
 						--RPBPrint("The " .. info[#info-1].." + ".. info[#info] .. " was set to: " .. tostring(value) )
-						RPBPrint(L["The %s + %s was set to: %s"]:format(tostring(info[#info-1]),tostring(info[#info]),tostring(value)));
+						--RPBPrint(L["The %s + %s was set to: %s"]:format(tostring(info[#info-1]),tostring(info[#info]),tostring(value)));
 						self:UpdateBuffs()
 						if(value) then
 							BarSets[info[#info-1]]:Show();

@@ -176,6 +176,17 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 -- Gear Procs
 --===========================
 
+--4.0 Cataclysm
+--============
+--Deadly Scheme (4T11)
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
+	SpellID = 90472,
+	Name = "Deadly Scheme",
+}
+
+--[[
+--3.0 WOTLK
 -- T9 (2 piece bonus)
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.4, g = 0.4, b = 0.6; a = 0.8 },
@@ -196,7 +207,7 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	SpellID = 55775,
 	Name = "Swordguard Embroidery",
 }
-
+]]
 --===========================
 -- Epic Trinkets
 --===========================
@@ -205,17 +216,46 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 
 --4.0 Cataclysm
 --============
---[[
+
 --Unsolvable Riddle
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
 	SpellID = 92123,
 	Name = "Enigma",
 }
-]]
+--Essence of the Cyclone
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
+	SpellID = 92126,
+	Name = "Twisted",
+}
+--Unheeded Warning
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
+	SpellID = 92108,
+	Name = "Heedless Carnage",
+}
+--Prestor's Talisman of Machination
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
+	SpellID = 92349,
+	Name = "Nefarious Plot",
+}
+--Fluid Death
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.1, g = 0.1, b = 0.6, a = 0.8 },
+	SpellID = 92104,
+	Name = "River of Death",
+}
+
+
+
+
+--3.0 WOTLK
 
 --3.0
 --============
+--[[
 -- Mirror of Truth
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
@@ -392,11 +432,25 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	SpellID = 71875,
 	Name = "Necrotic Touch",
 }
-
+]]
 
 --===========================
 -- Weapon Enchants
 --===========================
+
+-- Landslide Enchant
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0.3; a = 0.8 },
+	SpellID = 74245,
+	Name = "Landslide", 
+};
+
+-- Hurricane Enchant
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.35, g = 0.6, b = 0.85; a = 0.8 },
+	SpellID = 74221,
+	Name = "Hurricane", 
+};
 
 -- Berserking Enchant
 RoguePowerBar_Buff_Default[GetNext()] = {
@@ -427,8 +481,6 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 };
 
 
-
-
 --===========================
 -- Potions
 --===========================
@@ -438,6 +490,13 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 1, g = 0.6, b = 0.2; a = 0.8 },
 	SpellID = 53908,
 	Name = "Speed", 
+};
+
+-- Potion of Speed
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.1, g = 1, b = 0.1; a = 0.8 },
+	SpellID = 79633,
+	Name = "Tol'vir Agility", 
 };
 
 
@@ -467,14 +526,13 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	Name = "Bloodlust", 
 };
 
---[[
 -- Time Warp
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0, g = 0, b = 0.8; a = 0.8 },
 	SpellID = 80353,
 	Name = "Time Warp", 
 };
-]]
+
 
 
 --===========================
@@ -517,7 +575,7 @@ do
 		if(name) then
 			buff.Name = name;
 		else
-			print(L["RoguePowerBars: Warning - SpellID: %s for %s does not exist.  Using default name instead."]:format(buff.SpellID,buff.Name))
+			print(L["RoguePowerBars"]..": "..L["Warning - SpellID: %s for %s does not exist.  Using default name instead."]:format(buff.SpellID,buff.Name))
 		end
 	end
 end

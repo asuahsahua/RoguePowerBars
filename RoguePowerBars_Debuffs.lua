@@ -190,7 +190,7 @@ do
 		if(name) then
 			buff.Name = name;
 		else
-			print(L["RoguePowerBars: Warning - SpellID: %s for %s does not exist.  Using default name instead."]:format(buff.SpellID,buff.Name))
+			print(L["RoguePowerBars"]..": "..L["Warning - SpellID: %s for %s does not exist.  Using default name instead."]:format(buff.SpellID,buff.Name))
 		end
 	end
 end

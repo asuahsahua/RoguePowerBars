@@ -178,11 +178,59 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 
 --4.0 Cataclysm
 --============
+-- T11 (4 piece bonus)
 --Deadly Scheme (4T11)
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
 	SpellID = 90472,
 	Name = "Deadly Scheme",
+}
+--4.2
+--
+-- T12 (4 piece bonus)
+--Master of Flames [Mastery] (4T12)
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 99188,
+	Name = "Master of Flames",
+}
+--Future on Fire [Haste] (4T12)
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 99186,
+	Name = "Future on Fire",
+}
+--Fiery Devastation [Crit] (4T12)
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 99187,
+	Name = "Fiery Devastation",
+}
+--4.3
+--Legendary Questline Daggers
+--Suffering
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 109959,
+	Name = "Suffering",
+}
+--Nightmare (5 AGI)
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 109955,
+	Name = "Nightmare",
+}
+--Shadows of the Destroyer (17 AGI+Fury proc)
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 109941,
+	Name = "Shadows of the Destroyer",
+}
+--Fury of the Destroyer
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 109949,
+	Name = "Fury of the Destroyer",
 }
 
 --[[
@@ -248,7 +296,66 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 	Name = "River of Death",
 }
 
+--4.2
+--===========
+--Ancient Petrified Seed
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
+	SpellID = 97177,
+	Name = "Ancient Petrified Seed",
+}
+--Hungerer
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
+	SpellID = 97125,
+	Name = "Devour",
+}
+--Matrix Restabilizer ??? Don't know if this will catch all types.
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
+	SpellID = 96976,
+	Name = "Matrix Restabilizer",
+}
 
+--Call of Conquest
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.4, g = 0.2, b = 0.4, a = 0.8 },
+	SpellID = 99739,
+	Name = "Call of Conquest",
+}
+
+--Aella's Bottle
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 101515,
+	Name = "Charged Blows",
+}
+--4.3
+--===========
+--Starcatcher Compass
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 107982,
+	Name = "Velocity",
+}
+--Wrath of Unchaining
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 107960,
+	Name = "Combat Trance",
+}
+--Arrow of Time
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.87, g = 0.5, b = 0.13, a = 0.8 },
+	SpellID = 102659,
+	Name = "Arrow of Time",
+}
+--Kiroptyric Sigil
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.1, g = 0.8, b = 0.1, a = 0.8 },
+	SpellID = 107947,
+	Name = "Agile",
+}
 
 
 --3.0 WOTLK

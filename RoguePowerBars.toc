@@ -1,4 +1,4 @@
-## Interface: 40000
+## Interface: 40300
 ## Title: Rogue Power Bars v4.0
 ## Notes: Displays statusbars with time left on rogue abilities
 ## Author: Domia on Maiev-US (Curse profile: Asuah)

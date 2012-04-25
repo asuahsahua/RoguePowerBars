@@ -167,7 +167,7 @@ end
 function RoguePowerBars:UpdateSavedData()
 	local _,_,num=string.find(db.version, "%s*(%d+)")
 
-	if(tonumber(num) < 103) then --change to <= on next buff revision
+	if(num and tonumber(num) < 103) then --change to <= on next buff revision
 		RPBPrint(L["Almost all of the spells have changed with patch 4.0.1+  It is highly recommended that you reset each buff type to defaults."]);
 		
 	end

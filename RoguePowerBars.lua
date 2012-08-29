@@ -502,7 +502,9 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	
 	local bg = _G[barname.."_BarBackGround"];
 	local barbgalpha = db.settings.BarBackgroundAlpha;
-	bg:GetBackdrop().bgFile = db.settings["TexturePath"];
+	bgtable=bg:GetBackdrop();
+	bgtable.bgFile = db.settings["TexturePath"];
+	bg:SetBackdrop(bgtable);
 	bg:SetBackdropColor(c.r, c.g, c.b, barbgalpha)
 	
 	local describetext = _G[barname.."_DescribeText"];

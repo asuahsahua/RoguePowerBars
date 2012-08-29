@@ -90,7 +90,7 @@
         </Anchors>
       </Frame>
       <Frame name="$parent_BarBackGround">
-        <Backdrop bgFile="Interface\AddOns\RoguePowerBars\textures\BarTextureSmooth.tga" tile="true"/>
+        <Backdrop bgFile="Interface\AddOns\RoguePowerBars\textures\BarTextureSmooth.tga" tile="false"/>
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parent_StatusBar" relativePoint="TOPLEFT" />
           <Anchor point="BOTTOMRIGHT" relativeTo="$parent_StatusBar" relativePoint="BOTTOMRIGHT" />

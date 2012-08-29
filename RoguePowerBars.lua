@@ -14,7 +14,7 @@ local function RPBPrint(...) print("RoguePowerBars: " .. string.join(" ", ...)) 
 -- Defined constants
 local UpdateRate = 0.01;
 local version = "@project-version@";
-local revision = "@project-revision@";
+local revision = "@project-date-integer@";
 
 local GROW_UP = 1
 local GROW_DOWN = 2

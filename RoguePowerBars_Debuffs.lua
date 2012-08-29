@@ -19,6 +19,28 @@ ResetIndex();
 -- Class Skills
 --===========================
 
+--New Unsorted 5.0
+--===============
+
+--Crimson Tempest
+RoguePowerBar_Debuff_Default[GetNext()] = {
+	StatusBarColor = {r = 1, g = 0.2, b = 0.2, a = 0.8 },
+	SpellID = 121411,
+	Name = "Crimson Tempest",
+};
+
+
+--Nerve Strike
+RoguePowerBar_Debuff_Default[GetNext()] = {
+	StatusBarColor = {r = 1, g = 0.2, b = 0.2, a = 0.8 },
+	SpellID = 108210,
+	Name = "Nerve Strike",
+};
+
+
+
+
+
 --Offensive
 --============
 --Rupture
@@ -54,12 +76,13 @@ RoguePowerBar_Debuff_Default[GetNext()] = {
 	Name = "Revealing Strike",
 };
 
--- Waylay
+--[[ Waylay
 RoguePowerBar_Debuff_Default[GetNext()] = { 
 	StatusBarColor = { r = 0.8, g = 0.8, b = 0.4; a = 0.8 },
 	SpellID = 51693,
 	Name = "Waylay", 
 };
+]]
 
 --Stuns/Daze
 --============
@@ -81,12 +104,14 @@ RoguePowerBar_Debuff_Default[GetNext()] = {
 	SpellID = 1776,
 	Name = "Gouge", 
 };
--- Blade Twisting proc
+--[[ Blade Twisting proc
 RoguePowerBar_Debuff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.4, g = 0.47, b = 0.6, a = 0.8 },
 	SpellID = 51585,
 	Name = "Blade Twisting",
 };
+]]
+
 -- Blind
 RoguePowerBar_Debuff_Default[GetNext()] = { 
 	StatusBarColor = { r =.77, g=.74, b=.45; a = 0.8 },
@@ -118,12 +143,14 @@ RoguePowerBar_Debuff_Default[GetNext()] = {
 
 --Silence
 --============
--- Improved Kick
+--[[ Improved Kick
 RoguePowerBar_Debuff_Default[GetNext()] = { 
 	StatusBarColor = { r = .36, g = .36, b = 0.36; a = 0.8 },
 	SpellID = 18425,
 	Name = "Silenced - Improved Kick", 
 };
+]]
+
 -- Garrote - Silence
 RoguePowerBar_Debuff_Default[GetNext()] = { 
 	StatusBarColor = {r = 1, g = 0.2, b = 0.2, a = 0.8 },
@@ -153,7 +180,7 @@ RoguePowerBar_Debuff_Default[GetNext()] = {
 -- Wound Poison
 RoguePowerBar_Debuff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
-	SpellID = 13219,
+	SpellID = 8679,
 	Name = "Wound Poison",
 };
 
@@ -176,6 +203,20 @@ RoguePowerBar_Debuff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
 	SpellID = 3409,
 	Name = "Crippling Poison",
+};
+
+-- Leeching Poison
+RoguePowerBar_Debuff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
+	SpellID = 112961,
+	Name = "Leeching Poison",
+};
+
+-- Paralytic Poison
+RoguePowerBar_Debuff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.02, g = 0.75, b = 0.02, a = 0.8 },
+	SpellID = 113952,
+	Name = "Paralytic Poison",
 };
 
 

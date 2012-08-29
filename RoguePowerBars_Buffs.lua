@@ -20,6 +20,115 @@ ResetIndex();
 -- Class Skills
 --===========================
 
+
+
+--New Unsorted 5.0
+
+-- Shadow Walk
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 114842,
+	Name = "Shadow Walk",
+};
+
+-- Shroud of Concealment
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 114018,
+	Name = "Shroud of Concealment",
+};
+
+-- Detection
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 56814,
+	Name = "Detection",
+};
+
+-- Symbiosis
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 110503,
+	Name = "Symbiosis",
+};
+
+-- Symbiosis Growl
+-- Growl is name
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 113613,
+	Name = "Growl",
+};
+
+-- Burst of Speed
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 108212,
+	Name = "Burst of Speed",
+};
+
+-- Shadow Blades
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 121471,
+	Name = "Shadow Blades",
+};
+
+-- Shadow Blade
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 121473,
+	Name = "Shadow Blade",
+};
+
+-- Shadow Focus
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 108209,
+	Name = "Shadow Focus",
+};
+
+-- Feint
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 1966,
+	Name = "Feint",
+};
+
+-- Blindside
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 121153,
+	Name = "Blindside",
+};
+
+-- Subterfuge
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = 108208,
+	Name = "Subterfuge",
+};
+
+
+
+
+
+
+
+
+
+--[[
+
+-- 
+RoguePowerBar_Buff_Default[GetNext()] = {
+	StatusBarColor = { r = 0.9, g = 0.8, b = 0; a = 0.8 },
+	SpellID = ,
+	Name = "",
+};
+
+]]
+
+
 --Offensive
 --============
 
@@ -126,12 +235,14 @@ RoguePowerBar_Buff_Default[GetNext()] = {
 -- Assassination Talents
 --===========================
 
--- Deadly Momentum
+--[[ Deadly Momentum
 RoguePowerBar_Buff_Default[GetNext()] = {
 	StatusBarColor = { r = 0.4, g = 0, b = 0.5; a = 0.8 },
 	SpellID = 84590,
 	Name = "Deadly Momentum",
 };
+]]
+
 
 -- Overkill
 RoguePowerBar_Buff_Default[GetNext()] = {

@@ -28,19 +28,22 @@ RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
 --===========================
 -- Other
 --===========================
--- Sunder Armor
+--[[ Sunder Armor
 RoguePowerBar_OthersDebuffs_Default[GetNext()] = { 
 	StatusBarColor = { r = 0.55, g = 0.3, b = 0.1; a = 0.8 },
 	SpellID = 58567,
 	Name = "Sunder Armor", 
 };
+]]--
 
--- Faerie Fire
+
+--[[ Faerie Fire
 RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
 	StatusBarColor = { r = 0.75, g = 0, b = 1.0; a = 0.8 },
 	SpellID = 91565,
 	Name = "Faerie Fire",
 };
+]]
 
 -- Mangle - Bear
 RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
@@ -56,12 +59,13 @@ RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
 	Name = "Mangle (Cat)",
 };
 
---Trauma
+--[[Trauma
 RoguePowerBar_OthersDebuffs_Default[GetNext()] = {
 	StatusBarColor = { r = 0.9, g = 0.35, b = 0.1, a = 0.8 },
 	SpellID = 46857,
 	Name = "Trauma",
 }
+]]
 
 do
 	for i = 1, #RoguePowerBar_OthersDebuffs_Default do

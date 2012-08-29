@@ -1884,7 +1884,7 @@ end
 local BANTO_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\textures\\BarTextureBanto.tga";
 local LITESTEP_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\textures\\BarTextureLiteStep.tga";
 local OTRAVI_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\textures\\BarTextureCanvas.tga";
-local SMOOTH_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\textures\\BatTextureSmooth.tga";
+local SMOOTH_TEXTURE = "Interface\\AddOns\\RoguePowerBars\\textures\\BarTextureSmooth.tga";
 
 function RoguePowerBars:ImportCustomTextures()
 	SharedMedia:Register("statusbar", "BantoBar", BANTO_TEXTURE);

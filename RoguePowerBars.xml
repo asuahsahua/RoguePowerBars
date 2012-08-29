@@ -43,7 +43,7 @@
 
         </Anchors>
 
-        <BarTexture file="Interface\AddOns\RoguePowerBars\textures\BatTextureSmooth.tga"/>   <!-- file="Interface\TargetingFrame\UI-StatusBar" -->
+        <BarTexture file="Interface\AddOns\RoguePowerBars\textures\BarTextureSmooth.tga"/>   <!-- file="Interface\TargetingFrame\UI-StatusBar" -->
 
         <BarColor r="0" g="0.5" b="1.0"/>
 
@@ -90,7 +90,7 @@
         </Anchors>
       </Frame>
       <Frame name="$parent_BarBackGround">
-        <Backdrop bgFile="Interface\AddOns\RoguePowerBars\textures\BatTextureSmooth.tga" tiel="true"/>
+        <Backdrop bgFile="Interface\AddOns\RoguePowerBars\textures\BarTextureSmooth.tga" tile="true"/>
         <Anchors>
           <Anchor point="TOPLEFT" relativeTo="$parent_StatusBar" relativePoint="TOPLEFT" />
           <Anchor point="BOTTOMRIGHT" relativeTo="$parent_StatusBar" relativePoint="BOTTOMRIGHT" />

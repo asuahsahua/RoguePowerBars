@@ -1,5 +1,5 @@
-## Interface: 50001
-## Title: Rogue Power Bars v5.0
+## Interface: 60000
+## Title: Rogue Power Bars
 ## Notes: Displays statusbars with time left on rogue abilities
 ## Author: Domia on Maiev-US (Curse profile: Asuah)
 ## Version: @project-version@

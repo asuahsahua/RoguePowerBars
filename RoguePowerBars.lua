@@ -1456,12 +1456,36 @@ function RoguePowerBars:BuildDefaults(restore,clear,...)
 
 	local defaultmatrix = {};
 
+    local buffs = {}
+    local debuffs = {}
+
+    local ps = LibStub('LibPlayerSpells-1.0')
+    local mask = ps.constants.DRUID
+    for spellId, flags, providers, modifiedSpells, moreFlags in ps:IterateSpells(mask) do
+        if bit.band(flags, ps.constants.AURA) then
+            local name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange = GetSpellInfo(spellId)
+            if bit.band(flags, ps.constants.HELPFUL) ~= 0 then
+                table.insert(buffs, {
+                    StatusBarColor = { r = 0.3, g = 0.3, b = 0.3; a = 0.8 },
+                    SpellID = spellid,
+                    Name = name,
+                });
+            elseif bit.band(flags, ps.constants.HARMFUL) ~= 0 then
+                table.insert(debuffs, {
+                    StatusBarColor = { r = 0.3, g = 0.3, b = 0.3; a = 0.8 },
+                    SpellID = spellid,
+                    Name = name,
+                });
+            end
+        end
+    end
+
 	if (restore==1 or restore==4) then
 		if(clear) then
 			db.buffs={};
 		end
 		defaultmatrix.buffDefault = {
-			defaults = RoguePowerBar_Buff_Default,
+			defaults = buffs,
 			destTable = db.buffs,
 			defaultBarset = 1,
 		}
@@ -1471,7 +1495,7 @@ function RoguePowerBars:BuildDefaults(restore,clear,...)
 			db.debuffs={};
 		end
 		defaultmatrix.debuffDefault = {
-			defaults = RoguePowerBar_Debuff_Default,
+			defaults = debuffs,
 			destTable = db.debuffs,
 			defaultBarset = 2,
 		}
@@ -1485,7 +1509,7 @@ function RoguePowerBars:BuildDefaults(restore,clear,...)
 			destTable = db.othersDebuffs,
 			defaultBarset = 2,
 		}
-	end
+    end
 
 
 	for k,set in pairs(defaultmatrix) do

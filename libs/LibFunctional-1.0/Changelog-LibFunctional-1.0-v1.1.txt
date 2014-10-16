@@ -1,0 +1,14 @@
+tag v1.1
+9ec78210d018b16a20bfd2a8abd2df14fa3f2817
+slaren <ddevesa@gmail.com>
+2013-06-11 21:11:27 +0200
+
+bugfix release
+
+
+--------------------
+
+slaren:
+	- bumped library version
+	- bumped .toc
+	- removed unused table that was being created in some functions

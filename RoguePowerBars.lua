@@ -1460,7 +1460,15 @@ function RoguePowerBars:BuildDefaults(restore,clear,...)
     local debuffs = {}
 
     local ps = LibStub('LibPlayerSpells-1.0')
-    local mask = ps.constants.DRUID
+    local maskMap = {
+        ps.constants.WARRIOR, ps.constants.PALADIN, ps.constants.HUNTER,
+        ps.constants.ROGUE, ps.constants.PRIEST, ps.constants.DEATHKNIGHT,
+        ps.constants.SHAMAN, ps.constants.MAGE, ps.constants.WARLOCK,
+        ps.constants.MONK, ps.constants.DRUID,
+    }
+    local _, _, classIndex = UnitClass("Player")
+    local mask = maskMap[classIndex] or ps.constants.ROGUE;
+
     for spellId, flags, providers, modifiedSpells, moreFlags in ps:IterateSpells(mask) do
         if bit.band(flags, ps.constants.AURA) then
             local name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange = GetSpellInfo(spellId)

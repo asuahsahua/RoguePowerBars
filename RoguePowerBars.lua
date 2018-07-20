@@ -365,8 +365,9 @@ function RoguePowerBars:SetStatusBars(buffs)
 		end
 
 	    if(db.barsetsettings[barset.Info.Name].IsEnabled) then
-		local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime,BARTYPE_TIMER);
-		self:ConfigureBar(bar, buff);
+			local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime,BARTYPE_TIMER)
+			self:ConfigureBar(bar, buff)
+			self:UpdateBar(bar, GetTime())
 	    end
 	end
 

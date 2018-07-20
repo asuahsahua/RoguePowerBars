@@ -282,7 +282,7 @@ function RoguePowerBars:UpdateBuffs()
 		name = "dummy";
 		buffIndex = 1;
 		while name do
-			name, rank, texture, count, buffType, duration, expirationTime, caster = UnitAura(set.target, buffIndex, set.filter);
+			name, texture, count, buffType, duration, expirationTime, caster = UnitAura(set.target, buffIndex, set.filter);
 
 			if( set.source == "OthersDebuffsOnTarget" and caster == "player" ) then
 				--prevents a bar from showing up if you're going through the other debuffs
@@ -1459,34 +1459,7 @@ function RoguePowerBars:BuildDefaults(restore,clear,...)
     local buffs = {}
     local debuffs = {}
 
-    local ps = LibStub('LibPlayerSpells-1.0')
-    local maskMap = {
-        ps.constants.WARRIOR, ps.constants.PALADIN, ps.constants.HUNTER,
-        ps.constants.ROGUE, ps.constants.PRIEST, ps.constants.DEATHKNIGHT,
-        ps.constants.SHAMAN, ps.constants.MAGE, ps.constants.WARLOCK,
-        ps.constants.MONK, ps.constants.DRUID,
-    }
     local _, _, classIndex = UnitClass("Player")
-    local mask = maskMap[classIndex] or ps.constants.ROGUE;
-
-    for spellId, flags, providers, modifiedSpells, moreFlags in ps:IterateSpells(mask) do
-        if bit.band(flags, ps.constants.AURA) then
-            local name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange = GetSpellInfo(spellId)
-            if bit.band(flags, ps.constants.HELPFUL) ~= 0 then
-                table.insert(buffs, {
-                    StatusBarColor = { r = 0.3, g = 0.3, b = 0.3; a = 0.8 },
-                    SpellID = spellid,
-                    Name = name,
-                });
-            elseif bit.band(flags, ps.constants.HARMFUL) ~= 0 then
-                table.insert(debuffs, {
-                    StatusBarColor = { r = 0.3, g = 0.3, b = 0.3; a = 0.8 },
-                    SpellID = spellid,
-                    Name = name,
-                });
-            end
-        end
-    end
 
 	if (restore==1 or restore==4) then
 		if(clear) then

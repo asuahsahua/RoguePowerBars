@@ -13,7 +13,6 @@
 <Include file="libs\AceDBOptions-3.0\AceDBOptions-3.0.xml"/>
 <Include file="libs\LibSharedMedia-3.0\lib.xml"/>
 <Include file="libs\AceGUI-3.0-SharedMediaWidgets\widget.xml"/>
-<Include file="libs\LibPlayerSpells-1.0\lib.xml"/>
 <Include file="libs\LibFunctional-1.0\lib.xml"/>
 <Include file="libs\LibSink-2.0\lib.xml"/>
 

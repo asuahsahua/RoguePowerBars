@@ -39,8 +39,6 @@ local inCombat = false --FIXME tag
 
 local debug = false
 
---local energyTick = nil;
-
 ----------------------------------------------
 -- Defaults for options
 local defaults = {
@@ -53,8 +51,6 @@ local defaults = {
 		barsets = {
 			L["Buffs"],
 			L["Debuffs"]
-			--			L["Combo"],
-			--			L["Energy"]
 		},
 		barsetsettings = {
 			[L["Buffs"]] = {
@@ -81,30 +77,6 @@ local defaults = {
 					relativeto = "CENTER"
 				}
 			}
-			--			[L[Combo]] = {
-			--				IsEnabled = true,
-			--				Width = 256,
-			--				Scale = 1,
-			--				Alpha = 1,
-			--				GrowDirection = GROW_CENTER,
-			--				position = {
-			--					x = 0.5,
-			--					y = 0.5,
-			--					relativeto = "CENTER",
-			--				},
-			--			},
-			--			[L[Energy]] = {
-			--				IsEnabled = true,
-			--				Width = 256,
-			--				Scale = 1,
-			--				Alpha = 1,
-			--				GrowDirection = GROW_CENTER,
-			--				position = {
-			--					x = 0.5,
-			--					y = 0.5,
-			--					relativeto = "CENTER",
-			--				},
-			--			},
 		},
 		settings = {
 			Alpha = 1,
@@ -520,8 +492,6 @@ local buffsPlugin = {}
 local debuffsPlugin = {}
 local othersDebuffsPlugin = {}
 local barsetsPlugin = {}
---local comboBarPlugin = { };
---local energyBarPlugin = { };
 
 local options = {
 	name = "RoguePowerBars",
@@ -754,44 +724,6 @@ local options = {
 				}
 			}
 		},
-		--		ComboBar={
-		--			type = "group",
-		--			name = L["ComboBar"],
-		--			desc = L["Combo Bar Settings"],
-		--			plugins = comboBarPlugin,
-		--			args = {
-		--				intro = {
-		--					order = 1,
-		--					type = "description",
-		--					name = L["Configure the Combo Bar"],
-		--				},
-		--				Enabled = {
-		--					order = 2,
-		--					type = "toggle",
-		--					name = L["Enabled"],
-		--					desc = L["Enable/Disable the Combo Bar"],
-		--				},
-		--			},
-		--		},
-		--		EnergyBar={
-		--			type = "group",
-		--			name = L["EnergyBar"],
-		--			desc = L["Energy Bar Settings"],
-		--			plugins = energyBarPlugin,
-		--			args = {
-		--				intro = {
-		--					order = 1,
-		--					type = "description",
-		--					name = L["Configure the Energy Bar"],
-		--				},
-		--				Enabled = {
-		--					order = 2,
-		--					type = "toggle",
-		--					name = L["Enabled"],
-		--					desc = L["Enable/Disable the Energy Bar"],
-		--				},
-		--			},
-		--		},
 		Barsets = {
 			type = "group",
 			name = L["Barsets"],
@@ -971,14 +903,11 @@ function RoguePowerBars:SetupOptions()
 	self:PopulateDebuffs()
 	self:PopulateOthersDebuffs()
 	self:PopulateBarsetsSettings()
-	--	self:PopulateSpecialBarSettings();
 	self.optionsFrames.RoguePowerBars = ACD:AddToBlizOptions("RoguePowerBars", nil, nil, "General")
 	self.optionsFrames.Buffs = ACD:AddToBlizOptions("RoguePowerBars", "Buffs", "RoguePowerBars", "Buffs")
 	self.optionsFrames.Debuffs = ACD:AddToBlizOptions("RoguePowerBars", "Debuffs", "RoguePowerBars", "Debuffs")
 	self.optionsFrames.OthersDebuffs =
 		ACD:AddToBlizOptions("RoguePowerBars", "OthersDebuffs", "RoguePowerBars", "OthersDebuffs")
-	--	self.optionsFrames.ComboBar = ACD:AddToBlizOptions("RoguePowerBars", "ComboBar", "RoguePowerBars", "ComboBar");
-	--	self.optionsFrames.EnergyBar = ACD:AddToBlizOptions("RoguePowerBars", "EnergyBar", "RoguePowerBars", "EnergyBar");
 	self.optionsFrames.Barsets = ACD:AddToBlizOptions("RoguePowerBars", "Barsets", "RoguePowerBars", "Barsets")
 	-- self:RegisterModuleOptions("Profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db), "Profiles");
 	self:RegisterChatCommand("rpb", "ChatCommand")
@@ -1258,10 +1187,6 @@ function RoguePowerBars:RemoveOthersDebuffOption(name)
 	LibStub("AceConfigDialog-3.0"):CloseAll()
 end
 
---function RoguePowerBars:PopulateSpecialBarSettings()
---	energyBarPlugin.enabled = {};
---	comboBarPlugin.enabled = {};
---end
 function RoguePowerBars:PopulateBarsetsSettings()
 	barsetsPlugin.barsets = {}
 
@@ -1579,61 +1504,6 @@ function RoguePowerBars:UpdateBar(bar, updateTime)
 	end
 end
 
---[[
-function RoguePowerBars:CreateBar(name, parentBarset, expirationTime, bartype)
-	-- assumes parentBarset is the parent frame.
-	local bar;
-	local currentTime = GetTime();
-	local timeleft;
-	
-	if #BarsToRecycle > 0 then
-		bar = BarsToRecycle[#BarsToRecycle];
-		BarsToRecycle[#BarsToRecycle] = nil;
-	else
-		BarCount = BarCount + 1;
-		bar = CreateFrame("Frame", "RoguePowerBars_Bar_"..BarCount, parentBarset, "RoguePowerBarTemplate");
-	end
-	
-	if db.settings.Inverted then
-		timeleft = expirationTime - currentTime;
-	else
-	
-	end
-	
-	bar.Info = {
-		Name = name,
-		Duration = expirationTime - currentTime,
-		TimeLeft = expirationTime - currentTime,
-		ExpirationTime = expirationTime,
-		StartTime = currentTime,
-	}
-	_G[bar:GetName().."_DescribeText"]:SetText(name);
-	_G[bar:GetName().."_StatusBar"]:SetMinMaxValues(0, bar.Info.Duration);
-	self:AddBarToSet(bar, parentBarset);
-	return bar;
-end
-
-function RoguePowerBars:UpdateBar(bar, updateTime)
-	local info = bar.Info;
-	local statusbar = _G[bar:GetName().."_StatusBar"];
-	info.TimeLeft = info.ExpirationTime - updateTime;
-	bar:SetAlpha(self:GetFadeAlpha(bar));
-	if info.BuffInfo.ExpirationTime == 0 then
-		statusbar:SetValue(1);
-		_G[bar:GetName().."_DurationText"]:SetText("");
-	elseif info.TimeLeft >= 0 then
-		if db.settings.Inverted then
-			local min, max = statusbar:GetMinMaxValues()
-			statusbar:SetValue(max - info.TimeLeft);
-		else
-			statusbar:SetValue(info.TimeLeft);
-		end
-		_G[bar:GetName().."_DurationText"]:SetText(string.format("%.1f", info.TimeLeft));
-	else
-		self:RemoveBar(bar);
-	end
-end
-]]
 function RoguePowerBars:GetFadeAlpha(bar)
 	local timeleft = bar.Info.TimeLeft
 	local value

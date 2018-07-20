@@ -1,4 +1,5 @@
 .idea
+.vscode
 RoguePowerBars.iml
 libs/AceAddon-3.0
 libs/AceConfig-3.0

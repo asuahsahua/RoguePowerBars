@@ -1,8 +1,7 @@
-
 local RoguePowerBars = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
 
 function OnUIUpdate(frame,tick,...)
-	RoguePowerBars:OnUIUpdate(frame,tick);-- self,elapsed
+	RoguePowerBars:OnUIUpdate(frame,tick);
 end
 
 function BarsAreLocked()

@@ -10,7 +10,6 @@
 includes.xml
 #@end-no-lib-strip@
 
-##localizations\Locale-enUS.lua
 localizations\enUS.lua
 localizations\frFR.lua
 localizations\deDE.lua
@@ -23,10 +22,10 @@ localizations\zhTW.lua
 
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
+Core.lua
+
 RoguePowerBars.lua
-RoguePowerBars_Buffs.lua
-RoguePowerBars_Debuffs.lua
-RoguePowerBars_Others_Debuffs.lua
+buffs/Buffs.lua
 RoguePowerBars_UI.lua
 RoguePowerBars.xml
 

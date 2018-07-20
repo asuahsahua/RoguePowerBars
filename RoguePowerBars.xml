@@ -1,6 +1,7 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
-  
-  
+<Ui xmlns="http://www.blizzard.com/wow/ui/" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+
   <Frame name="RoguePowerBarTemplate" virtual="true">
     <Size>
       <AbsDimension x="254" y="24"/>
@@ -9,7 +10,7 @@
     <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" tile="true">
       <Color r="0" g="0" b="0" a="0.8"/>
     </Backdrop>
-    
+
     <Layers>
       <Layer level="ARTWORK">
         <Texture name="$parent_Icon" file="Interface\Icons\Ability_Rogue_MasterOfSubtlety">
@@ -43,7 +44,8 @@
 
         </Anchors>
 
-        <BarTexture file="Interface\AddOns\RoguePowerBars\textures\BarTextureSmooth.tga"/>   <!-- file="Interface\TargetingFrame\UI-StatusBar" -->
+        <BarTexture file="Interface\AddOns\RoguePowerBars\textures\BarTextureSmooth.tga"/>
+        <!-- file="Interface\TargetingFrame\UI-StatusBar" -->
 
         <BarColor r="0" g="0.5" b="1.0"/>
 
@@ -110,7 +112,7 @@
     <Size>
       <AbsDimension x="250" y="24"/>
     </Size>
-    
+
     <Layers>
       <Layer level="OVERLAY">
         <FontString name="$parent_BarsetText" inherits="GameFontNormal" justifyH="LEFT">
@@ -130,30 +132,30 @@
         </FontString>
       </Layer>
     </Layers>
-        
+
     <Anchors>
     </Anchors>
 
     <Scripts>
-      
+
       <OnLoad />
 
       <OnUpdate function="OnUIUpdate" />
 
       <OnEvent />
 
-       <OnMouseDown>
+      <OnMouseDown>
          if ( button == "LeftButton" and not BarsAreLocked()) then
            self:StartMoving();
          end
-       </OnMouseDown>
+      </OnMouseDown>
 
-       <OnMouseUp>
+      <OnMouseUp>
          if ( button == "LeftButton" ) then
            self:StopMovingOrSizing();
            OnBarsetMove(self);
          end
-       </OnMouseUp>
+      </OnMouseUp>
 
     </Scripts>
   </Frame>

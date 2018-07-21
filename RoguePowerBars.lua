@@ -435,10 +435,10 @@ function RoguePowerBars:CreateOptions()
 				name = L["General"],
 				desc = L["General Settings"],
 				get = function(info)
-					return RoguePowerBars.db.settings[info[#info]]
+					return self.profile.settings[info[#info]]
 				end,
 				set = function(info, value)
-					RoguePowerBars.db.settings[info[#info]] = value
+					self.profile.settings[info[#info]] = value
 					RoguePowerBars:UpdateBuffs()
 				end,
 				args = {
@@ -541,8 +541,8 @@ function RoguePowerBars:CreateOptions()
 						desc = L["The texture that will be used"],
 						values = AceGUIWidgetLSMlists.statusbar,
 						set = function(info, value)
-							RoguePowerBars.db.settings[info[#info]] = value
-							RoguePowerBars.db.settings["TexturePath"] = SharedMedia:Fetch("statusbar", value)
+							RoguePowerBars.profile.settings[info[#info]] = value
+							RoguePowerBars.profile.settings["TexturePath"] = SharedMedia:Fetch("statusbar", value)
 							RoguePowerBars:UpdateBuffs()
 						end
 					}

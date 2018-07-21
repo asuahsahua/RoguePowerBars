@@ -66,30 +66,26 @@ local defaults = {
 
 function RoguePowerBars:InitializeDatabase()
     local db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults)
-    self.db = db
-    self.profile = self.db.profile
+	self.db = db
+	local profile = self.db.profile
+    self.profile = profile
 
 	local firstrun = true
 
 	--checks if spell data is already saved in the database to prevent
 	--clearing data from dbs created before the database had version information
-	if (db.buffs and next(db.buffs)) then
+	if (profile.buffs and next(profile.buffs)) then
 		firstrun = false
-	elseif (db.debuffs and next(db.debuffs)) then
+	elseif (profile.debuffs and next(profile.debuffs)) then
 		firstrun = false
-	elseif (db.othersDebuffs and next(db.othersDebuffs)) then
+	elseif (profile.othersDebuffs and next(profile.othersDebuffs)) then
 		firstrun = false
     end
-    
--- TODO remove this, for debugging
---self.db.ResetDB("default")
-self:BuildDefaults(4, true)
-self:Print("Testing reloading the entire everything!")
 
 	--automatically push known spells to database if the current database doesn't
 	--have proper version information.
 	-- First run people will get a clean database while old dbs will get missing spells added
-	if (self.profile.version == nil or self.profile.version == 0) then
+	if (self.profile.version == nil or self.profile.version == 0 or firstrun) then
 		self:BuildDefaults(4, firstrun)
 		self.profile.version = revision --update db version
 		self:Print(L["This appears to be the first time you have run the addon. Setting up default values."])

@@ -410,11 +410,6 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	bar.Info.BuffInfo = buff
 end
 
-local buffsPlugin = {}
-local debuffsPlugin = {}
-local othersDebuffsPlugin = {}
-local barsetsPlugin = {}
-
 function RoguePowerBars:CreateNewBarSet(name)
 	local db = self.profile
 	name = self:RemoveSpaces(name)
@@ -590,8 +585,7 @@ function RoguePowerBars:SetupOptions()
 end
 
 function RoguePowerBars:PopulateBuffs()
-	buffsPlugin.buffs = {}
-	local buffs = buffsPlugin.buffs
+	local buffs = {}
 	local buffList = self:GetBuffList()
 	-- for i = 1, #buffList do
 	for k, buffSettings in pairs(buffList) do
@@ -682,8 +676,7 @@ function RoguePowerBars:GetBarSets()
 end
 
 function RoguePowerBars:PopulateDebuffs()
-	debuffsPlugin.buffs = {}
-	local buffs = debuffsPlugin.buffs
+	local buffs = {}
 	local buffList = self:GetDebuffList()
 	-- for i = 1, #buffList do
 	for k, buffSettings in pairs(buffList) do
@@ -770,8 +763,7 @@ function RoguePowerBars:RemoveDebuffOption(name)
 end
 
 function RoguePowerBars:PopulateOthersDebuffs()
-	othersDebuffsPlugin.buffs = {}
-	local buffs = othersDebuffsPlugin.buffs
+	local buffs = {}
 	local listing = self:GetOthersDebuffsList()
 	-- for i = 1, #listing do
 	for k, settings in pairs(listing) do
@@ -858,23 +850,21 @@ function RoguePowerBars:RemoveOthersDebuffOption(name)
 end
 
 function RoguePowerBars:PopulateBarsetsSettings()
-	barsetsPlugin.barsets = {}
-
-	local db = self.profile
-	local barsets = db.barsets
-	local bs = barsetsPlugin.barsets
+	local profile = self.profile
+	local barsets = {}
+	local bs = {}
 	for i, v in pairs(barsets) do -- was ipairs
-		local barsetSettings = db.barsetsettings[v]
+		local barsetSettings = profile.barsetsettings[v]
 		bs[v] = {
 			type = "group",
 			name = v,
 			order = i,
 			get = function(info)
-				return db.barsetsettings[info[#info - 1]][info[#info]]
+				return profile.barsetsettings[info[#info - 1]][info[#info]]
 			end,
 			set = function(info, value)
 				self:UpdateBuffs()
-				db.barsetsettings[info[#info - 1]][info[#info]] = value
+				profile.barsetsettings[info[#info - 1]][info[#info]] = value
 			end,
 			args = {
 				IsEnabled = {
@@ -883,7 +873,7 @@ function RoguePowerBars:PopulateBarsetsSettings()
 					name = L["Enabled"],
 					desc = L["Enable %s"]:format(tostring(v)),
 					set = function(info, value)
-						db.barsetsettings[info[#info - 1]][info[#info]] = value
+						profile.barsetsettings[info[#info - 1]][info[#info]] = value
 						--self:Print("The " .. info[#info-1].." + ".. info[#info] .. " was set to: " .. tostring(value) )
 						--self:Print(L["The %s + %s was set to: %s"]:format(tostring(info[#info-1]),tostring(info[#info]),tostring(value)));
 						self:UpdateBuffs()
@@ -924,7 +914,7 @@ function RoguePowerBars:PopulateBarsetsSettings()
 					name = L["Grow Direction"],
 					values = {L["Up"], L["Down"], L["Both"]},
 					set = function(info, value)
-						db.barsetsettings[info[#info - 1]][info[#info]] = value
+						profile.barsetsettings[info[#info - 1]][info[#info]] = value
 						self:OnBarsetMove(BarSets[info[#info - 1]])
 					end
 				},

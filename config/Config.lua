@@ -1,7 +1,9 @@
 local RoguePowerBars = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
 local L = LibStub("AceLocale-3.0"):GetLocale("RoguePowerBars")
+local SharedMedia = LibStub("LibSharedMedia-3.0")
 
 local version = "@project-version@"
+local buffsPlugin = {}
 
 function RoguePowerBars:CreateOptions()
 	return {
@@ -173,7 +175,6 @@ function RoguePowerBars:CreateOptions()
 				type = "group",
 				name = L["Debuffs"],
 				desc = L["Debuff Settings"],
-				plugins = debuffsPlugin,
 				args = {
 					AddBarInput = {
 						order = 0,
@@ -206,7 +207,6 @@ function RoguePowerBars:CreateOptions()
 				type = "group",
 				name = L["Others' Debuffs"],
 				desc = L["Other players' debuffs"],
-				plugins = othersDebuffsPlugin,
 				args = {
 					AddBarInput = {
 						order = 0,
@@ -239,7 +239,6 @@ function RoguePowerBars:CreateOptions()
 				type = "group",
 				name = L["Barsets"],
 				desc = L["Barset Settings"],
-				plugins = barsetsPlugin,
 				args = {
 					AddBarInput = {
 						order = 0,

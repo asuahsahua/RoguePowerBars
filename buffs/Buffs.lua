@@ -14,21 +14,23 @@ local function buff(spellId, red, green, blue, alpha)
     }
 end
 
--- TODO: Fill these out with useful defaults
-RoguePowerBars.Defaults = RoguePowerBars.Defaults or {}
-RoguePowerBars.Defaults.Barsets = {
-    Buffs = {
-        -- Feint
-        buff(1966, 0.047, 0.675, 0.890),
-        -- Adrenaline Rush
-        buff(13750, 0.812, 0.639, 0.188)
-    },
-    Debuffs = {
-    },
-    OthersDebuffs = {
+function RoguePowerBars:GetBarsetDefaults()
+    return {
+        -- TODO: Fill these out with useful defaults
+        Buffs = {
+            -- Feint
+            buff(1966, 0.047, 0.675, 0.890),
+            -- Adrenaline Rush
+            buff(13750, 0.812, 0.639, 0.188),
+        },
+        Debuffs = {
+        },
+        OthersDebuffs = {
+        }
     }
-}
+end
 
+-- TODO: Parse the following and 
 --[[
 ["CrimsonVial"] = {
     ["Name"] = "Crimson Vial",

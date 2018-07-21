@@ -5,7 +5,17 @@ local SharedMedia = LibStub("LibSharedMedia-3.0")
 local version = "@project-version@"
 local buffsPlugin = {}
 
+local RESTORE = RoguePowerBars.Constants.RESTORE
+
 function RoguePowerBars:CreateOptions()
+	-- TODO: plugins isn't a great name for this, but I don't have a better one right now.
+	--       its what goes into the plugins field for these config options
+	self.plugins = {
+		buffs = {},
+		debuffs = {},
+		othersDebuffs = {}
+	}
+
 	return {
 		name = "RoguePowerBars",
 		handler = self,
@@ -142,7 +152,7 @@ function RoguePowerBars:CreateOptions()
 				type = "group",
 				name = L["Buffs"],
 				desc = L["Buff Settings"],
-				plugins = buffsPlugin,
+				plugins = self.plugins.buffs,
 				args = {
 					AddBarInput = {
 						order = 0,
@@ -165,7 +175,7 @@ function RoguePowerBars:CreateOptions()
 						name = L["Reset to default buffs"],
 						desc = L["Restore buff list to default values"],
 						func = function()
-							self:BuildDefaults(1, true)
+							self:BuildDefaults(RESTORE.BUFFS, true)
 							self:PopulateBuffs()
 						end
 					}
@@ -175,6 +185,7 @@ function RoguePowerBars:CreateOptions()
 				type = "group",
 				name = L["Debuffs"],
 				desc = L["Debuff Settings"],
+				plugins = self.plugins.debuffs,
 				args = {
 					AddBarInput = {
 						order = 0,
@@ -197,7 +208,7 @@ function RoguePowerBars:CreateOptions()
 						name = L["Reset to default debuffs"],
 						desc = L["Restore debuff list to default values"],
 						func = function()
-							self:BuildDefaults(2, true)
+							self:BuildDefaults(RESTORE.DEBUFFS, true)
 							self:PopulateDebuffs()
 						end
 					}
@@ -207,6 +218,7 @@ function RoguePowerBars:CreateOptions()
 				type = "group",
 				name = L["Others' Debuffs"],
 				desc = L["Other players' debuffs"],
+				plugins = self.plugins.othersDebuffs,
 				args = {
 					AddBarInput = {
 						order = 0,
@@ -229,7 +241,7 @@ function RoguePowerBars:CreateOptions()
 						name = L["Reset to defaults"], -- button isn't long enough for better description
 						desc = L["Restore other's debuffs list to default values"],
 						func = function()
-							self:BuildDefaults(3, true)
+							self:BuildDefaults(RESTORE.OTHERSDEBUFFS, true)
 							self:PopulateOthersDebuffs()
 						end
 					}

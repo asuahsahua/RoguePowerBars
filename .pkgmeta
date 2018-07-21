@@ -46,7 +46,7 @@ externals:
     libs/LibFunctional-1.0:
         url: git://git.wowace.com/wow/libfunctional-1-0/mainline.git
     libs/LibPlayerSpells-1.0:
-        url: git://git.wowace.com/wow/libplayerspells-1-0/mainline.git
+        url: https://github.com/AdiAddons/LibPlayerSpells-1.0.git
         tag: latest
 ignore:
     - scripts

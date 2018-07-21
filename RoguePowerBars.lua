@@ -16,8 +16,6 @@ end
 ---------------------------------------------
 -- Defined constants
 local UpdateRate = 0.01
-local version = "@project-version@"
-local revision = "@project-date-integer@"
 
 local BARTYPE_BUFF = 1
 
@@ -35,6 +33,12 @@ local debug = false
 RoguePowerBar_Buff_Default = {}
 RoguePowerBar_Debuff_Default = {}
 RoguePowerBar_OthersDebuffs_Default = {}
+
+function RoguePowerBars:GetVersion()
+	local version = "@project-version@"
+	local revision = "@project-date-integer@"
+	return version .. "-" .. revision
+end
 
 --------------------------------------------------------------
 -- Event handlers
@@ -54,14 +58,9 @@ end
 function RoguePowerBars:UpdateSavedData()
 	local _, _, num = string.find(self.profile.version, "%s*(%d+)")
 
-	if (num and tonumber(num) < 103) then --change to <= on next buff revision
-		self:Print(
-			L[
-				"Almost all of the spells have changed with patch 4.0.1+  It is highly recommended that you reset each buff type to defaults."
-			]
-		)
-	end
-	self.profile.version = revision
+	-- Nothing to do for now, in the future check the version and perform migrations as necessary
+
+	self.profile.version = self:GetVersion()
 end
 
 function RoguePowerBars:RegisterCombatEvents()

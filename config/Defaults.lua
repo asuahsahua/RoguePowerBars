@@ -3,6 +3,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("RoguePowerBars")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 
 local GROW = RoguePowerBars.Constants.GROW
+local band = _G.bit.band
 
 ----------------------------------------------
 -- Defaults for options
@@ -107,21 +108,21 @@ function RoguePowerBars:BuildDefaults(restore, clear)
 		profile.othersDebuffs = {}
 	end
 
-	if Bitwise_and(restore, RESTORE.BUFFS) then
+	if band(restore, RESTORE.BUFFS) then
 		defaultmatrix.buffDefault = {
 			defaults = defaults.Buffs,
 			destTable = profile.buffs,
 			defaultBarset = 1
 		}
 	end
-	if Bitwise_and(restore, RESTORE.DEBUFFS) then
+	if band(restore, RESTORE.DEBUFFS) then
 		defaultmatrix.debuffDefault = {
 			defaults = defaults.Debuffs,
 			destTable = profile.debuffs,
 			defaultBarset = 2
 		}
 	end
-	if Bitwise_and(restore, RESTORE.OTHERSDEBUFFS) then
+	if band(restore, RESTORE.OTHERSDEBUFFS) then
 		defaultmatrix.othersDebuffsDefault = {
 			defaults = defaults.OthersDebuffs,
 			destTable = profile.othersDebuffs,
@@ -142,7 +143,7 @@ function RoguePowerBars:BuildDefaults(restore, clear)
 						b = buff.StatusBarColor.b,
 						a = buff.StatusBarColor.a
 					},
-					IsEnabled = true,
+					IsEnabled = false,
 					Priority = 0,
 					Barset = set.defaultBarset
 				}

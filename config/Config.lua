@@ -161,6 +161,7 @@ function RoguePowerBars:CreateOptions()
 						desc = L["Input a buff name here to be tracked:"],
 						set = function(info, value)
 							self:CreateNewBuff(value)
+							-- FIXME: This should select that buff in the UI after it's been created
 						end
 					},
 					Divider = {

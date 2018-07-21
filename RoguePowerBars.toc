@@ -30,6 +30,7 @@ textures/Textures.lua
 
 RoguePowerBars.lua
 buffs/Buffs.lua
+buffs/Defaults.lua
 RoguePowerBars_UI.lua
 RoguePowerBars.xml
 

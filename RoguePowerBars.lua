@@ -29,11 +29,6 @@ local inCombat = false --FIXME tag
 
 local debug = false
 
--- TODO: Remove these, use a more robust defaults listing
-RoguePowerBar_Buff_Default = {}
-RoguePowerBar_Debuff_Default = {}
-RoguePowerBar_OthersDebuffs_Default = {}
-
 function RoguePowerBars:GetVersion()
 	local version = "@project-version@"
 	local revision = "@project-date-integer@"
@@ -49,6 +44,7 @@ function RoguePowerBars:OnInitialize()
 	self:UpdateBuffs()
 	self:InitializeBarSets()
 	self:RegisterCombatEvents()
+	self.initialized = true
 end
 
 function RoguePowerBars:Print(...)
@@ -581,6 +577,7 @@ function RoguePowerBars:SetupOptions()
 	self.optionsFrames.Barsets = ACD:AddToBlizOptions("RoguePowerBars", "Barsets", "RoguePowerBars", "Barsets")
 	-- self:RegisterModuleOptions("Profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(self.profile), "Profiles");
 	self:RegisterChatCommand("rpb", "ChatCommand")
+	self:RegisterChatCommand("rl", ReloadUI)
 end
 
 function RoguePowerBars:RemoveBuffOption(name)
@@ -913,7 +910,9 @@ end
 --New style accurate timer
 --May cause performance issues
 function RoguePowerBars:OnUIUpdate(frame, tick)
-	-- self,elapsed
+	if not self.initialized then
+		return
+	end
 
 	TimeSinceLastUIUpdate = TimeSinceLastUIUpdate + tick
 

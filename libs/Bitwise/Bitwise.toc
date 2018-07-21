@@ -1,0 +1,5 @@
+## Interface: 1700
+## Title: Bitwise
+## Author: John Porterfield
+## Notes: Implementation of Bitwise Operators
+Bitwise.lua

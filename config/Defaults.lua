@@ -66,31 +66,21 @@ local defaults = {
 
 function RoguePowerBars:InitializeDatabase()
     local db = LibStub("AceDB-3.0"):New("RoguePowerBarsDB", defaults)
-    self.db = db
-    self.profile = self.db.profile
-
-	local firstrun = true
-
-	--checks if spell data is already saved in the database to prevent
-	--clearing data from dbs created before the database had version information
-	if (db.buffs and next(db.buffs)) then
-		firstrun = false
-	elseif (db.debuffs and next(db.debuffs)) then
-		firstrun = false
-	elseif (db.othersDebuffs and next(db.othersDebuffs)) then
-		firstrun = false
-    end
-    
--- TODO remove this, for debugging
---self.db.ResetDB("default")
-self:BuildDefaults(4, true)
-self:Print("Testing reloading the entire everything!")
+	self.db = db
+	local profile = self.db.profile
+	self.profile = profile
+	local RESTORE = self.Constants.RESTORE
+	
+	local alreadyRun = (profile.buffs and #profile.buffs > 0)
+				  or (profile.debuffs and #profile.debuffs > 0)
+				  or (profile.othersDebuffs and #profile.othersDebuffs > 0)
+	local firstrun = not alreadyRun
 
 	--automatically push known spells to database if the current database doesn't
 	--have proper version information.
 	-- First run people will get a clean database while old dbs will get missing spells added
-	if (self.profile.version == nil or self.profile.version == 0) then
-		self:BuildDefaults(4, firstrun)
+	if (self.profile.version == nil or self.profile.version == 0 or firstrun) then
+		self:BuildDefaults(RESTORE.ALL, firstrun)
 		self.profile.version = revision --update db version
 		self:Print(L["This appears to be the first time you have run the addon. Setting up default values."])
 	else
@@ -103,12 +93,9 @@ function RoguePowerBars:BuildDefaults(restore, clear)
 	-- already exist.  Assumes you want at least one item tracked in each list type
 	-- even if it's disabled.  Removing full list resets to default on next load.
 
-	-- restore 	1=buffs
-	-- 		2=debuffs
-	-- 		3=otherdebuffs
-	-- 		4=all
-
 	local defaultmatrix = {}
+	local RESTORE = self.Constants.RESTORE
+	local defaults = RoguePowerBars:GetBarsetDefaults()
 
 	local buffs = {}
 	local debuffs = {}
@@ -116,32 +103,29 @@ function RoguePowerBars:BuildDefaults(restore, clear)
 	local _, _, classIndex = UnitClass("Player")
 	local profile = self.profile
 
-	if (restore == 1 or restore == 4) then
-		if (clear) then
-			profile.buffs = {}
-		end
+	if clear then
+		profile.buffs = {}
+		profile.debuffs = {}
+		profile.othersDebuffs = {}
+	end
+
+	if Bitwise_and(restore, RESTORE.BUFFS) then
 		defaultmatrix.buffDefault = {
-			defaults = buffs,
+			defaults = defaults.Buffs,
 			destTable = profile.buffs,
 			defaultBarset = 1
 		}
 	end
-	if (restore == 2 or restore == 4) then
-		if (clear) then
-			profile.debuffs = {}
-		end
+	if Bitwise_and(restore, RESTORE.DEBUFFS) then
 		defaultmatrix.debuffDefault = {
-			defaults = debuffs,
+			defaults = defaults.Debuffs,
 			destTable = profile.debuffs,
 			defaultBarset = 2
 		}
 	end
-	if (restore == 3 or restore == 4) then
-		if (clear) then
-			profile.othersDebuffs = {}
-		end
+	if Bitwise_and(restore, RESTORE.OTHERSDEBUFFS) then
 		defaultmatrix.othersDebuffsDefault = {
-			defaults = RoguePowerBar_OthersDebuffs_Default,
+			defaults = defaults.OthersDebuffs,
 			destTable = profile.othersDebuffs,
 			defaultBarset = 2
 		}
@@ -150,10 +134,9 @@ function RoguePowerBars:BuildDefaults(restore, clear)
 	for k, set in pairs(defaultmatrix) do
 		for i = 1, #set.defaults do
 			local buff = set.defaults[i]
-			local nameSansSpaces = self:RemoveSpaces(buff.Name)
-			if (not set.destTable[nameSansSpaces]) then
-				Debug(tostring(buff.Name) .. " added")
-				set.destTable[nameSansSpaces] = {
+			local tableKey = self:RemoveSpaces(buff.Name)
+			if (not set.destTable[tableKey]) then
+				set.destTable[tableKey] = {
 					Name = buff.Name,
 					Color = {
 						r = buff.StatusBarColor.r,

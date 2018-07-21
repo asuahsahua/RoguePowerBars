@@ -39,6 +39,11 @@ local inCombat = false --FIXME tag
 
 local debug = false
 
+-- TODO: Remove these, use a more robust defaults listing
+RoguePowerBar_Buff_Default = {}
+RoguePowerBar_Debuff_Default = {}
+RoguePowerBar_OthersDebuffs_Default = {}
+
 ----------------------------------------------
 -- Defaults for options
 local defaults = {

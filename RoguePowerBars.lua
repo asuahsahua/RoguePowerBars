@@ -26,9 +26,7 @@ local GROW_UP = 1
 local GROW_DOWN = 2
 local GROW_CENTER = 3
 
-local BARTYPE_TIMER = 1
-local BARTYPE_COMBO = 2
-local BARTYPE_ENERGY = 3
+local BARTYPE_BUFF = 1
 
 ----------------------------------------------
 -- Local variables
@@ -40,14 +38,6 @@ local TimeSinceLastUIUpdate = 0
 local inCombat = false --FIXME tag
 
 local debug = false
-
---local comboEnabled = true;
---local energyEnabled = true;
-
---local BARSET_COMBO = nil
---local BARSET_ENERGY = nil
-
---local energyTick = nil;
 
 ----------------------------------------------
 -- Defaults for options
@@ -61,8 +51,6 @@ local defaults = {
 		barsets = {
 			L["Buffs"],
 			L["Debuffs"]
-			--			L["Combo"],
-			--			L["Energy"]
 		},
 		barsetsettings = {
 			[L["Buffs"]] = {
@@ -89,30 +77,6 @@ local defaults = {
 					relativeto = "CENTER"
 				}
 			}
-			--			[L[Combo]] = {
-			--				IsEnabled = true,
-			--				Width = 256,
-			--				Scale = 1,
-			--				Alpha = 1,
-			--				GrowDirection = GROW_CENTER,
-			--				position = {
-			--					x = 0.5,
-			--					y = 0.5,
-			--					relativeto = "CENTER",
-			--				},
-			--			},
-			--			[L[Energy]] = {
-			--				IsEnabled = true,
-			--				Width = 256,
-			--				Scale = 1,
-			--				Alpha = 1,
-			--				GrowDirection = GROW_CENTER,
-			--				position = {
-			--					x = 0.5,
-			--					y = 0.5,
-			--					relativeto = "CENTER",
-			--				},
-			--			},
 		},
 		settings = {
 			Alpha = 1,
@@ -185,8 +149,6 @@ end
 
 function RoguePowerBars:OnEnable()
 	self:RegisterEvent("UNIT_AURA", "OnUnitAura")
-	--	self:RegisterEvent("UNIT_POWER", "OnUnitPower")
-	--	self:RegisterEvent("UNIT_COMBO_POINTS", "OnComboPoints")
 	self:RegisterEvent("PLAYER_TARGET_CHANGED", "OnTargetChanged")
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED", "OnTargetChanged")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", "OnEnteringWorld")
@@ -203,20 +165,6 @@ function RoguePowerBars:OnUnitAura(eventName, unitID)
 		self:UpdateBuffs()
 	end
 end
-
---function RoguePowerBars:OnUnitPower(eventName, unitID, valueChanged)
---	if unitID == "player" then
---		energyTick = GetTime();
---		energyCount = UnitPower("player");
---		self:UpdateBuffs();
---	end
---end
-
---function RoguePowerBars:OnComboPoints(eventName, unitId, valueChanged)
---	if unitID == "player" then
---		self:UpdateBuffs();
---	end
---end
 
 function RoguePowerBars:OnTargetChanged(eventName)
 	self:UpdateBuffs()
@@ -372,21 +320,11 @@ function RoguePowerBars:SetStatusBars(buffs)
 		end
 
 		if (db.barsetsettings[barset.Info.Name].IsEnabled) then
-			local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime, BARTYPE_TIMER)
+			local bar = self:CreateBar(buff.Name, barset, buff.ExpirationTime, BARTYPE_BUFF)
 			self:ConfigureBar(bar, buff)
 			self:UpdateBar(bar, GetTime())
 		end
 	end
-
-	--	if comboEnabled then
-	--		local bar = self:CreateBar("Combo Points", BARSET_COMBO, 0, BARTYPE_COMBO); -- FIXME: barset
-	--		self:ConfigureComboBar(bar);
-	--	end
-
-	--	if energyEnabled then
-	--		local bar = self:CreateBar("Energy", BARSET_ENERGY, 0, BARTYPE_ENERGY); -- FIXME: barset
-	--		self:ConfigureEnergyBar(bar);
-	--	end
 
 	--[[ old profiling info
 12.8 -status
@@ -550,103 +488,10 @@ function RoguePowerBars:ConfigureBar(bar, buff)
 	bar.Info.BuffInfo = buff
 end
 
---function RoguePowerBars:ConfigureComboBar(bar)
---	local barname = bar:GetName();
---	local statusbar 	= getglobal(barname.."_StatusBar")
---	local describetext 	= getglobal(barname.."_DescribeText");
---	local bg 			= getglobal(barname.."_BarBackGround");
---	local durationText 	= getglobal(barname.."_DurationText");
---	local barbgalpha = db.settings.BarBackgroundAlpha;
---	local description = "Combo Points"
---	local combopoints = GetComboPoints("player", "target");
---
---	bar.Info.Priority = 10
---
---	local c = {}
---	c.r, c.g, c.b, c.a = 0.9, 0.8, 0, 0.8
---	statusbar:SetMinMaxValues(0, 5);
---	statusbar:SetStatusBarColor(c.r, c.g, c.b, c.a)
---	statusbar:SetStatusBarTexture(db.settings["TexturePath"])
---	statusbar:SetValue(combopoints)
---
---	bg:GetBackdrop().bgFile = db.settings["TexturePath"];
---	bg:SetBackdropColor(c.r, c.g, c.b, barbgalpha)
---
---	if db.settings.TextEnabled then
---		describetext:Show();
---		describetext:SetText(description);
---	else
---		describetext:Hide();
---	end
---
---	if db.settings.DurationTextEnabled then
---		durationText:Show();
---		durationText:SetText(combopoints .. " / 5")
---	else
---		durationText:Hide();
---	end
---
---	getglobal(barname.."_Icon"):SetTexture("Interface\\Icons\\Ability_Rogue_MasterOfSubtlety")
---	bar:GetParent():Show();
---	bar:SetPoint("TOP", bar:GetParent(), "TOP");
---	bar:Show();
---	--bar.Info.BuffInfo = buff;
---end
-
---function RoguePowerBars:ConfigureEnergyBar(bar)
---	local barname = bar:GetName();
---	local statusbar 	= getglobal(barname.."_StatusBar")
---	local describetext 	= getglobal(barname.."_DescribeText");
---	local bg 			= getglobal(barname.."_BarBackGround");
---	local durationText 	= getglobal(barname.."_DurationText");
---	local barbgalpha = db.settings.BarBackgroundAlpha;
---	local energy = UnitPower("player")
---	local maxenergy = UnitManaMax("player")
---	local _,description = UnitPowerType("player")
---	description = description:sub(1,1):upper() .. description:sub(2):lower();
---	if energyTick then
---		energy = min(floor(energy + (GetTime() - energyTick) * 10), maxenergy)
---	end
---
---	bar.Info.Priority = 10
---
---	local c = {}
---	c.r, c.g, c.b, c.a = 0.9, 0.8, 0, 0.8
---	statusbar:SetMinMaxValues(0, maxenergy);
---	statusbar:SetStatusBarColor(c.r, c.g, c.b, c.a)
---	statusbar:SetStatusBarTexture(db.settings["TexturePath"])
---	statusbar:SetValue(energy)
---
---	bg:GetBackdrop().bgFile = db.settings["TexturePath"];
---	bg:SetBackdropColor(c.r, c.g, c.b, barbgalpha)
---
---	if db.settings.TextEnabled then
---		describetext:Show();
---		describetext:SetText(description);
---	else
---		describetext:Hide();
---	end
---
---	if db.settings.DurationTextEnabled then
---		durationText:Show();
---		durationText:SetText(energy .. " / " .. maxenergy)
---	else
---		durationText:Hide();
---	end
---
---	getglobal(barname.."_Icon"):SetTexture("Interface\\Icons\\Ability_Rogue_MasterOfSubtlety")
---	bar:GetParent():Show();
---	bar:SetPoint("TOP", bar:GetParent(), "TOP");
---	bar:Show();
---	--bar.Info.BuffInfo = buff;
---end
-
 local buffsPlugin = {}
 local debuffsPlugin = {}
 local othersDebuffsPlugin = {}
 local barsetsPlugin = {}
---local comboBarPlugin = { };
---local energyBarPlugin = { };
 
 local options = {
 	name = "RoguePowerBars",
@@ -879,44 +724,6 @@ local options = {
 				}
 			}
 		},
-		--		ComboBar={
-		--			type = "group",
-		--			name = L["ComboBar"],
-		--			desc = L["Combo Bar Settings"],
-		--			plugins = comboBarPlugin,
-		--			args = {
-		--				intro = {
-		--					order = 1,
-		--					type = "description",
-		--					name = L["Configure the Combo Bar"],
-		--				},
-		--				Enabled = {
-		--					order = 2,
-		--					type = "toggle",
-		--					name = L["Enabled"],
-		--					desc = L["Enable/Disable the Combo Bar"],
-		--				},
-		--			},
-		--		},
-		--		EnergyBar={
-		--			type = "group",
-		--			name = L["EnergyBar"],
-		--			desc = L["Energy Bar Settings"],
-		--			plugins = energyBarPlugin,
-		--			args = {
-		--				intro = {
-		--					order = 1,
-		--					type = "description",
-		--					name = L["Configure the Energy Bar"],
-		--				},
-		--				Enabled = {
-		--					order = 2,
-		--					type = "toggle",
-		--					name = L["Enabled"],
-		--					desc = L["Enable/Disable the Energy Bar"],
-		--				},
-		--			},
-		--		},
 		Barsets = {
 			type = "group",
 			name = L["Barsets"],
@@ -1096,14 +903,11 @@ function RoguePowerBars:SetupOptions()
 	self:PopulateDebuffs()
 	self:PopulateOthersDebuffs()
 	self:PopulateBarsetsSettings()
-	--	self:PopulateSpecialBarSettings();
 	self.optionsFrames.RoguePowerBars = ACD:AddToBlizOptions("RoguePowerBars", nil, nil, "General")
 	self.optionsFrames.Buffs = ACD:AddToBlizOptions("RoguePowerBars", "Buffs", "RoguePowerBars", "Buffs")
 	self.optionsFrames.Debuffs = ACD:AddToBlizOptions("RoguePowerBars", "Debuffs", "RoguePowerBars", "Debuffs")
 	self.optionsFrames.OthersDebuffs =
 		ACD:AddToBlizOptions("RoguePowerBars", "OthersDebuffs", "RoguePowerBars", "OthersDebuffs")
-	--	self.optionsFrames.ComboBar = ACD:AddToBlizOptions("RoguePowerBars", "ComboBar", "RoguePowerBars", "ComboBar");
-	--	self.optionsFrames.EnergyBar = ACD:AddToBlizOptions("RoguePowerBars", "EnergyBar", "RoguePowerBars", "EnergyBar");
 	self.optionsFrames.Barsets = ACD:AddToBlizOptions("RoguePowerBars", "Barsets", "RoguePowerBars", "Barsets")
 	-- self:RegisterModuleOptions("Profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db), "Profiles");
 	self:RegisterChatCommand("rpb", "ChatCommand")
@@ -1383,10 +1187,6 @@ function RoguePowerBars:RemoveOthersDebuffOption(name)
 	LibStub("AceConfigDialog-3.0"):CloseAll()
 end
 
---function RoguePowerBars:PopulateSpecialBarSettings()
---	energyBarPlugin.enabled = {};
---	comboBarPlugin.enabled = {};
---end
 function RoguePowerBars:PopulateBarsetsSettings()
 	barsetsPlugin.barsets = {}
 
@@ -1599,11 +1399,6 @@ end
 function RoguePowerBars:InitializeBarSets()
 	for k, v in pairs(db.barsets) do
 		local barset = self:CreateBarSet(v)
-		--		if v == 'Combo' then
-		--			BARSET_COMBO = barset
-		--		elseif v == 'Energy' then
-		--			BARSET_ENERGY = barset
-		--		end
 		barset:SetHeight("24") -- FIXME
 	end
 end
@@ -1671,7 +1466,7 @@ function RoguePowerBars:CreateBar(name, parentBarset, expirationTime, bartype)
 		BarType = bartype
 	}
 	_G[bar:GetName() .. "_DescribeText"]:SetText(name)
-	if bartype == BARTYPE_TIMER then
+	if bartype == BARTYPE_BUFF then
 		bar.Info.Duration = expirationTime - currentTime
 		bar.Info.TimeLeft = expirationTime - currentTime
 		bar.Info.ExpirationTime = expirationTime
@@ -1686,7 +1481,7 @@ function RoguePowerBars:UpdateBar(bar, updateTime)
 	local info = bar.Info
 	local statusbar = _G[bar:GetName() .. "_StatusBar"]
 	local durationtext = _G[bar:GetName() .. "_DurationText"]
-	if info.BarType == BARTYPE_TIMER then
+	if info.BarType == BARTYPE_BUFF then
 		info.TimeLeft = info.ExpirationTime - updateTime
 		bar:SetAlpha(self:GetFadeAlpha(bar))
 		if info.BuffInfo.ExpirationTime == 0 then
@@ -1706,73 +1501,9 @@ function RoguePowerBars:UpdateBar(bar, updateTime)
 			-- no time left!
 			self:RemoveBar(bar)
 		end
-	elseif info.BarType == BARTYPE_COMBO then
-	elseif info.BarType == BARTYPE_ENERGY then
-		local energy = UnitPower("player")
-		local maxenergy = UnitPowerMax("player")
-		if energyTick then
-		--	energy = min(floor(energy + (GetTime() - energyTick) * 10), maxenergy)
-		end
-		statusbar:SetValue(energy)
-		durationtext:SetText(string.format("%d / %d", energy, maxenergy))
 	end
 end
 
---[[
-function RoguePowerBars:CreateBar(name, parentBarset, expirationTime, bartype)
-	-- assumes parentBarset is the parent frame.
-	local bar;
-	local currentTime = GetTime();
-	local timeleft;
-	
-	if #BarsToRecycle > 0 then
-		bar = BarsToRecycle[#BarsToRecycle];
-		BarsToRecycle[#BarsToRecycle] = nil;
-	else
-		BarCount = BarCount + 1;
-		bar = CreateFrame("Frame", "RoguePowerBars_Bar_"..BarCount, parentBarset, "RoguePowerBarTemplate");
-	end
-	
-	if db.settings.Inverted then
-		timeleft = expirationTime - currentTime;
-	else
-	
-	end
-	
-	bar.Info = {
-		Name = name,
-		Duration = expirationTime - currentTime,
-		TimeLeft = expirationTime - currentTime,
-		ExpirationTime = expirationTime,
-		StartTime = currentTime,
-	}
-	_G[bar:GetName().."_DescribeText"]:SetText(name);
-	_G[bar:GetName().."_StatusBar"]:SetMinMaxValues(0, bar.Info.Duration);
-	self:AddBarToSet(bar, parentBarset);
-	return bar;
-end
-
-function RoguePowerBars:UpdateBar(bar, updateTime)
-	local info = bar.Info;
-	local statusbar = _G[bar:GetName().."_StatusBar"];
-	info.TimeLeft = info.ExpirationTime - updateTime;
-	bar:SetAlpha(self:GetFadeAlpha(bar));
-	if info.BuffInfo.ExpirationTime == 0 then
-		statusbar:SetValue(1);
-		_G[bar:GetName().."_DurationText"]:SetText("");
-	elseif info.TimeLeft >= 0 then
-		if db.settings.Inverted then
-			local min, max = statusbar:GetMinMaxValues()
-			statusbar:SetValue(max - info.TimeLeft);
-		else
-			statusbar:SetValue(info.TimeLeft);
-		end
-		_G[bar:GetName().."_DurationText"]:SetText(string.format("%.1f", info.TimeLeft));
-	else
-		self:RemoveBar(bar);
-	end
-end
-]]
 function RoguePowerBars:GetFadeAlpha(bar)
 	local timeleft = bar.Info.TimeLeft
 	local value

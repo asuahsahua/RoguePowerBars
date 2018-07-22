@@ -6,11 +6,8 @@ local RoguePowerBars = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
 local L = LibStub("AceLocale-3.0"):GetLocale("RoguePowerBars")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 
-local debugf = tekDebug and tekDebug:GetFrame("RoguePowerBars")
 local function Debug(...)
-	if debugf then
-		debugf:AddMessage(string.join(", ", ...))
-	end
+	-- FIXME: Better debugging messages
 end
 
 ---------------------------------------------
@@ -21,11 +18,6 @@ local BARTYPE_BUFF = 1
 
 ----------------------------------------------
 -- Local variables
-local BarSets = {} -- associative array
-local BarsToRecycle = {} -- normal array
-local BarCount = 0
-local TimeSinceLastUIUpdate = 0
-local inCombat = false --FIXME tag
 
 local debug = false
 
@@ -38,13 +30,22 @@ end
 --------------------------------------------------------------
 -- Event handlers
 function RoguePowerBars:OnInitialize()
+	self:InitializeStates()
 	self:InitializeDatabase()
 	self:SetupOptions()
 	self:ImportCustomTextures()
 	self:UpdateBuffs()
 	self:InitializeBarSets()
 	self:RegisterCombatEvents()
+end
+
+function RoguePowerBars:InitializeStates()
 	self.initialized = true
+	self.inCombat = false
+	self.timeSinceLastUIUpdate = 0
+	self.barSets = {} -- associative array
+	self.barCount = 0
+	self.barsToRecycle = {} -- normal array
 end
 
 function RoguePowerBars:Print(...)
@@ -87,11 +88,11 @@ end
 
 --FIXME Reminder of testing for combat checks
 function RoguePowerBars:OnRegenEnabled(eventName)
-	inCombat = false
+	self.inCombat = false
 end
 
 function RoguePowerBars:OnRegenDisabled(eventName)
-	inCombat = true
+	self.inCombat = true
 end
 
 -- function RoguePowerBars:OnProfileChanged(event, database, newProfileKey)
@@ -201,15 +202,15 @@ function RoguePowerBars:SetStatusBars(buffs)
 		--I really need to take care of this.
 
 		if buff.IsOn == "player" then -- my buff, on myself
-			barset = BarSets[db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset]]
+			barset = self.barSets[db.barsets[db.buffs[self:RemoveSpaces(buff.Name)].Barset]]
 		elseif buff.IsMine then -- my debuff, on target or focus
 			if
 				(buff and buff.Name and self:RemoveSpaces(buff.Name) and db.debuffs[self:RemoveSpaces(buff.Name)] and
 					db.debuffs[self:RemoveSpaces(buff.Name)].Barset and
 					db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset] and
-					BarSets[db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset]])
+					self.barSets[db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset]])
 			 then --FIXME  --temp fix
-				barset = BarSets[db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset]]
+				barset = self.barSets[db.barsets[db.debuffs[self:RemoveSpaces(buff.Name)].Barset]]
 			end
 		else -- someone else's debuff, on our target or focus
 			-- once got a random nil error here and I have no idea what caused it and have never seen it again
@@ -217,9 +218,9 @@ function RoguePowerBars:SetStatusBars(buffs)
 				(buff and buff.Name and self:RemoveSpaces(buff.Name) and db.othersDebuffs[self:RemoveSpaces(buff.Name)] and
 					db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset and
 					db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset] and
-					BarSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]])
+					self.barSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]])
 			 then --FIXME  --temp fix
-				barset = BarSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]]
+				barset = self.barSets[db.barsets[db.othersDebuffs[self:RemoveSpaces(buff.Name)].Barset]]
 			else
 				--self:RemoveSpaces(nil) --trigger error so i know it occured
 				if (buff) then
@@ -248,7 +249,7 @@ function RoguePowerBars:SetStatusBars(buffs)
 -4 -config
 -6.3 profileC
 ]]
-	for k, barset in pairs(BarSets) do
+	for k, barset in pairs(self.barSets) do
 		local label = _G[barset:GetName() .. "_BarsetText"]
 		label:Hide()
 		barset:SetScale(db.settings.Scale * db.barsetsettings[barset.Info.Name].Scale)
@@ -291,7 +292,7 @@ function RoguePowerBars:SetStatusBars(buffs)
 		--FIXME tagging to remember this is here
 		--combat testing reminder
 		if (db.settings.HideOOC) then
-			if (inCombat and db.barsetsettings[barset.Info.Name].IsEnabled) then
+			if (self.inCombat and db.barsetsettings[barset.Info.Name].IsEnabled) then
 				barset:Show()
 			else
 				barset:Hide()
@@ -532,9 +533,9 @@ function RoguePowerBars:RemoveBarset(name)
 
 		db.barsetsettings[name] = nil
 
-		local frame = BarSets[name]
+		local frame = self.barSets[name]
 		frame:Hide()
-		BarSets[name] = nil
+		self.barSets[name] = nil
 
 		self:PopulateBarsetsSettings()
 		self:UpdateBuffs()
@@ -612,9 +613,9 @@ function RoguePowerBars:PopulateBarsetsSettings()
 						--self:Print(L["The %s + %s was set to: %s"]:format(tostring(info[#info-1]),tostring(info[#info]),tostring(value)));
 						self:UpdateBuffs()
 						if (value) then
-							BarSets[info[#info - 1]]:Show()
+							self.barSets[info[#info - 1]]:Show()
 						else
-							BarSets[info[#info - 1]]:Hide()
+							self.barSets[info[#info - 1]]:Hide()
 						end
 					end
 				},
@@ -649,7 +650,7 @@ function RoguePowerBars:PopulateBarsetsSettings()
 					values = {L["Up"], L["Down"], L["Both"]},
 					set = function(info, value)
 						profile.barsetsettings[info[#info - 1]][info[#info]] = value
-						self:OnBarsetMove(BarSets[info[#info - 1]])
+						self:OnBarsetMove(self.barSets[info[#info - 1]])
 					end
 				},
 				Divider1 = {
@@ -702,7 +703,7 @@ function RoguePowerBars:InitializeBarSets()
 end
 
 function RoguePowerBars:SetupBarsetPositions()
-	for k, barset in pairs(BarSets) do
+	for k, barset in pairs(self.barSets) do
 		local settings = self.profile.barsetsettings[barset.Info.Name].position
 		local x = settings.x * UIParent:GetWidth()
 		local y = settings.y * UIParent:GetHeight()
@@ -711,28 +712,28 @@ function RoguePowerBars:SetupBarsetPositions()
 end
 
 function RoguePowerBars:CreateBarSet(name)
-	if not BarSets[name] then
+	if not self.barSets[name] then
 		local frame = CreateFrame("Frame", "RoguePowerBars_BarSet_" .. name, UIParent, "RoguePowerBarSetTemplate")
 		frame.Info = {
 			Name = name,
 			Bars = {}
 		}
-		BarSets[name] = frame
+		self.barSets[name] = frame
 		frame:SetPoint("CENTER", nil, "CENTER")
-		return BarSets[name]
+		return self.barSets[name]
 	else
 		error(L["Barset %s already exists."]:format(name))
 	end
 end
 
 function RoguePowerBars:GetBuffBarset() -- debug function
-	return BarSets[L["Buffs"]]
+	return self.barSets[L["Buffs"]]
 end
 
 function RoguePowerBars:AddBarToSet(barFrame, barSet)
 	local barSetFrame
 	if type(barSet) == "string" then
-		barSetFrame = BarSets[barSet]
+		barSetFrame = self.barSets[barSet]
 	elseif type(barSet) == "table" then
 		barSetFrame = barSet
 	end
@@ -746,12 +747,12 @@ function RoguePowerBars:CreateBar(name, parentBarset, expirationTime, bartype)
 	local currentTime = GetTime()
 	local timeleft
 
-	if #BarsToRecycle > 0 then
-		bar = BarsToRecycle[#BarsToRecycle]
-		BarsToRecycle[#BarsToRecycle] = nil
+	if #self.barsToRecycle > 0 then
+		bar = self.barsToRecycle[#self.barsToRecycle]
+		self.barsToRecycle[#self.barsToRecycle] = nil
 	else
-		BarCount = BarCount + 1
-		bar = CreateFrame("Frame", "RoguePowerBars_Bar_" .. BarCount, parentBarset, "RoguePowerBarTemplate")
+		self.barCount = self.barCount + 1
+		bar = CreateFrame("Frame", "RoguePowerBars_Bar_" .. self.barCount, parentBarset, "RoguePowerBarTemplate")
 	end
 
 	if self.profile.settings.Inverted then
@@ -821,7 +822,7 @@ end
 function RoguePowerBars:RemoveBar(bar)
 	bar:Hide()
 	self:RemoveBarFromSet(bar)
-	BarsToRecycle[#BarsToRecycle + 1] = bar
+	self.barsToRecycle[#self.barsToRecycle + 1] = bar
 	--todo: update barset.
 end
 
@@ -845,7 +846,7 @@ end
 
 function RoguePowerBars:ClearAllBars()
 	local notClearedYet
-	for i, t in pairs(BarSets) do
+	for i, t in pairs(self.barSets) do
 		notClearedYet = true
 		while notClearedYet do
 			for k, v in ipairs(t.Info.Bars) do
@@ -867,9 +868,9 @@ function RoguePowerBars:OnUIUpdate(frame, tick)
 		return
 	end
 
-	TimeSinceLastUIUpdate = TimeSinceLastUIUpdate + tick
+	self.timeSinceLastUIUpdate = self.timeSinceLastUIUpdate + tick
 
-	while (TimeSinceLastUIUpdate > UpdateRate) do
+	while (self.timeSinceLastUIUpdate > UpdateRate) do
 		local updateTime = GetTime()
 
 		for i, v in pairs(frame.Info.Bars) do
@@ -883,14 +884,14 @@ function RoguePowerBars:OnUIUpdate(frame, tick)
 		--I Don't really like putting this in an OnUpdate --tagged FIXME
 		--Really needed here?
 		if (self.profile.settings.HideOOC) then
-			if (inCombat and self.profile.barsetsettings[frame.Info.Name].IsEnabled) then
+			if (self.inCombat and self.profile.barsetsettings[frame.Info.Name].IsEnabled) then
 				frame:Show()
 			else
 				frame:Hide()
 			end
 		end
 
-		TimeSinceLastUIUpdate = TimeSinceLastUIUpdate - UpdateRate
+		self.timeSinceLastUIUpdate = self.timeSinceLastUIUpdate - UpdateRate
 	end
 end
 

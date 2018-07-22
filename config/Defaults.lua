@@ -143,7 +143,7 @@ function RoguePowerBars:BuildDefaults(restore, clear)
 						b = buff.StatusBarColor.b,
 						a = buff.StatusBarColor.a
 					},
-					IsEnabled = false,
+					IsEnabled = true,
 					Priority = 0,
 					Barset = set.defaultBarset
 				}

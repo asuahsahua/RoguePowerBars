@@ -138,12 +138,12 @@
       
       <OnLoad />
 
-      <OnUpdate function="OnUIUpdate" />
+      <OnUpdate function="RPB_OnUIUpdate" />
 
       <OnEvent />
 
        <OnMouseDown>
-         if ( button == "LeftButton" and not BarsAreLocked()) then
+         if ( button == "LeftButton" and not RPB_BarsAreLocked()) then
            self:StartMoving();
          end
        </OnMouseDown>
@@ -151,7 +151,7 @@
        <OnMouseUp>
          if ( button == "LeftButton" ) then
            self:StopMovingOrSizing();
-           OnBarsetMove(self);
+           RPB_OnBarsetMove(self);
          end
        </OnMouseUp>
 

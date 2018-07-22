@@ -26,6 +26,7 @@ Core.lua
 Constants.lua
 config/Config.lua
 config/Defaults.lua
+config/UserInterface.lua
 textures/Textures.lua
 
 RoguePowerBars.lua

@@ -561,25 +561,6 @@ function RoguePowerBars:CountInBarset(name)
 	return count
 end
 
-function RoguePowerBars:SetupOptions()
-	self.optionsFrames = {}
-	LibStub("AceConfig-3.0"):RegisterOptionsTable("RoguePowerBars", self:CreateOptions())
-	local ACD = LibStub("AceConfigDialog-3.0")
-	self:PopulateBuffs()
-	self:PopulateDebuffs()
-	self:PopulateOthersDebuffs()
-	self:PopulateBarsetsSettings()
-	self.optionsFrames.RoguePowerBars = ACD:AddToBlizOptions("RoguePowerBars", nil, nil, "General")
-	self.optionsFrames.Buffs = ACD:AddToBlizOptions("RoguePowerBars", "Buffs", "RoguePowerBars", "Buffs")
-	self.optionsFrames.Debuffs = ACD:AddToBlizOptions("RoguePowerBars", "Debuffs", "RoguePowerBars", "Debuffs")
-	self.optionsFrames.OthersDebuffs =
-		ACD:AddToBlizOptions("RoguePowerBars", "OthersDebuffs", "RoguePowerBars", "OthersDebuffs")
-	self.optionsFrames.Barsets = ACD:AddToBlizOptions("RoguePowerBars", "Barsets", "RoguePowerBars", "Barsets")
-	-- self:RegisterModuleOptions("Profiles", LibStub("AceDBOptions-3.0"):GetOptionsTable(self.profile), "Profiles");
-	self:RegisterChatCommand("rpb", "ChatCommand")
-	self:RegisterChatCommand("rl", ReloadUI)
-end
-
 function RoguePowerBars:RemoveBuffOption(name)
 	self.profile.buffs[self:RemoveSpaces(name)] = nil
 	self:PopulateBuffs()
@@ -708,40 +689,12 @@ end
 function RoguePowerBars:GetOthersDebuffsList()
 	return self.profile.othersDebuffs
 end
------------------------------------------------------------------
--- Slash command handler
-function RoguePowerBars:ChatCommand(input)
-	if not input or input:trim() == "" then
-		-- For whatever reason this needs to be called twice, the first call sometimes won't open to rpb
-		InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.RoguePowerBars)
-		InterfaceOptionsFrame_OpenToCategory(self.optionsFrames.RoguePowerBars)
-	elseif input == L["lock"] then
-		self:ToggleLocked()
-	elseif input == L["debug"] then
-		self:ToggleDebug()
-		if (debug) then
-			self:Print(L["Debug messages are now on"])
-		else
-			self:Print(L["Debug messages are now off"])
-		end
-	else
-		LibStub("AceConfigCmd-3.0").HandleCommand(RoguePowerBars, "rpb", "RoguePowerBars", input)
-	end
-end
-
-function RoguePowerBars:ToggleLocked()
-	self.profile.settings.Locked = not self.profile.settings.Locked
-	self:UpdateBuffs()
-end
-
-function RoguePowerBars:ToggleDebug()
-	debug = not debug
-end
 
 ------------------------------------------------------------------
 -- UI Functions
 
 function RoguePowerBars:InitializeBarSets()
+	self.barsets = {}
 	for k, v in pairs(self.profile.barsets) do
 		local barset = self:CreateBarSet(v)
 		barset:SetHeight("24") -- FIXME
@@ -938,32 +891,6 @@ function RoguePowerBars:OnUIUpdate(frame, tick)
 		end
 
 		TimeSinceLastUIUpdate = TimeSinceLastUIUpdate - UpdateRate
-	end
-end
-
---Old style simiaccurate timer
-function RoguePowerBars:OnUIUpdate2(frame, tick)
-	TimeSinceLastUIUpdate = TimeSinceLastUIUpdate + tick
-	if TimeSinceLastUIUpdate > UpdateRate then
-		local updateTime = GetTime()
-		for i, v in pairs(frame.Info.Bars) do
-			self:UpdateBar(v, updateTime)
-		end
-		if #frame.Info.Bars == 0 and self.profile.settings.Locked then
-			frame:Hide()
-		end
-
-		--I Don't really like putting this in an OnUpdate --tagged FIXME
-		--Really needed here?
-		if (self.profile.settings.HideOOC) then
-			if (inCombat and self.profile.barsetsettings[frame.Info.Name].IsEnabled) then
-				frame:Show()
-			else
-				frame:Hide()
-			end
-		end
-
-		TimeSinceLastUIUpdate = 0
 	end
 end
 

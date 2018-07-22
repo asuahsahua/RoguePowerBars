@@ -46,7 +46,7 @@ function RoguePowerBars:ChatCommand(input)
 		self:ToggleLocked()
 	elseif input == "debug" or input == L["debug"] then
 		self:ToggleDebug()
-		if (debug) then
+		if (self.debug) then
 			self:Print(L["Debug messages are now on"])
 		else
 			self:Print(L["Debug messages are now off"])
@@ -66,5 +66,5 @@ function RoguePowerBars:ToggleLocked()
 end
 
 function RoguePowerBars:ToggleDebug()
-	debug = not debug
+	self.debug = not self.debug
 end

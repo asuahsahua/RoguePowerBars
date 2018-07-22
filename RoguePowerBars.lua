@@ -6,10 +6,6 @@ local RoguePowerBars = LibStub("AceAddon-3.0"):GetAddon("RoguePowerBars")
 local L = LibStub("AceLocale-3.0"):GetLocale("RoguePowerBars")
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 
-local function Debug(...)
-	-- FIXME: Better debugging messages
-end
-
 ---------------------------------------------
 -- Defined constants
 local UpdateRate = 0.01
@@ -18,9 +14,6 @@ local BARTYPE_BUFF = 1
 
 ----------------------------------------------
 -- Local variables
-
-local debug = false
-
 function RoguePowerBars:GetVersion()
 	local version = "@project-version@"
 	local revision = "@project-date-integer@"
@@ -46,11 +39,20 @@ function RoguePowerBars:InitializeStates()
 	self.barSets = {} -- associative array
 	self.barCount = 0
 	self.barsToRecycle = {} -- normal array
+	self.debug = false
 end
 
 function RoguePowerBars:Print(...)
-	print("RoguePowerBars: " .. string.join(" ", ...))
+	print("[RoguePowerBars] " .. string.join(" ", ...))
 end
+
+-- TODO: Look into other debug addons, like AdiDebug
+function RoguePowerBars:Debug(...)
+	if self.debug then
+		print("[DEBUG RPB] " .. string.join(" ", ...))
+	end
+end
+
 
 function RoguePowerBars:UpdateSavedData()
 	local _, _, num = string.find(self.profile.version, "%s*(%d+)")
@@ -68,12 +70,6 @@ function RoguePowerBars:RegisterCombatEvents()
 	--Test Combat watching
 	self:RegisterEvent("PLAYER_REGEN_ENABLED", "OnRegenEnabled")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED", "OnRegenDisabled")
-end
-
-function RoguePowerBars:OnEnable()
-end
-
-function RoguePowerBars:OnDisable()
 end
 
 function RoguePowerBars:OnUnitAura(eventName, unitID)
@@ -151,7 +147,7 @@ function RoguePowerBars:UpdateBuffs()
 	for k, set in pairs(buffmatrix) do
 		name = "dummy"
 		buffIndex = 1
-		while name do
+		repeat
 			name, texture, count, buffType, duration, expirationTime, caster = UnitAura(set.target, buffIndex, set.filter)
 
 			if (set.source == "OthersDebuffsOnTarget" and caster == "player") then
@@ -185,7 +181,7 @@ function RoguePowerBars:UpdateBuffs()
 				end
 			end
 			buffIndex = buffIndex + 1
-		end
+		until not name
 	end
 	self:SetStatusBars(buffs)
 end
@@ -226,12 +222,12 @@ function RoguePowerBars:SetStatusBars(buffs)
 				if (buff) then
 					-- asks them to report it if they get the same error
 					-- this might spam people's default chat box.
-					Debug(
+					self:Debug(
 						"RoguePowerBars: PM Verik on curse the following: " ..
 							tostring(buff.Name) .. " " .. tostring(buff.Source) .. " " .. tostring(buff.IsOn) .. " " .. tostring(buff.Caster)
 					)
 				else
-					Debug("RoguePowerBars: no buff") -- hide this
+					self:Debug("RoguePowerBars: no buff") -- hide this
 				end
 			end
 		end
